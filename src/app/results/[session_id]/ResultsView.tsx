@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { Constellation } from "@/lib/types";
 import { RELATIONSHIPS } from "@/lib/relationships";
@@ -11,17 +11,45 @@ export default function ResultsView({
   topicLabel,
   profileSummary,
   constellation,
+  userEmail,
+  emailAlreadySent,
 }: {
   sessionId: string;
   topicLabel: string;
   profileSummary: string;
   constellation: Constellation;
+  userEmail: string | null;
+  emailAlreadySent: boolean;
 }) {
   const [flipped, setFlipped] = useState<Record<string, boolean>>({});
   const [showGuide, setShowGuide] = useState(false);
+  const [emailStatus, setEmailStatus] = useState<"sending" | "sent" | "skipped" | "failed">(
+    () => (emailAlreadySent ? "sent" : userEmail ? "sending" : "skipped")
+  );
+  const triggeredRef = useRef(false);
 
   const toggle = (key: string) =>
     setFlipped((prev) => ({ ...prev, [key]: !prev[key] }));
+
+  useEffect(() => {
+    if (triggeredRef.current) return;
+    if (emailAlreadySent || !userEmail) return;
+    triggeredRef.current = true;
+    fetch("/api/send-results", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sessionId }),
+    })
+      .then(async (res) => {
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
+        setEmailStatus(data.skipped ? "skipped" : "sent");
+      })
+      .catch((err) => {
+        console.error("send-results trigger failed:", err);
+        setEmailStatus("failed");
+      });
+  }, [sessionId, userEmail, emailAlreadySent]);
 
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-12 sm:py-16">
@@ -131,7 +159,34 @@ export default function ResultsView({
         })}
       </section>
 
-      <footer className="mt-16 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+      {userEmail && (
+        <div className="mt-12 text-center text-sm text-neutral-500">
+          {(emailStatus === "sent" || emailStatus === "sending") && (
+            <div>
+              ✓ Your results {emailStatus === "sending" ? "are being sent" : "were sent"} to{" "}
+              <span className="font-medium text-neutral-700">{userEmail}</span>
+            </div>
+          )}
+          {emailStatus === "skipped" && (
+            <div className="text-neutral-400">
+              (Email delivery isn&rsquo;t configured — results saved to your profile.)
+            </div>
+          )}
+          {emailStatus === "failed" && (
+            <div className="text-amber-600">
+              We couldn&rsquo;t send the email, but your results are saved to your profile.
+            </div>
+          )}
+          <Link
+            href={`/profile?email=${encodeURIComponent(userEmail)}`}
+            className="inline-block mt-3 underline underline-offset-4 text-neutral-700 hover:text-neutral-900"
+          >
+            View all your constellations →
+          </Link>
+        </div>
+      )}
+
+      <footer className="mt-12 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <Link
           href="/"
           className="text-sm text-neutral-600 underline underline-offset-4"

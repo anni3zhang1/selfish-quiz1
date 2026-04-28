@@ -2,22 +2,19 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import type {
-  AnswerEntry,
-  AnyQuestion,
-  Question,
-} from "@/lib/types";
+import type { AnswerEntry, AnyQuestion, Question } from "@/lib/types";
 import type { aiGovernanceQuiz } from "@/lib/quizzes/ai-governance";
 
 type Quiz = typeof aiGovernanceQuiz;
+type User = { email: string; name: string };
 
-type Phase = "questions" | "collect_info" | "submitting" | "error";
+type Phase = "questions" | "submitting" | "error";
 
 function isFreeformOnly(q: AnyQuestion): q is Extract<AnyQuestion, { freeformOnly: true }> {
   return "freeformOnly" in q && q.freeformOnly === true;
 }
 
-export default function QuizRunner({ quiz }: { quiz: Quiz }) {
+export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
   const router = useRouter();
 
   const [remainingMain, setRemainingMain] = useState<AnyQuestion[]>(
@@ -28,8 +25,6 @@ export default function QuizRunner({ quiz }: { quiz: Quiz }) {
   const [optionId, setOptionId] = useState<string | null>(null);
   const [freeformText, setFreeformText] = useState("");
   const [phase, setPhase] = useState<Phase>("questions");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const current: AnyQuestion | null = useMemo(() => {
@@ -51,7 +46,33 @@ export default function QuizRunner({ quiz }: { quiz: Quiz }) {
     setFreeformText("");
   }
 
-  function handleSubmit() {
+  async function submitConstellation(finalAnswers: AnswerEntry[]) {
+    setPhase("submitting");
+    setError(null);
+    try {
+      const res = await fetch("/api/constellation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topic: quiz.topic,
+          answers: finalAnswers,
+          name: user.name,
+          email: user.email,
+        }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? `Request failed (${res.status})`);
+      }
+      const data = (await res.json()) as { session_id: string };
+      router.push(`/results/${data.session_id}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+      setPhase("error");
+    }
+  }
+
+  function handleNext() {
     if (!current) return;
 
     let entry: AnswerEntry;
@@ -97,7 +118,6 @@ export default function QuizRunner({ quiz }: { quiz: Quiz }) {
 
     const nextAnswers = [...answers, entry];
 
-    // Drain current source list, then prepend followup if any.
     let nextPending = pendingFollowups;
     let nextRemaining = remainingMain;
     if (pendingFollowups.length > 0) {
@@ -115,35 +135,7 @@ export default function QuizRunner({ quiz }: { quiz: Quiz }) {
     resetDraft();
 
     if (nextPending.length === 0 && nextRemaining.length === 0) {
-      setPhase("collect_info");
-    }
-  }
-
-  async function handleFinalSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!name.trim() || !email.trim()) return;
-    setPhase("submitting");
-    setError(null);
-    try {
-      const res = await fetch("/api/constellation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          topic: quiz.topic,
-          answers,
-          name: name.trim(),
-          email: email.trim(),
-        }),
-      });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? `Request failed (${res.status})`);
-      }
-      const data = (await res.json()) as { session_id: string };
-      router.push(`/results/${data.session_id}`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
-      setPhase("error");
+      void submitConstellation(nextAnswers);
     }
   }
 
@@ -162,55 +154,19 @@ export default function QuizRunner({ quiz }: { quiz: Quiz }) {
     );
   }
 
-  if (phase === "collect_info" || phase === "error") {
+  if (phase === "error") {
     return (
-      <form onSubmit={handleFinalSubmit} className="space-y-6">
-        <div>
-          <h2 className="text-2xl font-serif mb-2">One last thing.</h2>
-          <p className="text-neutral-600 text-sm">
-            Where should we send your constellation?
-          </p>
-        </div>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1">
-              Name
-            </label>
-            <input
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900"
-              placeholder="Your name"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900"
-              placeholder="you@example.com"
-            />
-          </div>
-        </div>
-        {error && (
-          <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded p-3">
-            {error}
-          </div>
-        )}
+      <div className="py-20 max-w-md mx-auto text-center">
+        <h2 className="text-2xl font-serif mb-3">Something went wrong.</h2>
+        <p className="text-sm text-red-600 mb-6">{error}</p>
         <button
-          type="submit"
-          className="w-full py-3 bg-neutral-900 text-white rounded-lg font-medium hover:bg-neutral-800 transition"
+          type="button"
+          onClick={() => submitConstellation(answers)}
+          className="px-6 py-3 bg-neutral-900 text-white rounded-lg font-medium"
         >
-          Reveal my constellation
+          Try again
         </button>
-      </form>
+      </div>
     );
   }
 
@@ -294,7 +250,7 @@ export default function QuizRunner({ quiz }: { quiz: Quiz }) {
 
       <button
         type="button"
-        onClick={handleSubmit}
+        onClick={handleNext}
         disabled={!canSubmit}
         className="px-6 py-3 bg-neutral-900 text-white rounded-lg font-medium hover:bg-neutral-800 transition disabled:opacity-40 disabled:cursor-not-allowed"
       >

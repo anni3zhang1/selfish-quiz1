@@ -1,16 +1,34 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { topicCards } from "@/lib/quizzes";
+import { getServerUser } from "@/lib/user";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const user = await getServerUser();
+  if (!user) redirect("/start");
+
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-16 sm:py-24">
       <header className="mb-16 max-w-3xl">
+        <div className="text-xs uppercase tracking-wider text-neutral-500 mb-4">
+          Hello, {user.name.split(" ")[0]}
+        </div>
         <h1 className="text-4xl sm:text-5xl font-serif tracking-tight leading-tight">
           You find out who you are by encountering what you are not.
         </h1>
         <p className="mt-6 text-lg text-neutral-600">
           Take a quiz on any topic. Discover the 8 thinkers who map your mind.
         </p>
+        <div className="mt-5">
+          <Link
+            href={`/profile?email=${encodeURIComponent(user.email)}`}
+            className="text-sm text-neutral-600 underline underline-offset-4 hover:text-neutral-900"
+          >
+            View your profile →
+          </Link>
+        </div>
       </header>
 
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

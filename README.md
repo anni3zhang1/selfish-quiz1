@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Selfish Quiz (MVP)
 
-## Getting Started
+A web app where users take a topic quiz, get an "intellectual constellation" mapping them to 8 thinkers, and explore the results. First quiz: AI Governance.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Next.js (App Router) + TypeScript + Tailwind v4
+- Supabase (Postgres) for session storage
+- Anthropic Claude **Opus 4.7** (`claude-opus-4-7`) with adaptive thinking + structured outputs
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Install deps** (already done if you cloned post-scaffold):
+   ```
+   npm install
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. **Env vars** — copy `.env.local.example` → `.env.local` and fill in:
+   ```
+   ANTHROPIC_API_KEY=sk-ant-...
+   SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+   SUPABASE_SERVICE_KEY=eyJ...   # the SERVICE ROLE key, not anon
+   ```
 
-## Learn More
+3. **Supabase schema** — run `supabase/schema.sql` in the Supabase SQL editor for your project.
 
-To learn more about Next.js, take a look at the following resources:
+4. **Run dev**:
+   ```
+   npm run dev
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Routes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `/` — Landing with topic cards (only AI Governance is active)
+- `/quiz/ai_governance` — Quiz UI (one question at a time, conditional follow-ups)
+- `/results/[session_id]` — Constellation reveal (face-down → flip cards)
+- `POST /api/constellation` — Generates the constellation via Claude Opus 4.7
+- `GET /api/results/[session_id]` — Fetch a session's results
 
-## Deploy on Vercel
+## Notes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- The constellation API runs Opus 4.7 with adaptive thinking and `output_config.format` (JSON schema), so the response is always valid JSON.
+- `maxDuration` on the constellation route is set to 300s — adaptive thinking on Opus 4.7 with `effort: "high"` can take 30–60+ seconds for complex quizzes.
+- No auth — the `session_id` in the URL is the user's access token. Treat it as semi-private.
+- Admin view, share images, and additional topics are not yet implemented (per the build order in the spec).

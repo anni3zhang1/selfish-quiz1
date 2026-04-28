@@ -1,0 +1,101 @@
+{
+  "thinkers": [
+    {
+      "id": "albert_hirschman",
+      "name": "Albert Hirschman",
+      "tagline": "The economist who studied how things actually move, not where they should end up.",
+      "bio": "Albert O. Hirschman (1915–2012) was a German-born American economist whose work cut across development economics, political economy, and the history of ideas. Trained in Europe between the wars, he fled fascism, fought in the Spanish Civil War and the French Resistance, helped Varian Fry smuggle intellectuals out of Vichy France, and arrived in the U.S. via Berkeley before settling at the Institute for Advanced Study in Princeton. His method was to look at what actually happened in development projects and political institutions, and to take seriously the side-effects, the unintended consequences, and the moments when people surprise themselves.",
+      "their_world": [
+        {
+          "person": "Eugenio Colorni",
+          "relationship": "Brother-in-law and mentor",
+          "about": "Italian anti-fascist philosopher who shaped Hirschman's commitment to small, concrete observation over grand theory."
+        },
+        {
+          "person": "Varian Fry",
+          "relationship": "Wartime collaborator",
+          "about": "Worked together in Marseille smuggling intellectuals (including Hannah Arendt) out of Vichy France."
+        },
+        {
+          "person": "Clifford Geertz",
+          "relationship": "Colleague at IAS",
+          "about": "Anthropologist whose 'thick description' approach paralleled Hirschman's preference for situated, granular analysis over universal models."
+        },
+        {
+          "person": "Amartya Sen",
+          "relationship": "Intellectual heir",
+          "about": "Carried forward Hirschman's insistence that development economics take human capability and freedom seriously."
+        }
+      ],
+      "major_works": [
+        {
+          "title": "The Strategy of Economic Development",
+          "year": 1958,
+          "description": "Argued that development happens through 'unbalanced growth' — disequilibria pull resources into the right places. Against the planners who wanted to balance everything from the top."
+        },
+        {
+          "title": "Exit, Voice, and Loyalty",
+          "year": 1970,
+          "description": "His most-cited framework. When something declines, you can leave (exit), complain (voice), or stay anyway (loyalty). The interaction between these explains a lot about firms, parties, and countries."
+        },
+        {
+          "title": "The Passions and the Interests",
+          "year": 1977,
+          "description": "Intellectual history of how 18th-century thinkers came to believe commerce would tame human destructiveness. A sympathetic reconstruction of an argument that turned out to be partly wrong."
+        },
+        {
+          "title": "The Rhetoric of Reaction",
+          "year": 1991,
+          "description": "Identified three rhetorical patterns reactionaries use against reform: perversity, futility, jeopardy. Useful for spotting the same arguments today."
+        }
+      ],
+      "positions": [
+        {
+          "domain": "Development",
+          "text": "Development happens through 'possibilism' — taking seriously the things that might work, not just optimizing the things that should. Project failures often produce unexpected institutional capacities."
+        },
+        {
+          "domain": "Institutions",
+          "text": "Institutions decline when their members can no longer credibly threaten to leave or to speak up. Protect both channels and you protect the institution."
+        },
+        {
+          "domain": "Method",
+          "text": "Skeptical of universal models. Preferred small, situated observations that complicated existing theory rather than confirmed it."
+        }
+      ],
+      "intellectual_fingerprint": {
+        "stands_for": [
+          "unintended consequences",
+          "situated observation",
+          "complexity",
+          "possibilism",
+          "the dignity of small mechanisms"
+        ],
+        "stands_against": [
+          "grand theory",
+          "binary thinking",
+          "rhetorical reaction",
+          "optimization without attention to side-effects"
+        ]
+      },
+      "contentions": [
+        {
+          "vs": "Mainstream development economics (1950s-60s)",
+          "type": "methodological",
+          "text": "Refused the assumption that development could be modeled or planned from the top. Insisted on watching what happened in actual projects."
+        },
+        {
+          "vs": "Public choice theory",
+          "type": "conceptual",
+          "text": "Argued 'voice' (political action) is a real and rational response to decline, not a market failure. People aren't only 'exiting' — they sometimes stay and fight."
+        },
+        {
+          "vs": "Reactionary rhetoric (Burke, Le Bon, modern conservatives)",
+          "type": "political",
+          "text": "Showed that the same three argument shapes — 'this will backfire,' 'this won't work,' 'this will destroy what we have' — recur for two centuries against every reform."
+        }
+      ],
+      "entry_point": "Start with Exit, Voice, and Loyalty (1970) — short, lucid, and the framework that opens up everything else. Then The Rhetoric of Reaction (1991) for political relevance, or Worldly Philosopher (Adelman's biography, 2013) for the life."
+    }
+  ]
+}

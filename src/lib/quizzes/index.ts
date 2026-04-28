@@ -1,7 +1,25 @@
 import { aiGovernanceQuiz } from "./ai-governance";
+import { climateQuiz } from "./climate";
+import { longevityQuiz } from "./longevity";
+import { meaningCrisisQuiz } from "./meaning-crisis";
+import { bioethicsQuiz } from "./bioethics";
+import { truthMediaQuiz } from "./truth-media";
+import { economicDisruptionQuiz } from "./economic-disruption";
+import { gentrificationQuiz } from "./gentrification";
+import { homelessnessQuiz } from "./homelessness";
+import { gunRightsQuiz } from "./gun-rights";
 
 export const quizzes = {
   ai_governance: aiGovernanceQuiz,
+  climate: climateQuiz,
+  longevity: longevityQuiz,
+  meaning_crisis: meaningCrisisQuiz,
+  bioethics: bioethicsQuiz,
+  truth_media: truthMediaQuiz,
+  economic_disruption: economicDisruptionQuiz,
+  gentrification: gentrificationQuiz,
+  homelessness: homelessnessQuiz,
+  gun_rights: gunRightsQuiz,
 } as const;
 
 export type QuizSlug = keyof typeof quizzes;
@@ -24,7 +42,7 @@ export const topicCards = [
   {
     slug: "climate",
     name: "Climate",
-    available: false,
+    available: true,
     description:
       "Where do you stand on the hardest trade-offs of the climate crisis?",
     intention:
@@ -34,7 +52,7 @@ export const topicCards = [
   {
     slug: "longevity",
     name: "Longevity",
-    available: false,
+    available: true,
     description:
       "If we could dramatically extend healthy human life, should we — and who gets to?",
     intention:
@@ -44,7 +62,7 @@ export const topicCards = [
   {
     slug: "bioethics",
     name: "Bioethics",
-    available: false,
+    available: true,
     description:
       "Where do you draw the line on what humans should engineer about themselves?",
     intention:
@@ -54,7 +72,7 @@ export const topicCards = [
   {
     slug: "meaning_crisis",
     name: "Meaning Crisis",
-    available: false,
+    available: true,
     description:
       "What fills the void left by declining religion, nation, and community?",
     intention:
@@ -64,7 +82,7 @@ export const topicCards = [
   {
     slug: "gentrification",
     name: "Gentrification",
-    available: false,
+    available: true,
     description:
       "When a neighborhood improves economically and longtime residents are priced out, what should happen?",
     intention:
@@ -74,7 +92,7 @@ export const topicCards = [
   {
     slug: "homelessness",
     name: "Homelessness",
-    available: false,
+    available: true,
     description:
       "Is homelessness a policy failure, an individual failure, or something else entirely?",
     intention:
@@ -84,7 +102,7 @@ export const topicCards = [
   {
     slug: "gun_rights",
     name: "Gun Rights",
-    available: false,
+    available: true,
     description:
       "How do you think about individual rights, collective safety, and cultural identity?",
     intention:
@@ -94,7 +112,7 @@ export const topicCards = [
   {
     slug: "truth_media",
     name: "Truth & Media",
-    available: false,
+    available: true,
     description:
       "In a world of AI-generated content and institutional mistrust, how do you know what's true?",
     intention:
@@ -104,7 +122,7 @@ export const topicCards = [
   {
     slug: "economic_disruption",
     name: "Economic Disruption",
-    available: false,
+    available: true,
     description:
       "When automation reshapes work, who's responsible and what should be done?",
     intention:

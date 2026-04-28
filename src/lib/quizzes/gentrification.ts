@@ -1,0 +1,145 @@
+import type { AnyQuestion, Question } from "../types";
+
+const TOPIC = "gentrification";
+
+const f = (text: string) => ({ id: "E", text, freeform: true as const });
+
+const followupQuestions: Record<string, Question> = {
+  q3a: {
+    id: "q3a",
+    topic: TOPIC,
+    text: "\"Build more housing\" is the standard economist's answer. But in practice, new construction in high-demand neighborhoods is almost always luxury or market-rate. Inclusionary zoning — requiring developers to set aside affordable units — has produced only modest results. If the market won't build affordable housing on its own, what's the mechanism?",
+    options: [
+      { id: "A", text: "Public housing — the government should build it directly, as Vienna does; 60% of Viennese live in subsidized housing and the city is consistently ranked most livable in the world" },
+      { id: "B", text: "Upzone aggressively and let the market work — luxury buildings today become affordable buildings in 30 years as they age; filtering works if you let enough get built" },
+      { id: "C", text: "Community land trusts — take land out of the speculative market permanently; let communities own the land and control what gets built on it" },
+      { id: "D", text: "Mixed approach — no single tool works; you need public housing, inclusionary zoning, land trusts, vouchers, and market-rate construction simultaneously" },
+      f("None of these / I see it differently"),
+    ],
+  },
+};
+
+const main: AnyQuestion[] = [
+  {
+    id: "q1",
+    topic: TOPIC,
+    text: "In 2019, the National Community Reinvestment Coalition found that 135,000 people were displaced from gentrifying neighborhoods in the U.S. between 2000 and 2013. In Brooklyn's Williamsburg, median rent tripled between 2000 and 2020 while the Latino population dropped by 30%. Meanwhile, property values in those same neighborhoods rose dramatically, benefiting existing homeowners — many of them working-class families who bought decades ago. When a neighborhood \"improves\" economically and longtime renters are priced out, what's the right frame?",
+    options: [
+      { id: "A", text: "It's displacement, full stop — rising rents forcing people out of their homes and communities is a harm, regardless of what's moving in" },
+      { id: "B", text: "It's development — cities change, neighborhoods evolve; trying to freeze a neighborhood in time is neither possible nor desirable" },
+      { id: "C", text: "The framing depends on who you ask — homeowners gain wealth, renters lose homes; the same process is liberation for one group and destruction for another" },
+      { id: "D", text: "Both \"displacement\" and \"development\" miss the structural cause — gentrification is a symptom of housing scarcity; build enough housing and rising demand doesn't require displacement" },
+      f("None of these / I see it differently"),
+    ],
+    followups: {
+      D: {
+        type: "freeform",
+        prompt: "The \"just build more\" argument assumes displacement is primarily a supply problem. But when new construction in gentrifying neighborhoods is primarily luxury housing, does building more actually help the people being displaced?",
+      },
+    },
+  },
+  {
+    id: "q2",
+    topic: TOPIC,
+    text: "In 2023, the median home price in Austin, Texas surpassed $500,000 — up from $220,000 in 2015 — driven partly by tech workers relocating from San Francisco and the Bay Area. East Austin, historically a Black and Latino community shaped by redlining and segregation, saw some of the fastest price increases. New coffee shops, co-working spaces, and craft breweries replaced taquerias and barbershops. Is this cultural displacement a real harm, or nostalgia for a version of the neighborhood that was itself shaped by racism?",
+    options: [
+      { id: "A", text: "It's a real harm — community is built over generations; displacing the people who built a neighborhood's culture destroys something that can't be rebuilt elsewhere" },
+      { id: "B", text: "It's complicated — these neighborhoods were created by segregation; romanticizing them ignores that their residents were there because they had no choice, not because they chose community" },
+      { id: "C", text: "Both are true — the neighborhoods were shaped by racism AND the communities people built within those constraints are real, valuable, and worth protecting; acknowledging the history doesn't erase the present loss" },
+      { id: "D", text: "Cultural displacement is a distraction from the economic question — what matters is whether people can afford to stay; if they can, the culture will evolve on its own terms" },
+      f("None of these / I see it differently"),
+    ],
+  },
+  {
+    id: "q3",
+    topic: TOPIC,
+    text: "Rent control exists in some form in New York, San Francisco, Berlin, Stockholm, and dozens of other cities. Economists across the political spectrum — from Paul Krugman to Milton Friedman — have historically opposed it, arguing it reduces housing supply and benefits incumbents over newcomers. A 2019 Stanford study of San Francisco rent control found it reduced displacement by 15% but also reduced rental housing supply by 15% as landlords converted to condos. Tenant advocates argue the alternative — doing nothing — is mass displacement. Is rent control good policy?",
+    options: [
+      { id: "A", text: "Yes — the economic models assume displacement is costless; for real people losing their homes and communities, rent control is the most direct protection available" },
+      { id: "B", text: "No — the evidence is clear that rent control reduces supply long-term; the cure is worse than the disease; build more housing instead" },
+      { id: "C", text: "Rent control is a necessary stopgap but a terrible long-term solution — use it to prevent immediate displacement while building more housing and expanding voucher programs" },
+      { id: "D", text: "The debate is a proxy for a deeper question — should housing be a market commodity or a right? If it's a right, rent control is a patch on a system that needs fundamental redesign" },
+      f("None of these / I see it differently"),
+    ],
+    followups: { B: { type: "mc", question_id: "q3a" } },
+  },
+  {
+    id: "q4",
+    topic: TOPIC,
+    text: "In 2023, Airbnb had over 7 million listings worldwide. In Barcelona, Lisbon, and Amsterdam, short-term rentals have been blamed for driving up rents and hollowing out residential neighborhoods. Barcelona's mayor, Ada Colau, banned new tourist apartment licenses. New York City's Local Law 18 effectively banned most Airbnb listings in 2023, removing over 15,000 units. But Airbnb also provides income to homeowners and affordable travel options. Should cities restrict short-term rentals?",
+    options: [
+      { id: "A", text: "Yes, heavily — housing is for residents, not tourists; every apartment on Airbnb is one less home for a local family, and the data shows it raises rents citywide" },
+      { id: "B", text: "No — property owners should be free to use their property as they see fit; restricting Airbnb is government overreach that hurts small landlords and travelers alike" },
+      { id: "C", text: "Regulate, don't ban — cap the number of nights, require registration, and tax short-term rentals to fund affordable housing; balance tourism income with residential protection" },
+      { id: "D", text: "Airbnb is a symptom, not the cause — the housing crisis existed before short-term rentals; banning them is a visible, populist move that avoids the harder structural reforms" },
+      f("None of these / I see it differently"),
+    ],
+  },
+  {
+    id: "q5",
+    topic: TOPIC,
+    text: "The \"15-minute city\" — a concept championed by urbanist Carlos Moreno and adopted by Paris mayor Anne Hidalgo — envisions neighborhoods where everything residents need (work, shopping, healthcare, schools, recreation) is within a 15-minute walk or bike ride. Critics, including some conservative commentators, have called it a scheme to restrict movement and create \"open-air prisons.\" Proponents say it's just good urban design that reduces car dependency. But in practice, the neighborhoods closest to achieving this ideal are often the most expensive. Is walkability a public good or a luxury amenity?",
+    options: [
+      { id: "A", text: "It's a public good being captured as a luxury amenity — walkable neighborhoods are expensive because they're rare; build more of them and the premium disappears" },
+      { id: "B", text: "It's inherently a luxury — the infrastructure required (transit, mixed-use zoning, public spaces) costs money that poor neighborhoods don't get; walkability reflects existing inequality" },
+      { id: "C", text: "The walkability premium is a market signal — people want this and will pay for it; the answer is to remove zoning barriers and let the market build more walkable neighborhoods everywhere" },
+      { id: "D", text: "The concept is sound but politically naive — implementing 15-minute cities in existing neighborhoods accelerates gentrification; improving a neighborhood's livability raises its cost unless you simultaneously lock in affordability" },
+      f("None of these / I see it differently"),
+    ],
+  },
+  {
+    id: "q6",
+    topic: TOPIC,
+    text: "In the 1960s and 70s, the U.S. federal government demolished thousands of homes and businesses in Black neighborhoods under the banner of \"urban renewal\" — nicknamed \"Negro removal\" by James Baldwin. Highway construction through cities like Detroit, Atlanta, and the Bronx deliberately bisected Black communities. Today, some of those same neighborhoods are gentrifying, and the language of \"revitalization\" and \"renewal\" has returned. How should the history of deliberate destruction shape how we think about current neighborhood change?",
+    options: [
+      { id: "A", text: "It should be central — gentrification in formerly redlined and bulldozed neighborhoods is a second displacement of the same communities; the history makes the harm worse, not incidental" },
+      { id: "B", text: "History matters but can't paralyze us — every neighborhood has a painful history; we can acknowledge it while still allowing change, as long as current residents benefit" },
+      { id: "C", text: "The history demands reparative policy — not just preventing displacement, but actively returning wealth and decision-making power to the communities that were deliberately destroyed" },
+      { id: "D", text: "The parallel proves that top-down \"improvement\" of neighborhoods — whether by highway or by brunch restaurant — always serves outside interests; the only ethical development is community-controlled development" },
+      f("None of these / I see it differently"),
+    ],
+    followups: {
+      C: {
+        type: "freeform",
+        prompt: "What would reparative housing policy actually look like in practice — who gets what, decided by whom, and funded how?",
+      },
+    },
+  },
+  {
+    id: "q7",
+    topic: TOPIC,
+    text: "In Tokyo, housing prices have remained roughly stable for decades despite massive population — largely because Japan's zoning system allows much more construction by right. The national government, not local municipalities, controls zoning. In the U.S., local zoning boards — often dominated by existing homeowners — can block new housing to protect their property values. Economist William Fischel calls this \"homevoter\" politics. Is local control of zoning the root cause of the housing crisis?",
+    options: [
+      { id: "A", text: "Yes — NIMBYism is the primary barrier to housing supply; homeowners who block construction are the biggest obstacles to affordability, and zoning reform is the most important single policy change" },
+      { id: "B", text: "Partially — restrictive zoning matters, but the crisis also involves wage stagnation, financialization of housing, and the retreat of public investment; it's not just a supply problem" },
+      { id: "C", text: "Zoning reform is necessary but not sufficient — even with liberal zoning, the market builds for the high end; you need public investment in affordable housing alongside deregulation" },
+      { id: "D", text: "Local control has value — communities should have a say in what gets built where they live; the Tokyo model trades democratic participation for efficiency, and that's a real loss" },
+      f("None of these / I see it differently"),
+    ],
+  },
+  {
+    id: "q8",
+    topic: TOPIC,
+    text: "BlackRock, Invitation Homes, and other institutional investors bought over 100,000 single-family homes in the U.S. between 2020 and 2023, often outbidding individual buyers with all-cash offers. In some Sun Belt markets, institutional buyers accounted for over 25% of home purchases. They convert these homes to rentals and extract steady returns for shareholders. Meanwhile, homeownership rates for Americans under 35 are at historic lows. Is Wall Street buying up the housing stock a market efficiency or a systemic threat?",
+    options: [
+      { id: "A", text: "Systemic threat — housing should not be a financial asset class at this scale; institutional ownership concentrates wealth, raises rents, and locks a generation out of homeownership" },
+      { id: "B", text: "Market efficiency — institutional landlords provide professionally managed rentals; not everyone wants to own, and banning corporate buyers won't fix the underlying supply shortage" },
+      { id: "C", text: "The problem is the incentive structure — when housing appreciates faster than wages, of course capital flows in; fix the appreciation dynamic through supply and taxation, not by banning buyers" },
+      { id: "D", text: "This is the financialization endgame — housing, healthcare, education have all been turned into investment vehicles; the housing version is just the most visible; the problem is systemic, not sector-specific" },
+      f("None of these / I see it differently"),
+    ],
+  },
+  {
+    id: "q9",
+    topic: TOPIC,
+    text: "What's the gentrification question nobody is asking loudly enough?",
+    freeformOnly: true,
+  },
+];
+
+export const gentrificationQuiz = {
+  topic: TOPIC,
+  topicLabel: "Gentrification",
+  questions: main,
+  followupQuestions,
+};

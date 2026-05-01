@@ -12,14 +12,15 @@ import {
 } from "@react-email/components";
 import type { Constellation, RelationshipType } from "@/lib/types";
 
-const RELATIONSHIP_ORDER: { key: RelationshipType; label: string; oneLine: string; emoji: string }[] = [
-  { key: "precursor", label: "YOUR ROOT", oneLine: "This is where your thinking came from.", emoji: "🌱" },
-  { key: "mirror", label: "YOUR REFLECTION", oneLine: "This is you — somewhere else entirely.", emoji: "🪞" },
-  { key: "complement", label: "YOUR BLIND SPOT", oneLine: "This is what you don't naturally carry.", emoji: "🧩" },
-  { key: "antagonist", label: "YOUR SHARPENER", oneLine: "This is the strongest case against you.", emoji: "⚔️" },
-  { key: "shadow", label: "YOUR DISMISSAL", oneLine: "This is what you've been too quick to ignore.", emoji: "🌑" },
-  { key: "horizon", label: "YOUR NEXT STEP", oneLine: "This is one step further than you've gone.", emoji: "🌅" },
-  { key: "integrated_self", label: "YOUR DESTINATION", oneLine: "This is who you're becoming.", emoji: "✨" },
+const RELATIONSHIP_ORDER: { key: RelationshipType; label: string; emoji: string }[] = [
+  { key: "mirror", label: "Mirror", emoji: "🪞" },
+  { key: "twin", label: "Twin", emoji: "👯" },
+  { key: "complement", label: "Complement", emoji: "🧩" },
+  { key: "precursor", label: "Precursor", emoji: "🌱" },
+  { key: "antagonist", label: "Antagonist", emoji: "⚔️" },
+  { key: "horizon", label: "Horizon", emoji: "🌅" },
+  { key: "shadow", label: "Shadow", emoji: "🌑" },
+  { key: "integrated_self", label: "Integrated Self", emoji: "✨" },
 ];
 
 type Props = {
@@ -63,21 +64,18 @@ export default function ConstellationEmail({
                 <Text style={typeLabel}>
                   {r.emoji} {r.label}
                 </Text>
-                <Text style={oneLineStyle}>{r.oneLine}</Text>
                 <Heading as="h2" style={h2}>
                   {card.name}
                 </Heading>
-                {card.tagline && <Text style={tagline}>{card.tagline}</Text>}
+                <Text style={tagline}>{card.tagline}</Text>
                 <Text style={para}>
                   <strong style={bold}>Why you: </strong>
                   {card.match_reason}
                 </Text>
-                {card.entry_point && (
-                  <Text style={para}>
-                    <strong style={bold}>Start with: </strong>
-                    {card.entry_point}
-                  </Text>
-                )}
+                <Text style={para}>
+                  <strong style={bold}>What to look for: </strong>
+                  {card.what_to_learn}
+                </Text>
               </Section>
             );
           })}
@@ -164,17 +162,9 @@ const typeLabel: React.CSSProperties = {
   letterSpacing: 1.5,
   textTransform: "uppercase",
   color: "#737373",
-  margin: "0 0 4px",
+  margin: "0 0 8px",
   fontFamily: "ui-sans-serif, system-ui, sans-serif",
   fontWeight: 600,
-};
-
-const oneLineStyle: React.CSSProperties = {
-  fontSize: 12,
-  fontStyle: "italic",
-  color: "#a3a3a3",
-  margin: "0 0 10px",
-  fontFamily: "ui-sans-serif, system-ui, sans-serif",
 };
 
 const h2: React.CSSProperties = {

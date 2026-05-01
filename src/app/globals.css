@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fafaf8;
+  --background: #fafafa;
   --foreground: #171717;
 }
 
@@ -19,7 +19,7 @@ body {
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
-/* === 3D flip card === */
+/* 3D flip card */
 .flip-card {
   perspective: 1200px;
 }
@@ -27,7 +27,7 @@ body {
   position: relative;
   width: 100%;
   height: 100%;
-  transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
+  transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
   transform-style: preserve-3d;
 }
 .flip-card.flipped .flip-card-inner {
@@ -38,7 +38,7 @@ body {
   inset: 0;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  border-radius: 0.875rem;
+  border-radius: 1rem;
   overflow: hidden;
 }
 .flip-face-back {
@@ -48,77 +48,15 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
-/* === Pulse-to-reveal indicator (current "next" card) === */
-/* Uses box-shadow only to avoid conflicting with transform-based positioning */
-@keyframes reveal-pulse {
-  0%, 100% {
-    box-shadow:
-      0 0 0 0 rgba(255, 255, 255, 0.55),
-      0 6px 24px rgba(0, 0, 0, 0.12);
+@keyframes pulse-soft {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.06);
   }
   50% {
-    box-shadow:
-      0 0 0 14px rgba(255, 255, 255, 0),
-      0 8px 32px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.0);
   }
 }
-.pulse-reveal {
-  animation: reveal-pulse 2s ease-in-out infinite;
-}
-
-/* === Card entrance — opacity-only fade (transforms preserved for positioning) === */
-@keyframes card-enter {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
-}
-.card-enter {
-  animation: card-enter 0.55s cubic-bezier(0.2, 0.7, 0.3, 1) both;
-}
-
-/* === Shadow card: idle "lurking" shape (face-down state) === */
-.shadow-shape {
-  background: #1a0a2e;
-  filter: blur(4px);
-  opacity: 0.5;
-  transform: translate(8px, 8px);
-  transition: filter 0.6s ease-out, opacity 0.6s ease-out, transform 0.6s ease-out;
-}
-.shadow-shape.rising {
-  filter: blur(0);
-  opacity: 1;
-  transform: translate(0, 0);
-}
-
-/* === Modal transitions === */
-@keyframes modal-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-@keyframes modal-scale-in {
-  from { opacity: 0; transform: scale(0.97) translateY(8px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
-}
-@keyframes modal-slide-up {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-.modal-backdrop {
-  animation: modal-fade-in 0.25s ease-out;
-}
-.modal-panel-desktop {
-  animation: modal-scale-in 0.3s cubic-bezier(0.2, 0.7, 0.3, 1);
-}
-.modal-panel-mobile {
-  animation: modal-slide-up 0.35s cubic-bezier(0.2, 0.7, 0.3, 1);
-}
-
-/* === Skeleton shimmer (for placeholder cards if needed) === */
-@keyframes skeleton-shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-.skeleton {
-  background: linear-gradient(90deg, #e5e5e5 25%, #f5f5f5 50%, #e5e5e5 75%);
-  background-size: 200% 100%;
-  animation: skeleton-shimmer 1.6s infinite linear;
+.pulse-soft {
+  animation: pulse-soft 2.5s ease-in-out infinite;
 }

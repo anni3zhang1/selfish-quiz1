@@ -2,117 +2,78 @@ import type { RelationshipType } from "./types";
 
 export type RelationshipMeta = {
   key: RelationshipType;
-  label: string; // shown on face-down card (e.g. "YOUR REFLECTION")
-  shortName: string; // 1-word internal/legend label (e.g. "Mirror")
-  oneLine: string; // shown beneath label, also used in lists
+  label: string;
   emoji: string;
-  // Card face background — either Tailwind classes or inline gradient
-  faceBg: string;
-  // Color used for backdrop tints (modal background) — needs to be opacity-friendly hex
-  hex: string;
+  oneLine: string;
+  faceGradient: string; // tailwind classes
+  textOnFace: string; // tailwind text color for the face
 };
 
 export const RELATIONSHIPS: RelationshipMeta[] = [
   {
     key: "mirror",
-    label: "YOUR REFLECTION",
-    shortName: "Mirror",
-    oneLine: "This is you — somewhere else entirely.",
+    label: "Mirror",
     emoji: "🪞",
-    faceBg: "bg-[#C0C0C0]",
-    hex: "#C0C0C0",
+    oneLine: "Same way of seeing, different world.",
+    faceGradient: "bg-gradient-to-br from-slate-200 via-slate-300 to-slate-400",
+    textOnFace: "text-slate-900",
+  },
+  {
+    key: "twin",
+    label: "Twin",
+    emoji: "👯",
+    oneLine: "Same structure, further along in time.",
+    faceGradient: "bg-gradient-to-br from-amber-300 via-amber-400 to-amber-600",
+    textOnFace: "text-amber-950",
   },
   {
     key: "complement",
-    label: "YOUR BLIND SPOT",
-    shortName: "Complement",
-    oneLine: "This is what you don't naturally carry.",
+    label: "Complement",
     emoji: "🧩",
-    faceBg: "bg-[#00897B]",
-    hex: "#00897B",
+    oneLine: "Fills what you don't naturally carry.",
+    faceGradient: "bg-gradient-to-br from-teal-700 via-teal-800 to-teal-900",
+    textOnFace: "text-teal-50",
   },
   {
     key: "precursor",
-    label: "YOUR ROOT",
-    shortName: "Precursor",
-    oneLine: "This is where your thinking came from.",
+    label: "Precursor",
     emoji: "🌱",
-    faceBg: "bg-[#8D6E63]",
-    hex: "#8D6E63",
+    oneLine: "Who formed you — still working through.",
+    faceGradient: "bg-gradient-to-br from-yellow-700 via-amber-800 to-stone-700",
+    textOnFace: "text-amber-50",
   },
   {
     key: "antagonist",
-    label: "YOUR SHARPENER",
-    shortName: "Antagonist",
-    oneLine: "This is the strongest case against you.",
+    label: "Antagonist",
     emoji: "⚔️",
-    faceBg: "bg-[#C62828]",
-    hex: "#C62828",
+    oneLine: "The fight that sharpens your thinking.",
+    faceGradient: "bg-gradient-to-br from-red-700 via-red-800 to-red-950",
+    textOnFace: "text-red-50",
   },
   {
     key: "horizon",
-    label: "YOUR NEXT STEP",
-    shortName: "Horizon",
-    oneLine: "This is one step further than you've gone.",
+    label: "Horizon",
     emoji: "🌅",
-    faceBg: "bg-gradient-to-br from-[#FF7043] to-[#FFA726]",
-    hex: "#FF7043",
+    oneLine: "One step ahead, currently a stretch.",
+    faceGradient:
+      "bg-gradient-to-br from-purple-800 via-pink-600 to-orange-500",
+    textOnFace: "text-purple-50",
   },
   {
     key: "shadow",
-    label: "YOUR DISMISSAL",
-    shortName: "Shadow",
-    oneLine: "This is what you've been too quick to ignore.",
+    label: "Shadow",
     emoji: "🌑",
-    faceBg: "bg-[#4A148C]",
-    hex: "#4A148C",
+    oneLine: "A way of thinking you've suppressed but recognize.",
+    faceGradient: "bg-gradient-to-br from-violet-950 via-violet-900 to-black",
+    textOnFace: "text-violet-100",
   },
   {
     key: "integrated_self",
-    label: "YOUR DESTINATION",
-    shortName: "Integrated Self",
-    oneLine: "This is who you're becoming.",
+    label: "Integrated Self",
     emoji: "✨",
-    faceBg: "bg-gradient-to-br from-[#F9A825] to-[#FFD54F]",
-    hex: "#F9A825",
+    oneLine: "Who you're becoming at your best.",
+    faceGradient:
+      "bg-gradient-to-br from-yellow-100 via-yellow-300 to-amber-400",
+    textOnFace: "text-amber-900",
   },
 ];
-
-// Reveal order matches the spec; pulse indicator follows this list.
-export const REVEAL_ORDER: RelationshipType[] = [
-  "precursor",
-  "mirror",
-  "complement",
-  "antagonist",
-  "shadow",
-  "horizon",
-  "integrated_self",
-];
-
-// Spatial coordinates relative to user-card center (pixels). Desktop only.
-export const SPATIAL_OFFSETS: Record<RelationshipType, { x: number; y: number }> = {
-  mirror: { x: 280, y: 0 },
-  complement: { x: 200, y: 200 },
-  precursor: { x: 0, y: 280 },
-  antagonist: { x: -280, y: 0 },
-  horizon: { x: 0, y: -200 },
-  shadow: { x: 0, y: 60 },
-  integrated_self: { x: 0, y: -360 },
-};
-
-// Slight rotation per card for "placed not printed" feel.
-export const SPATIAL_ROTATIONS: Record<RelationshipType, number> = {
-  mirror: 2,
-  complement: -2,
-  precursor: 1.5,
-  antagonist: -1.5,
-  horizon: 2,
-  shadow: 0,
-  integrated_self: -1,
-};
-
-export function getRelationship(
-  key: RelationshipType
-): RelationshipMeta | undefined {
-  return RELATIONSHIPS.find((r) => r.key === key);
-}

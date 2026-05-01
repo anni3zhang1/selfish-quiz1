@@ -16,7 +16,9 @@ export default async function ResultsPage({
 
   const { data, error } = await supabase
     .from("quiz_sessions")
-    .select("id, topic, profile_summary, constellation, status, email, email_sent")
+    .select(
+      "id, topic, profile_summary, constellation, status, email, name, email_sent, created_at"
+    )
     .eq("id", session_id)
     .single();
 
@@ -49,10 +51,11 @@ export default async function ResultsPage({
     <ResultsView
       sessionId={data.id}
       topicLabel={topicLabel}
-      profileSummary={data.profile_summary ?? ""}
       constellation={data.constellation as Constellation}
+      userName={data.name ?? null}
       userEmail={data.email ?? null}
       emailAlreadySent={!!data.email_sent}
+      createdAt={data.created_at}
     />
   );
 }

@@ -153,10 +153,10 @@ export default async function ProfilePage({
                           <Link
                             key={r.key}
                             href={`/thinker/${slugify(card.name)}?from=${s.id}&relationship=${r.key}`}
-                            className={`block rounded-lg p-3 text-xs ${r.faceGradient} ${r.textOnFace} hover:opacity-90 transition`}
+                            className={`block rounded-lg p-3 text-xs ${r.faceBg} text-white hover:opacity-90 transition`}
                           >
                             <div className="opacity-80 text-[10px] uppercase tracking-wider mb-1">
-                              {r.emoji} {r.label}
+                              {r.emoji} {r.shortName}
                             </div>
                             <div className="font-semibold leading-tight">
                               {card.name}

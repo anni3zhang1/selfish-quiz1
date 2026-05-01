@@ -82,7 +82,7 @@ export default async function ThinkerPage({
       <header className="mb-10">
         {relMeta && (
           <div
-            className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-4 ${relMeta.faceGradient} ${relMeta.textOnFace}`}
+            className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-4 ${relMeta.faceBg} text-white`}
           >
             <span>{relMeta.emoji}</span>
             <span>{relMeta.label}</span>

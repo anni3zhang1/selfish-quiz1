@@ -8,8 +8,17 @@ const cardSchema = {
     tagline: { type: "string" },
     match_reason: { type: "string" },
     what_to_learn: { type: "string" },
+    entry_point: { type: "string" },
+    brief_bio: { type: "string" },
   },
-  required: ["name", "tagline", "match_reason", "what_to_learn"],
+  required: [
+    "name",
+    "tagline",
+    "match_reason",
+    "what_to_learn",
+    "entry_point",
+    "brief_bio",
+  ],
   additionalProperties: false,
 } as const;
 
@@ -20,23 +29,21 @@ const constellationSchema = {
     constellation: {
       type: "object",
       properties: {
-        mirror: cardSchema,
-        twin: cardSchema,
-        complement: cardSchema,
         precursor: cardSchema,
+        mirror: cardSchema,
+        complement: cardSchema,
         antagonist: cardSchema,
-        horizon: cardSchema,
         shadow: cardSchema,
+        horizon: cardSchema,
         integrated_self: cardSchema,
       },
       required: [
-        "mirror",
-        "twin",
-        "complement",
         "precursor",
+        "mirror",
+        "complement",
         "antagonist",
-        "horizon",
         "shadow",
+        "horizon",
         "integrated_self",
       ],
       additionalProperties: false,
@@ -48,29 +55,34 @@ const constellationSchema = {
 
 const SYSTEM_PROMPT = `You are generating an intellectual constellation for a user based on their answers to a quiz on a specific topic.
 
-The constellation maps the user to 8 thinkers in different relationship types. Each relationship type teaches something different:
+The constellation maps the user to 7 thinkers in different relationship types. Each relationship type teaches something different:
 
-- MIRROR: Same way of being interested, different domain. The user recognizes themselves across distance.
-- TWIN: Same structure, further along in time. "That's me, later."
-- COMPLEMENT: Fills what the user doesn't naturally carry.
-- PRECURSOR: Who formed them — they're still working through this thinker.
-- ANTAGONIST: Fundamentally different frame. The fight sharpens their thinking.
-- HORIZON: One developmental step ahead. Slightly uncomfortable to read.
-- SHADOW: A way of thinking they've suppressed but would recognize.
-- INTEGRATED SELF: Who they're becoming at their best. Has resolved the tension they're still in.
+- PRECURSOR (YOUR ROOT): Where their thinking came from. Who formed them — they are still working through this thinker.
+- MIRROR (YOUR REFLECTION): Same way of seeing, somewhere else entirely. The user recognizes themselves across distance.
+- COMPLEMENT (YOUR BLIND SPOT): What the user does not naturally carry. Fills a missing register.
+- ANTAGONIST (YOUR SHARPENER): The strongest case against the user. Fundamentally different frame; the fight sharpens their thinking.
+- SHADOW (YOUR DISMISSAL): What the user has been too quick to ignore. A way of thinking they have suppressed but would recognize if they let themselves see it. Can be a framework or movement, not just a person.
+- HORIZON (YOUR NEXT STEP): One step further than the user has gone. Slightly uncomfortable to read. A developmental edge.
+- INTEGRATED SELF (YOUR DESTINATION): Who the user is becoming at their best. Has resolved the tension the user is still in.
 
 MATCHING RULES:
 - Match on epistemic structure, not surface topic.
 - Maximum domain distance, minimum cognitive distance (e.g. a physicist can be a Mirror for someone in tech if they make the same cognitive moves).
 - The matching logic must be traceable to specific answers the user gave — never generic.
 - Each match_reason must cite what the user actually said or chose, by question id and option (e.g. "Q1: D, Q3: E").
-- Never assign a thinker who is obvious or expected based on surface topic.
-- The Shadow can be a framework or movement, not just a person.
+- Never assign a thinker who is obvious or expected based on the surface topic.
 - Do not make the constellation generic — it should only fit this user.
-- Tagline: a one-line claim about who the thinker is — not a description.
-- match_reason: 1–2 sentences citing specific answers.
-- what_to_learn: what the user should look for from this thinker, given their lens.
-- profile_summary: 2–3 sentences describing the user's core epistemic lens based on their answers.`;
+
+PER-CARD CONTENT:
+- name: full name of the thinker (or, for Shadow, a movement / school / framework if more apt).
+- tagline: a one-line claim about who the thinker is — not a description. Active voice; no hedging.
+- match_reason: 1–2 sentences citing specific answers and the cognitive move that triggered the match.
+- what_to_learn: what the user should look for from this thinker, given their lens. 1–2 sentences.
+- entry_point: a single concrete starting point. Format: "Read X (year)" or "Watch X" or "Start with X" — one specific work, essay, lecture, or book the user can encounter today.
+- brief_bio: 2–3 sentences on who this person is and why they matter. Plain biographical context — no flattery, no jargon.
+
+PROFILE SUMMARY:
+- 2–3 sentences describing the user's core epistemic lens based on their answers.`;
 
 function formatAnswers(topic: string, answers: AnswerEntry[]): string {
   const header = `Topic: ${topic}\n\nUSER'S QUIZ ANSWERS:\n`;

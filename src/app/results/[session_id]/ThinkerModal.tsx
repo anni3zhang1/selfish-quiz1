@@ -6,17 +6,26 @@ import type { RelationshipType } from "@/lib/types";
 import { getRelationship } from "@/lib/relationships";
 import { slugify } from "@/lib/thinkers";
 
-type PartialCard = {
+type PreviewCard = {
   name: string;
   tagline: string;
   match_reason?: string;
-  entry_point?: string;
 };
+
+function truncateToSentences(text: string, maxSentences: number): string {
+  const trimmed = text.trim();
+  // Match sentence endings followed by whitespace
+  const matches = [...trimmed.matchAll(/[.!?]+(?=\s|$)/g)];
+  if (matches.length <= maxSentences) return trimmed;
+  const cutoff = matches[maxSentences - 1];
+  if (cutoff.index === undefined) return trimmed;
+  const endIndex = cutoff.index + cutoff[0].length;
+  return trimmed.slice(0, endIndex).trimEnd() + "…";
+}
 
 type Props = {
   type: RelationshipType;
-  card: PartialCard;
-  isDetailLoading: boolean;
+  card: PreviewCard;
   sessionId: string;
   hasPrev: boolean;
   hasNext: boolean;
@@ -28,7 +37,6 @@ type Props = {
 export default function ThinkerModal({
   type,
   card,
-  isDetailLoading,
   sessionId,
   hasPrev,
   hasNext,
@@ -54,107 +62,79 @@ export default function ThinkerModal({
 
   if (!meta) return null;
 
-  const accentColor = meta.hex;
+  const profileHref = card.name
+    ? `/thinker/${slugify(card.name)}?from=${sessionId}&relationship=${type}`
+    : null;
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
       onClick={onClose}
     >
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/60" aria-hidden />
 
-      {/* Panel */}
+      {/* Panel — portrait card-style */}
       <div
         onClick={(e) => e.stopPropagation()}
-        className="modal-panel relative w-full sm:w-[90vw] sm:max-w-5xl sm:rounded-2xl bg-white sm:max-h-[90vh] max-h-[95vh] flex flex-col"
+        className={`modal-panel relative w-[340px] sm:w-[380px] max-h-[85vh] overflow-y-auto rounded-2xl flex flex-col shadow-2xl ${meta.faceGradient} ${meta.textOnFace}`}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-neutral-100 shrink-0">
-          <div
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold uppercase tracking-wider"
-            style={{ backgroundColor: `${accentColor}22`, color: accentColor }}
-          >
-            <span>{meta.emoji}</span>
-            <span>{meta.label}</span>
+        {/* Header — type label + close */}
+        <div className="flex items-start justify-between px-6 pt-5 pb-2 shrink-0">
+          <div className="text-2xl font-semibold tracking-tight opacity-90">
+            {meta.label}
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="text-2xl leading-none text-neutral-400 hover:text-neutral-800 px-2 transition"
+            className="text-3xl leading-none opacity-70 hover:opacity-100 px-1 -mr-1 transition"
           >
             ×
           </button>
         </div>
 
-        {/* Scrollable body */}
-        <div className="overflow-y-auto px-6 py-6 flex-1 [scrollbar-width:thin]">
-          <h2 className="text-3xl font-bold leading-tight mb-1">
+        {/* Body — emoji, name, tagline, CTA */}
+        <div className="px-6 pt-4 pb-6 flex-1 flex flex-col">
+          <div className="text-6xl mb-6 opacity-90">{meta.emoji}</div>
+
+          <h2 className="text-2xl sm:text-3xl font-bold leading-tight mb-3">
             {card.name}
           </h2>
-          <p className="text-xl italic text-neutral-500 mb-5">{card.tagline}</p>
+          <p className="text-base italic opacity-75 mb-6 leading-relaxed">
+            {card.tagline}
+          </p>
 
-          <hr className="border-neutral-100 mb-5" />
-
-          {/* Why you're matched */}
-          <div className="mb-5">
-            <div className="text-sm uppercase tracking-wider font-semibold text-neutral-400 mb-2">
-              Why you&rsquo;re matched
-            </div>
-            {isDetailLoading || !card.match_reason ? (
-              <div className="space-y-2">
-                <div className="animate-pulse bg-gray-200 rounded h-5 w-full" />
-                <div className="animate-pulse bg-gray-200 rounded h-5 w-4/5" />
+          {card.match_reason && (
+            <div className="mb-8 rounded-xl bg-white/10 px-4 py-3">
+              <div className="text-[10px] uppercase tracking-widest font-semibold opacity-70 mb-1.5">
+                Why you&rsquo;re matched
               </div>
-            ) : (
-              <p
-                className="text-base text-neutral-800 leading-relaxed fade-in"
-              >
-                {card.match_reason}
+              <p className="text-sm leading-relaxed opacity-95">
+                {truncateToSentences(card.match_reason, 3)}
               </p>
-            )}
-          </div>
-
-          <hr className="border-neutral-100 mb-5" />
-
-          {/* Start here */}
-          <div className="mb-6">
-            <div className="text-sm uppercase tracking-wider font-semibold text-neutral-400 mb-2">
-              Start here
             </div>
-            {isDetailLoading || !card.entry_point ? (
-              <div className="space-y-2">
-                <div className="animate-pulse bg-gray-200 rounded h-5 w-full" />
-                <div className="animate-pulse bg-gray-200 rounded h-5 w-3/5" />
-              </div>
-            ) : (
-              <p
-                className="text-base font-semibold text-neutral-900 leading-relaxed fade-in"
-              >
-                {card.entry_point}
-              </p>
-            )}
-          </div>
-
-          {card.name && (
-            <Link
-              href={`/thinker/${slugify(card.name)}?from=${sessionId}&relationship=${type}`}
-              className="text-base font-semibold underline underline-offset-4 hover:opacity-70 transition"
-              style={{ color: accentColor }}
-            >
-              Explore full profile →
-            </Link>
           )}
+
+          <div className="mt-auto">
+            {profileHref && (
+              <Link
+                href={profileHref}
+                className="block w-full text-center py-3.5 px-5 rounded-xl text-base font-semibold bg-white/20 hover:bg-white/30 text-white transition backdrop-blur-sm"
+              >
+                See full profile →
+              </Link>
+            )}
+          </div>
         </div>
 
         {/* Navigation footer */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-neutral-100 shrink-0 text-base">
+        <div className="flex items-center justify-between px-6 py-3 shrink-0 text-sm border-t border-white/15">
           <button
             type="button"
             onClick={onPrev}
             disabled={!hasPrev}
-            className="disabled:opacity-30 text-neutral-600 hover:text-neutral-900 transition"
+            className="disabled:opacity-30 opacity-80 hover:opacity-100 transition"
           >
             ← Previous
           </button>
@@ -162,7 +142,7 @@ export default function ThinkerModal({
             type="button"
             onClick={onNext}
             disabled={!hasNext}
-            className="disabled:opacity-30 text-neutral-600 hover:text-neutral-900 transition"
+            className="disabled:opacity-30 opacity-80 hover:opacity-100 transition"
           >
             Next →
           </button>

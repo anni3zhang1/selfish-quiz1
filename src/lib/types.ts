@@ -62,27 +62,30 @@ export type ConstellationResponse = {
 
 // === Thinker profile (per-user, per-thinker, generated on-demand) ===
 
-export type ThinkerIdea = {
+export type ThinkerArgument = {
   claim: string;
   example: string;
-  why_matters: string;
+  why_it_matters: string;
 };
 
-export type ThinkerEntryPoint = {
-  title: string;
-  why: string;
+export type ThinkerTension = {
+  belief_a: string;
+  belief_b: string;
+  explanation: string;
+};
+
+export type ThinkerQuestion = {
+  question: string;
+  what_you_said: string;
+  how_thinker_sees_it: string;
 };
 
 export type ThinkerProfileData = {
   why_matched: string;
-  how_they_think: string;
+  what_they_believe: string;
+  core_arguments: ThinkerArgument[];
   where_they_come_from: string;
-  ideas_that_matter: ThinkerIdea[];
-  what_theyre_arguing: string;
-  internal_tension: string;
-  where_to_start: {
-    to_start: ThinkerEntryPoint;
-    to_go_deep: ThinkerEntryPoint;
-    surprising: ThinkerEntryPoint;
-  };
+  how_they_think: string;
+  tension: ThinkerTension;
+  questions_worth_sitting_with: ThinkerQuestion[];
 };

@@ -19,24 +19,36 @@ type Body = {
   relationship_type?: RelationshipType;
 };
 
-const entryPointSchema = {
-  type: "object",
-  properties: {
-    title: { type: "string" },
-    why: { type: "string" },
-  },
-  required: ["title", "why"],
-  additionalProperties: false,
-} as const;
-
-const ideaSchema = {
+const argumentSchema = {
   type: "object",
   properties: {
     claim: { type: "string" },
     example: { type: "string" },
-    why_matters: { type: "string" },
+    why_it_matters: { type: "string" },
   },
-  required: ["claim", "example", "why_matters"],
+  required: ["claim", "example", "why_it_matters"],
+  additionalProperties: false,
+} as const;
+
+const tensionSchema = {
+  type: "object",
+  properties: {
+    belief_a: { type: "string" },
+    belief_b: { type: "string" },
+    explanation: { type: "string" },
+  },
+  required: ["belief_a", "belief_b", "explanation"],
+  additionalProperties: false,
+} as const;
+
+const questionSchema = {
+  type: "object",
+  properties: {
+    question: { type: "string" },
+    what_you_said: { type: "string" },
+    how_thinker_sees_it: { type: "string" },
+  },
+  required: ["question", "what_you_said", "how_thinker_sees_it"],
   additionalProperties: false,
 } as const;
 
@@ -44,34 +56,29 @@ const profileSchema = {
   type: "object",
   properties: {
     why_matched: { type: "string" },
-    how_they_think: { type: "string" },
-    where_they_come_from: { type: "string" },
-    ideas_that_matter: {
+    what_they_believe: { type: "string" },
+    core_arguments: {
       type: "array",
-      items: ideaSchema,
+      items: argumentSchema,
       minItems: 1,
     },
-    what_theyre_arguing: { type: "string" },
-    internal_tension: { type: "string" },
-    where_to_start: {
-      type: "object",
-      properties: {
-        to_start: entryPointSchema,
-        to_go_deep: entryPointSchema,
-        surprising: entryPointSchema,
-      },
-      required: ["to_start", "to_go_deep", "surprising"],
-      additionalProperties: false,
+    where_they_come_from: { type: "string" },
+    how_they_think: { type: "string" },
+    tension: tensionSchema,
+    questions_worth_sitting_with: {
+      type: "array",
+      items: questionSchema,
+      minItems: 1,
     },
   },
   required: [
     "why_matched",
-    "how_they_think",
+    "what_they_believe",
+    "core_arguments",
     "where_they_come_from",
-    "ideas_that_matter",
-    "what_theyre_arguing",
-    "internal_tension",
-    "where_to_start",
+    "how_they_think",
+    "tension",
+    "questions_worth_sitting_with",
   ],
   additionalProperties: false,
 } as const;
@@ -86,18 +93,46 @@ const RELATIONSHIP_LABEL: Record<RelationshipType, string> = {
   integrated_self: "Integrated Self — who the user is becoming at their best",
 };
 
-const SYSTEM_PROMPT = `You are writing a thinker profile that helps a specific user engage with a specific thinker. The profile follows a 7-section template. Tone: brief a smart, curious person who has 15 minutes before a conversation. Specific over comprehensive. Cite what the user actually said — don't invent relevance. The "internal tension" section should feel slightly uncomfortable to read. "Where to start" entries should be specific enough that someone can find them immediately.
+const SYSTEM_PROMPT = `You are writing a thinker profile that helps a specific user engage with a specific thinker.
 
-Section guidance:
-1. why_matched — Specific to this user's quiz answers. Cite specific question ids and option letters (e.g. "Q3: D and Q7: D both show..."). If it could apply to anyone, rewrite. Match on cognitive moves, not surface topic.
-2. how_they_think — Epistemic style and signature cognitive moves. NOT biography. What do they trust as evidence? What do they distrust? Where do they start? One paragraph of dense observation.
-3. where_they_come_from — Intellectual tradition and the debate they entered. Who shaped them. Who they argue with. Why they think the way they do.
-4. ideas_that_matter — 3-4 key claims, each with: a one-sentence claim, a concrete example or illustration, and why it matters for THIS user given their answers.
-5. what_theyre_arguing — The view they're contesting, their real opponents, what "winning" looks like. Stakes if nothing changes.
-6. internal_tension — The crack in the framework. The unresolved contradiction. A belief that pulls against another. Be specific. Make it slightly uncomfortable.
-7. where_to_start — Three entry points: to_start (most accessible/short/self-contained), to_go_deep (the defining work), surprising (an underrated piece that reveals a different side). Each: title + one sentence on why this one specifically.
+Tone: brief a smart, curious person who has 15 minutes before a conversation. Specific over comprehensive. The profile should feel like it was written for THIS user, not a general audience.
 
-Return strict JSON conforming to the schema.`;
+SECTION GUIDANCE:
+
+1. why_matched
+Translate what the user's answers reveal into a pattern — what do they seem to care about, how do they seem to think? Then connect that pattern to this thinker's cognitive moves.
+IMPORTANT: Do NOT cite answer codes (Q3-D, Q7: B, etc.) — the user has forgotten what they selected. Describe the pattern in plain language. Example: "You consistently reframe individual liability questions as power concentration questions — so does [Thinker], in a different domain entirely."
+If this could apply to a different user with different answers, rewrite it.
+
+2. what_they_believe
+Their thesis in 2-3 sentences — the position, plainly stated. Not hedged, not surveyed. What do they actually believe about the world?
+
+3. core_arguments
+3-4 specific claims most relevant to this user and this topic. Each argument has:
+- claim: one sentence
+- example: a concrete case, illustration, or quote
+- why_it_matters: connection to what this user revealed in their answers
+Output as a structured array.
+
+4. where_they_come_from
+The intellectual tradition they're working in and pushing against. Who shaped them. Who they argue with. The question they entered the field to answer. This explains WHY they think the way they do — the soil their framework grew in. One paragraph.
+
+5. how_they_think
+Epistemic style and signature cognitive moves. NOT biography. What do they trust as evidence? What do they distrust? Where do they start? One dense paragraph — a portrait, not a checklist.
+
+6. tension
+The unresolved contradiction that makes them generative. Format strictly as:
+- belief_a: one side of the tension
+- belief_b: the opposing belief
+- explanation: one sentence explaining why these can't be reconciled within their framework
+Make it specific and slightly uncomfortable to read.
+
+7. questions_worth_sitting_with
+3 questions. Each structured as:
+- question: a genuine intellectual provocation (not rhetorical, not easy)
+- what_you_said: one sentence connecting to a specific thing the user revealed (in plain language, no answer codes)
+- how_thinker_sees_it: their actual position in 1-2 sentences — something to push against, not just context
+The user should be able to engage immediately — no off-platform research required. The substance is in the question itself.`;
 
 export async function POST(req: Request) {
   let body: Body;

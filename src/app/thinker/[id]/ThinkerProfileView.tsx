@@ -115,72 +115,149 @@ export default function ThinkerProfileView({
 
       {profile && (
         <div className="space-y-8">
-          <Section title="Why You're Matched" accent={accent}>
-            <Prose>{profile.why_matched}</Prose>
-          </Section>
+          {/* 1. Why You're Matched — accent-tinted card */}
+          <section
+            className="rounded-2xl border p-6"
+            style={{
+              borderColor: `${accent}55`,
+              backgroundColor: `${accent}10`,
+            }}
+          >
+            <div
+              className="text-xs uppercase tracking-wider font-semibold mb-3"
+              style={{ color: accent }}
+            >
+              Why You&rsquo;re Matched
+            </div>
+            <p className="text-base text-neutral-800 leading-relaxed whitespace-pre-line">
+              {profile.why_matched}
+            </p>
+          </section>
 
-          <Section title="How They Think" accent={accent}>
-            <Prose>{profile.how_they_think}</Prose>
-          </Section>
+          {/* 2. What They Believe */}
+          <section className="rounded-2xl border border-neutral-200 bg-neutral-50 p-6">
+            <h2 className="text-xs uppercase tracking-wider font-semibold text-neutral-500 mb-3">
+              What They Believe
+            </h2>
+            <p className="text-lg text-neutral-900 leading-relaxed whitespace-pre-line">
+              {profile.what_they_believe}
+            </p>
+          </section>
 
-          <Section title="Where They Come From" accent={accent}>
-            <Prose>{profile.where_they_come_from}</Prose>
-          </Section>
-
-          <Section title="The Ideas That Matter" accent={accent}>
-            <ol className="space-y-5">
-              {profile.ideas_that_matter.map((idea, i) => (
+          {/* 3. Core Arguments */}
+          <section className="rounded-2xl border border-neutral-200 bg-white p-6">
+            <h2
+              className="text-xs uppercase tracking-wider font-semibold mb-5"
+              style={{ color: accent }}
+            >
+              Core Arguments
+            </h2>
+            <ol className="space-y-7">
+              {profile.core_arguments.map((arg, i) => (
                 <li
                   key={i}
-                  className="border-l-2 pl-4"
+                  className="border-l-2 pl-5"
                   style={{ borderColor: `${accent}55` }}
                 >
-                  <div className="text-base font-semibold text-neutral-900 mb-1">
-                    {idea.claim}
+                  <div className="text-base font-semibold text-neutral-900 mb-2 leading-snug">
+                    {arg.claim}
                   </div>
-                  <p className="text-sm text-neutral-700 leading-relaxed mb-2">
-                    <span className="font-semibold text-neutral-800">Example: </span>
-                    {idea.example}
+                  <p className="text-sm text-neutral-600 leading-relaxed mb-3 pl-3 border-l border-neutral-200">
+                    {arg.example}
                   </p>
-                  <p className="text-sm text-neutral-700 leading-relaxed">
-                    <span className="font-semibold text-neutral-800">Why it matters: </span>
-                    {idea.why_matters}
+                  <p
+                    className="text-sm italic leading-relaxed"
+                    style={{ color: accent }}
+                  >
+                    Why it matters to you: {arg.why_it_matters}
                   </p>
                 </li>
               ))}
             </ol>
-          </Section>
+          </section>
 
-          <Section title="What They're Arguing About" accent={accent}>
-            <Prose>{profile.what_theyre_arguing}</Prose>
-          </Section>
+          {/* 4. Where They Come From */}
+          <section className="rounded-2xl border border-neutral-200 bg-white p-6">
+            <h2
+              className="text-xs uppercase tracking-wider font-semibold mb-3"
+              style={{ color: accent }}
+            >
+              Where They Come From
+            </h2>
+            <p className="text-base text-neutral-800 leading-relaxed whitespace-pre-line">
+              {profile.where_they_come_from}
+            </p>
+          </section>
 
-          <Section title="The Tension They Haven't Resolved" accent={accent}>
-            <Prose>{profile.internal_tension}</Prose>
-          </Section>
+          {/* 5. How They Think */}
+          <section className="rounded-2xl border border-neutral-200 bg-white p-6">
+            <h2
+              className="text-xs uppercase tracking-wider font-semibold mb-3"
+              style={{ color: accent }}
+            >
+              How They Think
+            </h2>
+            <p className="text-base text-neutral-800 leading-relaxed whitespace-pre-line">
+              {profile.how_they_think}
+            </p>
+          </section>
 
-          <Section title="Where to Start" accent={accent}>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <EntryPoint
-                label="To start"
-                title={profile.where_to_start.to_start.title}
-                why={profile.where_to_start.to_start.why}
-                accent={accent}
-              />
-              <EntryPoint
-                label="To go deep"
-                title={profile.where_to_start.to_go_deep.title}
-                why={profile.where_to_start.to_go_deep.why}
-                accent={accent}
-              />
-              <EntryPoint
-                label="Surprising"
-                title={profile.where_to_start.surprising.title}
-                why={profile.where_to_start.surprising.why}
-                accent={accent}
-              />
+          {/* 6. The Tension — opposing-statements layout */}
+          <section className="rounded-2xl border border-neutral-200 bg-white p-6">
+            <h2
+              className="text-xs uppercase tracking-wider font-semibold mb-5"
+              style={{ color: accent }}
+            >
+              The Tension
+            </h2>
+            <div className="flex flex-col items-center text-center gap-4">
+              <p className="text-base font-medium text-neutral-900 leading-relaxed max-w-prose">
+                {profile.tension.belief_a}
+              </p>
+              <div
+                className="text-3xl leading-none"
+                style={{ color: accent }}
+                aria-hidden
+              >
+                ↔
+              </div>
+              <p className="text-base font-medium text-neutral-900 leading-relaxed max-w-prose">
+                {profile.tension.belief_b}
+              </p>
             </div>
-          </Section>
+            <p className="mt-6 text-sm text-neutral-500 leading-relaxed text-center italic">
+              {profile.tension.explanation}
+            </p>
+          </section>
+
+          {/* 7. Questions Worth Sitting With */}
+          <section className="rounded-2xl border border-neutral-200 bg-white p-6">
+            <h2
+              className="text-xs uppercase tracking-wider font-semibold mb-5"
+              style={{ color: accent }}
+            >
+              Questions Worth Sitting With
+            </h2>
+            <div className="space-y-5">
+              {profile.questions_worth_sitting_with.map((q, i) => (
+                <div
+                  key={i}
+                  className="rounded-xl border border-neutral-200 bg-neutral-50 p-5"
+                >
+                  <div className="text-lg font-bold text-neutral-900 leading-snug mb-3">
+                    {q.question}
+                  </div>
+                  <p className="text-sm italic text-neutral-500 leading-relaxed mb-2">
+                    What you said: {q.what_you_said}
+                  </p>
+                  <p className="text-sm text-neutral-800 leading-relaxed">
+                    <span className="font-semibold">How {thinkerName} sees it: </span>
+                    {q.how_thinker_sees_it}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
         </div>
       )}
 
@@ -193,68 +270,5 @@ export default function ThinkerProfileView({
         </Link>
       </footer>
     </main>
-  );
-}
-
-function Section({
-  title,
-  accent,
-  children,
-}: {
-  title: string;
-  accent: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="rounded-2xl border border-neutral-200 bg-white p-6">
-      <h2
-        className="text-xs uppercase tracking-wider font-semibold mb-4"
-        style={{ color: accent }}
-      >
-        {title}
-      </h2>
-      {children}
-    </section>
-  );
-}
-
-function Prose({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="text-base text-neutral-800 leading-relaxed whitespace-pre-line">
-      {children}
-    </p>
-  );
-}
-
-function EntryPoint({
-  label,
-  title,
-  why,
-  accent,
-}: {
-  label: string;
-  title: string;
-  why: string;
-  accent: string;
-}) {
-  return (
-    <div
-      className="rounded-xl p-4 border"
-      style={{
-        borderColor: `${accent}55`,
-        backgroundColor: `${accent}10`,
-      }}
-    >
-      <div
-        className="text-[10px] uppercase tracking-wider font-semibold mb-2"
-        style={{ color: accent }}
-      >
-        {label}
-      </div>
-      <div className="text-sm font-semibold text-neutral-900 mb-1">
-        {title}
-      </div>
-      <p className="text-xs text-neutral-700 leading-relaxed">{why}</p>
-    </div>
   );
 }

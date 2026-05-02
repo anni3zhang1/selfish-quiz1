@@ -61,7 +61,7 @@ ${name}'s tagline: "${tagline}"
 ${answersText}
 
 Write:
-1. match_reason: 1–2 sentences in plain narrative language explaining why this match is right for THIS user. Translate what the user's answers reveal into a pattern (in plain words — what they care about, how they think) and connect that pattern to ${name}'s cognitive moves. Do NOT cite answer codes like "Q1: D" or "Q3-E" — the user has forgotten what they selected. Describe the pattern, not the codes.
+1. match_reason: 1–2 sentences in plain narrative language explaining why this match is right for THIS user. Translate what the user's answers reveal into a pattern (in plain words — what they care about, how they think) and connect that pattern to ${name}'s cognitive moves. Do NOT cite answer codes like "Q1: D" or "Q3-E" — the user has forgotten what they selected. Describe the pattern, not the codes. When the user wrote their own words on a question, weight those words much more heavily than the option letter — quote or paraphrase from their language directly.
 2. entry_point: a specific starting point for this user to engage with ${name}, given their particular lens.`;
 
   try {

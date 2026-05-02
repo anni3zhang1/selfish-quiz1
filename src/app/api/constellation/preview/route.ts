@@ -63,6 +63,7 @@ Rules:
 - Each thinker must be different — no repeats
 - Tagline is a one-line claim about who the thinker is
 - profile_summary is 2–3 sentences on the user's core epistemic lens
+- When the user wrote their own words on a question, weight those words MORE heavily than the selected letter. Their own language reveals position; the letter is just a starting point.
 
 Return exactly 7 thinkers (one per type) plus a profile_summary.`;
 

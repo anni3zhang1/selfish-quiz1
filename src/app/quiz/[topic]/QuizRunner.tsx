@@ -90,14 +90,14 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
       if (!optionId) return;
       const chosen = q.options.find((o) => o.id === optionId);
       if (!chosen) return;
-      if (chosen.freeform && !freeformText.trim()) return;
 
+      const annotation = freeformText.trim();
       entry = {
         question_id: q.id,
         question_text: q.text,
         option_id: chosen.id,
         option_text: chosen.text,
-        freeform: chosen.freeform ? freeformText.trim() : undefined,
+        freeform: annotation.length > 0 ? annotation : undefined,
       };
 
       const followup = q.followups?.[chosen.id];
@@ -174,19 +174,17 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
   if (!current) return null;
 
   const freeformOnly = isFreeformOnly(current);
-  const freeformOption = !freeformOnly
-    ? (current as Question).options.find((o) => o.freeform)
-    : undefined;
-  const showFreeform = freeformOnly || !!freeformOption;
-  const selectedOption = !freeformOnly && optionId
-    ? (current as Question).options.find((o) => o.id === optionId)
-    : undefined;
-  const selectedIsFreeform = !!selectedOption?.freeform;
-
+  // The annotation field is shown for freeform-only questions, and for any
+  // multiple-choice question once an option has been selected.
+  const showAnnotation = freeformOnly || optionId !== null;
   const canSubmit = freeformOnly
     ? freeformText.trim().length > 0
-    : optionId !== null &&
-      (!selectedIsFreeform || freeformText.trim().length > 0);
+    : optionId !== null;
+
+  // key forces remount of the textarea on option change → autoFocus fires again
+  const textareaKey = freeformOnly
+    ? `freeform-${current.id}`
+    : `annotation-${current.id}-${optionId ?? "none"}`;
 
   return (
     <div>
@@ -217,8 +215,10 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
                 key={opt.id}
                 type="button"
                 onClick={() => {
-                  setOptionId(opt.id);
-                  if (!opt.freeform) setFreeformText("");
+                  if (optionId !== opt.id) {
+                    setOptionId(opt.id);
+                    setFreeformText(""); // changing selection clears the annotation
+                  }
                 }}
                 className={`w-full text-left px-5 py-4 rounded-lg border transition ${
                   selected
@@ -236,36 +236,30 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
         </div>
       )}
 
-      {showFreeform && (
-        <div className="mb-6">
+      {showAnnotation && (
+        <div className="annotation-slide-in mb-6">
           <textarea
+            key={textareaKey}
+            autoFocus
             value={freeformText}
-            onChange={(e) => {
-              const v = e.target.value;
-              setFreeformText(v);
-              if (!freeformOnly && v.trim() && freeformOption) {
-                setOptionId(freeformOption.id);
-              }
-            }}
-            rows={4}
-            placeholder={
-              freeformOnly
-                ? "Take your time…"
-                : "Tell us what you actually think…"
-            }
+            onChange={(e) => setFreeformText(e.target.value)}
+            rows={freeformOnly ? 4 : 3}
+            placeholder={freeformOnly ? "Take your time…" : "add context (optional)"}
             className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900"
           />
         </div>
       )}
 
-      <button
-        type="button"
-        onClick={handleNext}
-        disabled={!canSubmit}
-        className="px-6 py-3 bg-neutral-900 text-white rounded-lg font-medium hover:bg-neutral-800 transition disabled:opacity-40 disabled:cursor-not-allowed"
-      >
-        Continue
-      </button>
+      {showAnnotation && (
+        <button
+          type="button"
+          onClick={handleNext}
+          disabled={!canSubmit}
+          className="annotation-slide-in px-6 py-3 bg-neutral-900 text-white rounded-lg font-medium hover:bg-neutral-800 transition disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          Next →
+        </button>
+      )}
     </div>
   );
 }

@@ -94,3 +94,18 @@ body {
 .card-fade-in {
   animation: card-fade-in 400ms ease-out;
 }
+
+/* Annotation field slide-in — subtle, fast */
+@keyframes annotation-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.annotation-slide-in {
+  animation: annotation-slide-in 250ms ease-out;
+}

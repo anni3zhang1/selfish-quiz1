@@ -102,6 +102,7 @@ SECTION GUIDANCE:
 1. why_matched
 Translate what the user's answers reveal into a pattern — what do they seem to care about, how do they seem to think? Then connect that pattern to this thinker's cognitive moves.
 IMPORTANT: Do NOT cite answer codes (Q3-D, Q7: B, etc.) — the user has forgotten what they selected. Describe the pattern in plain language. Example: "You consistently reframe individual liability questions as power concentration questions — so does [Thinker], in a different domain entirely."
+When the user wrote their own words on a question, weight those words much more heavily than the option letter. Their language is the strongest signal of position; lean on it directly.
 If this could apply to a different user with different answers, rewrite it.
 
 2. what_they_believe

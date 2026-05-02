@@ -70,16 +70,25 @@ MATCHING RULES:
 - profile_summary: 2–3 sentences describing the user's core epistemic lens based on their answers.`;
 
 function formatAnswers(topic: string, answers: AnswerEntry[]): string {
-  const header = `Topic: ${topic}\n\nUSER'S QUIZ ANSWERS:\n`;
+  const header = `Topic: ${topic}
+
+USER'S QUIZ ANSWERS
+
+How to read this:
+- When the user has added an annotation in their own words, treat that annotation as the PRIMARY signal of their position. The selected option letter is supplementary context.
+- When no annotation is provided, fall back to the selected option as the signal.
+- Quote and reason from the user's own words whenever they wrote some.
+
+`;
   const body = answers
     .map((a) => {
       const parts: string[] = [];
       parts.push(`[${a.question_id}] ${a.question_text}`);
       if (a.option_id) {
-        parts.push(`  Chose ${a.option_id}: ${a.option_text}`);
+        parts.push(`  Selected ${a.option_id}: ${a.option_text}`);
       }
       if (a.freeform) {
-        parts.push(`  Freeform: "${a.freeform}"`);
+        parts.push(`  In their own words (PRIMARY SIGNAL): "${a.freeform}"`);
       }
       return parts.join("\n");
     })

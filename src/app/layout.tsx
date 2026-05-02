@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Selfish — Get to Know Yourself",
   description:
-    "Take a quiz on any topic. Discover the 8 thinkers who map your mind.",
+    "Take a quiz on any topic. Discover the 7 thinkers who map your mind.",
 };
 
 export default function RootLayout({

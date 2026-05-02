@@ -143,12 +143,13 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
 
   if (phase === "submitting") {
     return (
-      <div className="text-center py-32">
-        <div className="text-2xl font-serif mb-4">
-          Building your constellation…
+      <div className="text-center py-32 flex flex-col items-center">
+        <div className="w-10 h-10 border-2 border-neutral-300 border-t-neutral-700 rounded-full animate-spin mb-6" />
+        <div className="text-2xl font-serif mb-3">
+          Mapping your constellation...
         </div>
         <p className="text-neutral-500 text-sm">
-          This usually takes 20–40 seconds.
+          This takes a few seconds.
         </p>
       </div>
     );
@@ -173,16 +174,19 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
   if (!current) return null;
 
   const freeformOnly = isFreeformOnly(current);
-  const showFreeform =
-    freeformOnly ||
-    (optionId !== null &&
-      !freeformOnly &&
-      (current as Question).options.find((o) => o.id === optionId)?.freeform);
+  const freeformOption = !freeformOnly
+    ? (current as Question).options.find((o) => o.freeform)
+    : undefined;
+  const showFreeform = freeformOnly || !!freeformOption;
+  const selectedOption = !freeformOnly && optionId
+    ? (current as Question).options.find((o) => o.id === optionId)
+    : undefined;
+  const selectedIsFreeform = !!selectedOption?.freeform;
 
   const canSubmit = freeformOnly
     ? freeformText.trim().length > 0
     : optionId !== null &&
-      (!showFreeform || freeformText.trim().length > 0);
+      (!selectedIsFreeform || freeformText.trim().length > 0);
 
   return (
     <div>
@@ -200,7 +204,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
         </div>
       </div>
 
-      <h2 className="text-2xl sm:text-3xl font-serif leading-snug mb-8">
+      <h2 className="text-lg sm:text-xl font-serif leading-snug mb-8">
         {current.text}
       </h2>
 
@@ -236,7 +240,13 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
         <div className="mb-6">
           <textarea
             value={freeformText}
-            onChange={(e) => setFreeformText(e.target.value)}
+            onChange={(e) => {
+              const v = e.target.value;
+              setFreeformText(v);
+              if (!freeformOnly && v.trim() && freeformOption) {
+                setOptionId(freeformOption.id);
+              }
+            }}
             rows={4}
             placeholder={
               freeformOnly

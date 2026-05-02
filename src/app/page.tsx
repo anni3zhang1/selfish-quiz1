@@ -19,7 +19,7 @@ export default async function Home() {
           You find out who you are by encountering what you are not.
         </h1>
         <p className="mt-6 text-lg text-neutral-600">
-          Take a quiz on any topic. Discover the 8 thinkers who map your mind.
+          Take a quiz on any topic. Discover the 7 thinkers who map your mind.
         </p>
         <div className="mt-5">
           <Link

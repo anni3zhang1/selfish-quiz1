@@ -62,7 +62,6 @@ export default function ResultsView({
   const [previewError, setPreviewError] = useState<string | null>(null);
 
   const [modalType, setModalType] = useState<RelationshipType | null>(null);
-  const [showGuide, setShowGuide] = useState(false);
 
   const [emailStatus, setEmailStatus] = useState<"idle" | "sending" | "sent" | "skipped" | "failed">(
     () => {
@@ -244,42 +243,32 @@ export default function ResultsView({
   const orderedKeys = RELATIONSHIPS.map((r) => r.key);
   const modalIndex = modalType ? orderedKeys.indexOf(modalType) : -1;
 
+  // Full-screen loading state — Phase 1 in progress
+  if (phase === "preview") {
+    return (
+      <main className="mx-auto w-full max-w-6xl px-6 py-12 sm:py-16 min-h-[70vh] flex flex-col items-center justify-center text-center">
+        <div className="w-10 h-10 border-2 border-neutral-300 border-t-neutral-700 rounded-full animate-spin mb-6" />
+        <h1 className="text-2xl sm:text-3xl font-serif mb-3">
+          Mapping your constellation...
+        </h1>
+        <p className="text-sm text-neutral-500">
+          This takes a few seconds.
+        </p>
+      </main>
+    );
+  }
+
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-12 sm:py-16">
       <header className="mb-12 max-w-3xl">
-        <div className="text-xs uppercase tracking-wider text-neutral-500 mb-3">
+        <div className="text-lg text-neutral-500 mb-3">
           Your {topicLabel} Constellation
         </div>
 
-        {profileSummary ? (
-          <h1 className="text-3xl sm:text-4xl font-serif leading-snug mb-6">
+        {profileSummary && (
+          <p className="text-base text-neutral-700 leading-relaxed mb-6">
             {profileSummary}
-          </h1>
-        ) : phase === "preview" ? (
-          <div className="mb-6 flex items-center gap-3 text-neutral-500">
-            <span className="inline-block w-4 h-4 border-2 border-neutral-400 border-t-neutral-700 rounded-full animate-spin" />
-            <span className="text-base">Mapping your constellation...</span>
-          </div>
-        ) : null}
-
-        <button
-          type="button"
-          onClick={() => setShowGuide((v) => !v)}
-          className="text-sm text-neutral-600 underline underline-offset-4"
-        >
-          {showGuide ? "Hide" : "How to read"} your constellation
-        </button>
-
-        {showGuide && (
-          <ul className="mt-5 space-y-2 text-sm text-neutral-700">
-            {RELATIONSHIPS.map((r) => (
-              <li key={r.key}>
-                <span className="mr-2">{r.emoji}</span>
-                <span className="font-semibold">{r.label}</span>
-                <span className="text-neutral-500"> — {r.oneLine}</span>
-              </li>
-            ))}
-          </ul>
+          </p>
         )}
       </header>
 
@@ -291,68 +280,30 @@ export default function ResultsView({
       )}
 
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {RELATIONSHIPS.map((r) => {
-          const card = cards[r.key];
-          const isDetailLoading = detailLoading.has(r.key);
-          const hasName = !!card?.name;
-
-          return (
-            <button
-              key={r.key}
-              type="button"
-              onClick={() => {
-                if (hasName) setModalType(r.key);
-              }}
-              aria-label={hasName ? `View ${card.name}` : r.label}
-              className={`aspect-[3/4] w-full rounded-2xl relative overflow-hidden text-left transition-all ${
-                hasName
-                  ? "cursor-pointer hover:scale-[1.02] hover:shadow-lg"
-                  : "cursor-default"
-              } ${r.faceGradient} ${r.textOnFace}`}
-            >
-              {/* Type label */}
-              <div className="absolute top-5 left-5 right-5">
-                <div className="text-[10px] uppercase tracking-widest opacity-70 font-semibold mb-1">
-                  {r.label}
-                </div>
+        {RELATIONSHIPS.map((r) => (
+          <button
+            key={r.key}
+            type="button"
+            onClick={() => setModalType(r.key)}
+            aria-label={r.label}
+            className={`card-fade-in aspect-[3/4] w-full rounded-2xl relative overflow-hidden text-left cursor-pointer hover:shadow-lg transition-shadow ${r.faceGradient} ${r.textOnFace}`}
+          >
+            {/* Type label */}
+            <div className="absolute top-5 left-5 right-5">
+              <div className="text-3xl font-semibold tracking-tight opacity-90 mb-1">
+                {r.label}
               </div>
+            </div>
 
-              {/* Center content */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center px-5 text-center">
-                {!hasName ? (
-                  <>
-                    <div className="text-3xl mb-3 opacity-60">{r.emoji}</div>
-                    <div className="text-xs opacity-60 max-w-[16ch] leading-relaxed">
-                      {r.oneLine}
-                    </div>
-                    {phase === "preview" && (
-                      <div className="mt-4 w-8 h-8 border-2 border-current border-t-transparent rounded-full animate-spin opacity-40" />
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <div className="text-xl font-semibold leading-tight mb-2 tracking-tight">
-                      {card.name}
-                    </div>
-                    <div className="text-xs opacity-75 italic leading-relaxed line-clamp-3">
-                      {card.tagline}
-                    </div>
-                    {isDetailLoading && (
-                      <div className="mt-3 w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin opacity-40" />
-                    )}
-                  </>
-                )}
+            {/* Center content — always emoji + one-liner, regardless of load state */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center px-5 text-center">
+              <div className="text-6xl mb-5 opacity-80">{r.emoji}</div>
+              <div className="text-lg opacity-80 max-w-[18ch] leading-relaxed">
+                {r.oneLine}
               </div>
-
-              {/* Bottom hint */}
-              {hasName && (
-                <div className="absolute bottom-5 left-0 right-0 text-center text-[10px] uppercase tracking-widest opacity-50">
-                  Click to explore →
-                </div>
-              )}
-            </button>
-          );
-        })}
+            </div>
+          </button>
+        ))}
       </section>
 
       {userEmail && emailStatus !== "idle" && (
@@ -395,11 +346,11 @@ export default function ResultsView({
       </footer>
 
       {/* Thinker modal */}
-      {modalType && cards[modalType] && (
+      {modalType && (
         <ThinkerModal
           type={modalType}
-          card={cards[modalType]!}
-          isDetailLoading={detailLoading.has(modalType)}
+          card={cards[modalType] ?? { name: "", tagline: "" }}
+          isDetailLoading={!cards[modalType]?.match_reason}
           sessionId={sessionId}
           hasPrev={modalIndex > 0}
           hasNext={modalIndex < orderedKeys.length - 1}

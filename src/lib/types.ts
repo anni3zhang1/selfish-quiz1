@@ -59,3 +59,30 @@ export type ConstellationResponse = {
   profile_summary: string;
   constellation: Constellation;
 };
+
+// === Thinker profile (per-user, per-thinker, generated on-demand) ===
+
+export type ThinkerIdea = {
+  claim: string;
+  example: string;
+  why_matters: string;
+};
+
+export type ThinkerEntryPoint = {
+  title: string;
+  why: string;
+};
+
+export type ThinkerProfileData = {
+  why_matched: string;
+  how_they_think: string;
+  where_they_come_from: string;
+  ideas_that_matter: ThinkerIdea[];
+  what_theyre_arguing: string;
+  internal_tension: string;
+  where_to_start: {
+    to_start: ThinkerEntryPoint;
+    to_go_deep: ThinkerEntryPoint;
+    surprising: ThinkerEntryPoint;
+  };
+};

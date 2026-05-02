@@ -41,7 +41,6 @@ const previewSchema = {
         additionalProperties: false,
       },
       minItems: 1,
-      maxItems: 7,
     },
   },
   required: ["profile_summary", "thinkers"],

@@ -40,7 +40,7 @@ const previewSchema = {
         required: ["type", "name", "tagline"],
         additionalProperties: false,
       },
-      minItems: 7,
+      minItems: 1,
       maxItems: 7,
     },
   },

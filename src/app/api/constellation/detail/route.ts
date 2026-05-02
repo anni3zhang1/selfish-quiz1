@@ -1,0 +1,101 @@
+import { NextResponse } from "next/server";
+import { anthropic, MODEL } from "@/lib/anthropic";
+import { formatAnswers } from "@/lib/constellation";
+import type { AnswerEntry, RelationshipType } from "@/lib/types";
+
+export const runtime = "nodejs";
+export const maxDuration = 120;
+
+type Body = {
+  type?: RelationshipType;
+  name?: string;
+  tagline?: string;
+  topic?: string;
+  answers?: AnswerEntry[];
+};
+
+const detailSchema = {
+  type: "object",
+  properties: {
+    type: { type: "string" },
+    match_reason: { type: "string" },
+    entry_point: { type: "string" },
+  },
+  required: ["type", "match_reason", "entry_point"],
+  additionalProperties: false,
+} as const;
+
+const RELATIONSHIP_DESCRIPTIONS: Record<RelationshipType, string> = {
+  mirror: "same epistemic structure, different domain — the user recognizes themselves across distance",
+  complement: "fills what the user doesn't naturally carry",
+  precursor: "who formed them — they're still working through this thinker's ideas",
+  antagonist: "fundamentally different frame — the fight sharpens their thinking",
+  horizon: "one developmental step ahead — slightly uncomfortable to read",
+  shadow: "a way of thinking they've suppressed but would recognize",
+  integrated_self: "who they're becoming at their best — has resolved the tension they're still in",
+};
+
+export async function POST(req: Request) {
+  let body: Body;
+  try {
+    body = (await req.json()) as Body;
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+
+  const { type, name, tagline, topic, answers } = body;
+  if (!type || !name || !tagline || !topic || !Array.isArray(answers) || answers.length === 0) {
+    return NextResponse.json(
+      { error: "type, name, tagline, topic, and answers required" },
+      { status: 400 }
+    );
+  }
+
+  const relationshipDesc = RELATIONSHIP_DESCRIPTIONS[type] ?? type;
+  const answersText = formatAnswers(topic, answers);
+
+  const userContent = `The user has been matched with ${name} as their ${type.toUpperCase()} (${relationshipDesc}).
+
+${name}'s tagline: "${tagline}"
+
+${answersText}
+
+Write:
+1. match_reason: 1–2 sentences explaining why this match is right for THIS user. Cite specific answers by question id and option (e.g. "Q1: D, Q3: E").
+2. entry_point: a specific starting point for this user to engage with ${name}, given their particular lens.`;
+
+  try {
+    const message = await anthropic.messages.create({
+      model: MODEL,
+      max_tokens: 1024,
+      thinking: { type: "adaptive" },
+      output_config: {
+        effort: "medium",
+        format: {
+          type: "json_schema",
+          schema: detailSchema,
+        },
+      },
+      messages: [{ role: "user", content: userContent }],
+    });
+
+    const textBlock = message.content.find((b) => b.type === "text");
+    if (!textBlock || textBlock.type !== "text") {
+      throw new Error("Model returned no text content");
+    }
+
+    const parsed = JSON.parse(textBlock.text) as {
+      type: RelationshipType;
+      match_reason: string;
+      entry_point: string;
+    };
+
+    return NextResponse.json(parsed);
+  } catch (err) {
+    console.error(`Detail generation failed for ${type}:`, err);
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Detail generation failed" },
+      { status: 500 }
+    );
+  }
+}

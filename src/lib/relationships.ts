@@ -5,75 +5,77 @@ export type RelationshipMeta = {
   label: string;
   emoji: string;
   oneLine: string;
-  faceGradient: string; // tailwind classes
-  textOnFace: string; // tailwind text color for the face
+  hex: string; // accent color for modal and badges
+  faceGradient: string; // tailwind classes for card face
+  textOnFace: string; // tailwind text color for the card face
 };
 
 export const RELATIONSHIPS: RelationshipMeta[] = [
   {
     key: "mirror",
-    label: "Mirror",
+    label: "YOUR REFLECTION",
     emoji: "🪞",
-    oneLine: "Same way of seeing, different world.",
-    faceGradient: "bg-gradient-to-br from-slate-200 via-slate-300 to-slate-400",
-    textOnFace: "text-slate-900",
-  },
-  {
-    key: "twin",
-    label: "Twin",
-    emoji: "👯",
-    oneLine: "Same structure, further along in time.",
-    faceGradient: "bg-gradient-to-br from-amber-300 via-amber-400 to-amber-600",
-    textOnFace: "text-amber-950",
+    oneLine: "This is you — somewhere else entirely.",
+    hex: "#9CA3AF",
+    faceGradient: "bg-gradient-to-br from-gray-300 via-gray-400 to-gray-500",
+    textOnFace: "text-gray-900",
   },
   {
     key: "complement",
-    label: "Complement",
+    label: "YOUR BLIND SPOT",
     emoji: "🧩",
-    oneLine: "Fills what you don't naturally carry.",
-    faceGradient: "bg-gradient-to-br from-teal-700 via-teal-800 to-teal-900",
+    oneLine: "This is what you don't naturally carry.",
+    hex: "#0D9488",
+    faceGradient: "bg-gradient-to-br from-teal-500 via-teal-600 to-teal-800",
     textOnFace: "text-teal-50",
   },
   {
     key: "precursor",
-    label: "Precursor",
+    label: "YOUR ROOT",
     emoji: "🌱",
-    oneLine: "Who formed you — still working through.",
-    faceGradient: "bg-gradient-to-br from-yellow-700 via-amber-800 to-stone-700",
+    oneLine: "This is where your thinking came from.",
+    hex: "#92400E",
+    faceGradient: "bg-gradient-to-br from-amber-600 via-amber-800 to-stone-800",
     textOnFace: "text-amber-50",
   },
   {
     key: "antagonist",
-    label: "Antagonist",
+    label: "YOUR SHARPENER",
     emoji: "⚔️",
-    oneLine: "The fight that sharpens your thinking.",
-    faceGradient: "bg-gradient-to-br from-red-700 via-red-800 to-red-950",
+    oneLine: "This is the strongest case against you.",
+    hex: "#B91C1C",
+    faceGradient: "bg-gradient-to-br from-red-600 via-red-700 to-red-950",
     textOnFace: "text-red-50",
   },
   {
     key: "horizon",
-    label: "Horizon",
+    label: "YOUR NEXT STEP",
     emoji: "🌅",
-    oneLine: "One step ahead, currently a stretch.",
-    faceGradient:
-      "bg-gradient-to-br from-purple-800 via-pink-600 to-orange-500",
-    textOnFace: "text-purple-50",
+    oneLine: "This is one step further than you've gone.",
+    hex: "#EA580C",
+    faceGradient: "bg-gradient-to-br from-orange-500 via-orange-600 to-orange-900",
+    textOnFace: "text-orange-50",
   },
   {
     key: "shadow",
-    label: "Shadow",
+    label: "YOUR DISMISSAL",
     emoji: "🌑",
-    oneLine: "A way of thinking you've suppressed but recognize.",
-    faceGradient: "bg-gradient-to-br from-violet-950 via-violet-900 to-black",
-    textOnFace: "text-violet-100",
+    oneLine: "This is what you've been too quick to ignore.",
+    hex: "#6D28D9",
+    faceGradient: "bg-gradient-to-br from-violet-600 via-violet-700 to-violet-950",
+    textOnFace: "text-violet-50",
   },
   {
     key: "integrated_self",
-    label: "Integrated Self",
+    label: "YOUR DESTINATION",
     emoji: "✨",
-    oneLine: "Who you're becoming at your best.",
-    faceGradient:
-      "bg-gradient-to-br from-yellow-100 via-yellow-300 to-amber-400",
-    textOnFace: "text-amber-900",
+    oneLine: "This is who you're becoming.",
+    hex: "#B45309",
+    faceGradient: "bg-gradient-to-br from-amber-500 via-amber-700 to-yellow-800",
+    textOnFace: "text-amber-50",
   },
 ];
+
+export function getRelationship(key: RelationshipType): RelationshipMeta | undefined {
+  return RELATIONSHIPS.find((r) => r.key === key);
+}

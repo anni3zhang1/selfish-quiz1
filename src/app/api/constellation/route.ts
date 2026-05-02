@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { generateConstellation } from "@/lib/constellation";
 import type { AnswerEntry } from "@/lib/types";
 
 export const runtime = "nodejs";
-export const maxDuration = 300;
 
 type Body = {
   topic?: string;
@@ -49,39 +47,5 @@ export async function POST(req: Request) {
     );
   }
 
-  try {
-    const result = await generateConstellation(topic, answers);
-
-    const { error: updateErr } = await supabase
-      .from("quiz_sessions")
-      .update({
-        constellation: result.constellation,
-        profile_summary: result.profile_summary,
-        status: "complete",
-      })
-      .eq("id", session.id);
-
-    if (updateErr) {
-      console.error("Supabase update failed:", updateErr);
-    }
-
-    return NextResponse.json({
-      session_id: session.id,
-      profile_summary: result.profile_summary,
-      constellation: result.constellation,
-    });
-  } catch (err) {
-    console.error("Constellation generation failed:", err);
-    await supabase
-      .from("quiz_sessions")
-      .update({ status: "failed" })
-      .eq("id", session.id);
-    return NextResponse.json(
-      {
-        error:
-          err instanceof Error ? err.message : "Constellation generation failed",
-      },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json({ session_id: session.id });
 }

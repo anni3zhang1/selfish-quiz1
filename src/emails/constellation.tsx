@@ -13,14 +13,13 @@ import {
 import type { Constellation, RelationshipType } from "@/lib/types";
 
 const RELATIONSHIP_ORDER: { key: RelationshipType; label: string; emoji: string }[] = [
-  { key: "mirror", label: "Mirror", emoji: "🪞" },
-  { key: "twin", label: "Twin", emoji: "👯" },
-  { key: "complement", label: "Complement", emoji: "🧩" },
-  { key: "precursor", label: "Precursor", emoji: "🌱" },
-  { key: "antagonist", label: "Antagonist", emoji: "⚔️" },
-  { key: "horizon", label: "Horizon", emoji: "🌅" },
-  { key: "shadow", label: "Shadow", emoji: "🌑" },
-  { key: "integrated_self", label: "Integrated Self", emoji: "✨" },
+  { key: "mirror", label: "Your Reflection", emoji: "🪞" },
+  { key: "complement", label: "Your Blind Spot", emoji: "🧩" },
+  { key: "precursor", label: "Your Root", emoji: "🌱" },
+  { key: "antagonist", label: "Your Sharpener", emoji: "⚔️" },
+  { key: "horizon", label: "Your Next Step", emoji: "🌅" },
+  { key: "shadow", label: "Your Dismissal", emoji: "🌑" },
+  { key: "integrated_self", label: "Your Destination", emoji: "✨" },
 ];
 
 type Props = {
@@ -72,10 +71,12 @@ export default function ConstellationEmail({
                   <strong style={bold}>Why you: </strong>
                   {card.match_reason}
                 </Text>
-                <Text style={para}>
-                  <strong style={bold}>What to look for: </strong>
-                  {card.what_to_learn}
-                </Text>
+                {(card.entry_point ?? card.what_to_learn) && (
+                  <Text style={para}>
+                    <strong style={bold}>Start here: </strong>
+                    {card.entry_point ?? card.what_to_learn}
+                  </Text>
+                )}
               </Section>
             );
           })}

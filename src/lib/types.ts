@@ -37,7 +37,6 @@ export type AnswerEntry = {
 
 export type RelationshipType =
   | "mirror"
-  | "twin"
   | "complement"
   | "precursor"
   | "antagonist"
@@ -49,7 +48,9 @@ export type ConstellationCard = {
   name: string;
   tagline: string;
   match_reason: string;
-  what_to_learn: string;
+  entry_point?: string;
+  // kept for backward compat with sessions generated before v5
+  what_to_learn?: string;
 };
 
 export type Constellation = Record<RelationshipType, ConstellationCard>;

@@ -17,7 +17,6 @@ function isRelationshipType(s: string | undefined): s is RelationshipType {
     !!s &&
     [
       "mirror",
-      "twin",
       "complement",
       "precursor",
       "antagonist",

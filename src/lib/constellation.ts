@@ -7,9 +7,9 @@ const cardSchema = {
     name: { type: "string" },
     tagline: { type: "string" },
     match_reason: { type: "string" },
-    what_to_learn: { type: "string" },
+    entry_point: { type: "string" },
   },
-  required: ["name", "tagline", "match_reason", "what_to_learn"],
+  required: ["name", "tagline", "match_reason", "entry_point"],
   additionalProperties: false,
 } as const;
 
@@ -21,7 +21,6 @@ const constellationSchema = {
       type: "object",
       properties: {
         mirror: cardSchema,
-        twin: cardSchema,
         complement: cardSchema,
         precursor: cardSchema,
         antagonist: cardSchema,
@@ -31,7 +30,6 @@ const constellationSchema = {
       },
       required: [
         "mirror",
-        "twin",
         "complement",
         "precursor",
         "antagonist",
@@ -48,10 +46,9 @@ const constellationSchema = {
 
 const SYSTEM_PROMPT = `You are generating an intellectual constellation for a user based on their answers to a quiz on a specific topic.
 
-The constellation maps the user to 8 thinkers in different relationship types. Each relationship type teaches something different:
+The constellation maps the user to 7 thinkers in different relationship types. Each relationship type teaches something different:
 
 - MIRROR: Same way of being interested, different domain. The user recognizes themselves across distance.
-- TWIN: Same structure, further along in time. "That's me, later."
 - COMPLEMENT: Fills what the user doesn't naturally carry.
 - PRECURSOR: Who formed them — they're still working through this thinker.
 - ANTAGONIST: Fundamentally different frame. The fight sharpens their thinking.
@@ -69,7 +66,7 @@ MATCHING RULES:
 - Do not make the constellation generic — it should only fit this user.
 - Tagline: a one-line claim about who the thinker is — not a description.
 - match_reason: 1–2 sentences citing specific answers.
-- what_to_learn: what the user should look for from this thinker, given their lens.
+- entry_point: where the user should start reading this thinker, given their lens.
 - profile_summary: 2–3 sentences describing the user's core epistemic lens based on their answers.`;
 
 function formatAnswers(topic: string, answers: AnswerEntry[]): string {
@@ -129,3 +126,5 @@ export async function generateConstellation(
 
   return parsed as ConstellationResponse;
 }
+
+export { formatAnswers };

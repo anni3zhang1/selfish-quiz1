@@ -33,11 +33,14 @@ export default async function StartPage({
   const { error } = await searchParams;
   return (
     <main className="mx-auto max-w-md px-6 py-20 sm:py-28">
-      <h1 className="text-3xl sm:text-4xl font-serif tracking-tight leading-tight mb-3">
-        Before we begin — who are you?
+      <h1 className="text-5xl sm:text-6xl font-serif tracking-tight leading-none mb-6">
+        Self<em>ish</em>
       </h1>
-      <p className="text-neutral-600 mb-10">
-        We&rsquo;ll save your results so you can come back to them.
+      <p className="text-xl sm:text-2xl font-serif text-neutral-800 leading-snug mb-4">
+        Find out who you are by encountering what you are not.
+      </p>
+      <p className="text-base text-neutral-600 leading-relaxed mb-10">
+        Tell us how you think and we&rsquo;ll show you who thinks like you&hellip;and who doesn&rsquo;t.
       </p>
 
       <form action={submitIdentity} className="space-y-5">

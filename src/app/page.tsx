@@ -16,7 +16,7 @@ export default async function Home() {
           Hello, {user.name.split(" ")[0]}
         </div>
         <h1 className="text-4xl sm:text-5xl font-serif tracking-tight leading-tight">
-          You find out who you are by encountering what you are not.
+          Tell us how you think and we&rsquo;ll show you who thinks like you&hellip;and who doesn&rsquo;t.
         </h1>
         <p className="mt-6 text-lg text-neutral-600">
           Take a quiz on any topic. Discover the 7 thinkers who map your mind.

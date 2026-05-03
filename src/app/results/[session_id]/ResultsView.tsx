@@ -260,13 +260,13 @@ export default function ResultsView({
 
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-12 sm:py-16">
-      <header className="mb-12 max-w-3xl">
-        <div className="text-lg text-neutral-500 mb-3">
-          Your {topicLabel} Constellation
-        </div>
+      <header className="mb-16 max-w-3xl">
+        <h1 className="text-4xl sm:text-5xl font-serif tracking-tight leading-tight mb-6">
+          Your Position On {topicLabel}
+        </h1>
 
         {profileSummary && (
-          <p className="text-base text-neutral-700 leading-relaxed mb-6">
+          <p className="text-base text-neutral-700 leading-relaxed">
             {profileSummary}
           </p>
         )}
@@ -278,6 +278,15 @@ export default function ResultsView({
           {previewError ?? "Please try again."}
         </div>
       )}
+
+      <div className="mb-8 max-w-3xl">
+        <h2 className="text-2xl sm:text-3xl font-serif tracking-tight leading-tight mb-2">
+          Your Intellectual Map
+        </h2>
+        <p className="text-base text-neutral-600 leading-relaxed">
+          The thinkers who share your logic, challenge your assumptions, and push where you&rsquo;re headed.
+        </p>
+      </div>
 
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {RELATIONSHIPS.map((r) => (

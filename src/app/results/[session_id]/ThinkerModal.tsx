@@ -74,13 +74,13 @@ export default function ThinkerModal({
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/60" aria-hidden />
 
-      {/* Panel — portrait card-style */}
+      {/* Panel — card-style */}
       <div
         onClick={(e) => e.stopPropagation()}
-        className={`modal-panel relative w-[340px] sm:w-[380px] max-h-[85vh] overflow-y-auto rounded-2xl flex flex-col shadow-2xl ${meta.faceGradient} ${meta.textOnFace}`}
+        className={`modal-panel relative w-[95vw] sm:w-[90vw] sm:max-w-[680px] max-h-[85vh] overflow-y-auto rounded-2xl flex flex-col shadow-2xl ${meta.faceGradient} ${meta.textOnFace}`}
       >
         {/* Header — type label + close */}
-        <div className="flex items-start justify-between px-6 pt-5 pb-2 shrink-0">
+        <div className="flex items-start justify-between px-6 sm:px-8 pt-6 pb-2 shrink-0">
           <div className="text-2xl font-semibold tracking-tight opacity-90">
             {meta.label}
           </div>
@@ -95,22 +95,25 @@ export default function ThinkerModal({
         </div>
 
         {/* Body — emoji, name, tagline, CTA */}
-        <div className="px-6 pt-4 pb-6 flex-1 flex flex-col">
+        <div className="px-6 sm:px-8 pt-4 pb-7 flex-1 flex flex-col">
           <div className="text-6xl mb-6 opacity-90">{meta.emoji}</div>
 
           <h2 className="text-2xl sm:text-3xl font-bold leading-tight mb-3">
             {card.name}
           </h2>
-          <p className="text-base italic opacity-75 mb-6 leading-relaxed">
+          <p className="text-base sm:text-lg italic opacity-75 mb-6 leading-relaxed">
             {card.tagline}
           </p>
 
           {card.match_reason && (
-            <div className="mb-8 rounded-xl bg-white/10 px-4 py-3">
-              <div className="text-[10px] uppercase tracking-widest font-semibold opacity-70 mb-1.5">
+            <div className="mb-8 rounded-xl bg-white/10 px-5 py-4 sm:px-6 sm:py-5">
+              <div className="text-[10px] uppercase tracking-widest font-semibold opacity-70 mb-2">
                 Why you&rsquo;re matched
               </div>
-              <p className="text-sm leading-relaxed opacity-95">
+              <p
+                className="text-sm sm:text-base opacity-95"
+                style={{ lineHeight: 1.6 }}
+              >
                 {truncateToSentences(card.match_reason, 3)}
               </p>
             </div>
@@ -129,7 +132,7 @@ export default function ThinkerModal({
         </div>
 
         {/* Navigation footer */}
-        <div className="flex items-center justify-between px-6 py-3 shrink-0 text-sm border-t border-white/15">
+        <div className="flex items-center justify-between px-6 sm:px-8 py-3 shrink-0 text-sm border-t border-white/15">
           <button
             type="button"
             onClick={onPrev}

@@ -13,9 +13,9 @@ Add 9 new quiz topics to the Selfish app. The quiz data is ready in `quiz-data/*
 Key patterns:
 - Uses `const TOPIC = "slug_name"` at the top
 - Uses helper `const f = (text: string) => ({ id: "E", text, freeform: true as const })` for option E
-- `followupQuestions` is a `Record<string, Question>` containing MC follow-up sub-questions (the ones with IDs like `q1a`, `q3a`)
-- `main` is an `AnyQuestion[]` containing all main questions in order
-- The last question uses `freeformOnly: true` (no options array)
+- `followupQuestions` is a `Record<string, Question>` containing MC follow-up sub-questions (the ones with IDs like `q1a`, `q2a`)
+- `main` is an `AnyQuestion[]` containing all main questions in order (q1-q6 MC + q7 freeform)
+- The last question (q7) uses `freeformOnly: true` (no `options` array)
 - Freeform follow-ups (type: "freeform") stay inline in the main question's `followups` object — they are NOT in `followupQuestions`
 - Only MC follow-ups (type: "mc") go into `followupQuestions`
 - Exports a single object: `{ topic, topicLabel, questions: main, followupQuestions }`
@@ -35,30 +35,26 @@ Key patterns:
 | `quiz-data/homelessness.json` | `src/lib/quizzes/homelessness.ts` | `homelessness` | `Homelessness` | `homelessnessQuiz` |
 | `quiz-data/gun_rights.json` | `src/lib/quizzes/gun-rights.ts` | `gun_rights` | `Gun Rights` | `gunRightsQuiz` |
 
-**IMPORTANT:** The `topic` field in the JSON files uses the same slug as defined above. The `truth_and_media.json` file uses topic `truth_and_media` but the slug in `index.ts` is `truth_media` — make sure to use `truth_media` as the TOPIC constant.
+**IMPORTANT:** The `truth_and_media.json` file uses topic `truth_and_media` but the slug in `index.ts` is `truth_media` — make sure to use `truth_media` as the TOPIC constant.
 
 ## How to convert JSON to TypeScript
 
-Each JSON file is an array of question objects. The conversion rules:
+Each JSON file contains an array of question objects. Main questions have IDs `q1`-`q6`, sub-questions have IDs like `q1a` or `q2a`, and the final freeform question is `q7`.
 
-1. **Questions with `"freeform_only": true`** → use `freeformOnly: true` in TypeScript (camelCase), no `options` field
-2. **Questions with IDs ending in `a`** (e.g., `q1a`, `q3a`, `q5a`) → these are MC follow-up sub-questions; put them in `followupQuestions`
-3. **All other questions** → go into `main` array in order
+Conversion rules:
+
+1. **Questions with `"freeform_only": true`** (always q7) → use `freeformOnly: true` in TypeScript (camelCase), no `options` field
+2. **Questions with IDs ending in `a`** (e.g., `q1a`, `q3a`) → these are MC follow-up sub-questions; put them in `followupQuestions`
+3. **All other questions** (q1-q6) → go into `main` array in order
 4. **Option E** → use the `f()` helper: `f("None of these / I see it differently")`
 5. **Followups with `"type": "mc"`** → stay as `{ type: "mc", question_id: "q1a" }` in the main question
 6. **Followups with `"type": "freeform"`** → stay as `{ type: "freeform", prompt: "..." }` in the main question
-7. **Empty followups `{}`** → omit the `followups` property entirely (don't include an empty object)
+7. **Empty followups `{}`** or missing followups → omit the `followups` property entirely (don't include an empty object)
 8. **Escape quotes** in text strings — use `\'` for single quotes and `\"` or backticks as needed
 
-## Update index.ts
+## index.ts
 
-After creating all 9 TypeScript files, update `src/lib/quizzes/index.ts`:
-
-1. Add 9 imports at the top
-2. Add all 9 to the `quizzes` object
-3. Set `available: true` for all 9 topic cards (they already exist with `available: false`)
-
-The `topicCards` array already has entries for all 9 topics with correct slugs, names, descriptions, intentions, and gradients. You just need to flip `available: false` to `available: true`.
+`src/lib/quizzes/index.ts` is already fully set up — all 9 imports, the `quizzes` object, and `topicCards` with `available: true` are already in place. **Do not modify index.ts.** Just create the 9 quiz files it's already importing.
 
 ## Verification
 
@@ -75,4 +71,5 @@ After implementing, run `npm run build` (or `npx next build`) to verify there ar
 - Do not modify the types file
 - Do not modify the database schema
 - Do not change the AI Governance quiz
+- Do not change `index.ts` — it's already correct
 - Do not change the topic card metadata (descriptions, intentions, gradients) — they're already correct

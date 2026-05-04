@@ -32,7 +32,7 @@ export default async function ProfilePage({
           See your profile
         </h1>
         <p className="text-neutral-600 mb-8">
-          Enter the email you used. We&rsquo;ll show every constellation you&rsquo;ve made.
+          Enter the email you used. We&rsquo;ll show every intellectual map you&rsquo;ve made.
         </p>
         <form method="GET" className="space-y-5">
           <input
@@ -99,7 +99,7 @@ export default async function ProfilePage({
       {sessions.length === 0 ? (
         <section className="rounded-xl border border-neutral-200 bg-white p-8 text-center mb-12">
           <p className="text-neutral-600 mb-4">
-            No constellations yet. Pick a topic to begin.
+            No intellectual maps yet. Pick a topic to begin.
           </p>
           <Link
             href="/"
@@ -170,7 +170,7 @@ export default async function ProfilePage({
                     href={`/results/${s.id}`}
                     className="text-xs underline underline-offset-4 text-neutral-700 hover:text-neutral-900"
                   >
-                    Open full constellation →
+                    Open full results →
                   </Link>
                 </div>
               </details>

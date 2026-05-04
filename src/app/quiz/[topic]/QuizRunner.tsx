@@ -33,6 +33,18 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
     return null;
   }, [pendingFollowups, remainingMain]);
 
+  // Shuffle options once per question; stable across re-renders for the same question
+  const shuffledOptions = useMemo(() => {
+    if (!current || isFreeformOnly(current)) return [];
+    const opts = [...(current as Question).options];
+    for (let i = opts.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [opts[i], opts[j]] = [opts[j], opts[i]];
+    }
+    return opts;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [current?.id]);
+
   const totalMain = quiz.questions.length;
   const answeredMain = totalMain - remainingMain.length;
   const progressLabel = current
@@ -146,7 +158,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
       <div className="text-center py-32 flex flex-col items-center">
         <div className="w-10 h-10 border-2 border-neutral-300 border-t-neutral-700 rounded-full animate-spin mb-6" />
         <div className="text-2xl font-serif mb-3">
-          Mapping your constellation...
+          Generating your intellectual map...
         </div>
         <p className="text-neutral-500 text-sm">
           This takes a few seconds.
@@ -208,8 +220,9 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
 
       {!freeformOnly && (
         <div className="space-y-2 mb-6">
-          {(current as Question).options.map((opt) => {
+          {shuffledOptions.map((opt, idx) => {
             const selected = optionId === opt.id;
+            const displayLabel = String.fromCharCode(65 + idx);
             return (
               <button
                 key={opt.id}
@@ -227,7 +240,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
                 }`}
               >
                 <span className="font-mono text-xs mr-3 opacity-70">
-                  {opt.id}
+                  {displayLabel}
                 </span>
                 {opt.text}
               </button>

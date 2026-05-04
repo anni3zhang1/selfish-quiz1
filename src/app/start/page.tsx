@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { setServerUser, isValidEmail } from "@/lib/user";
+import { SubmitButton } from "./SubmitButton";
 
 async function submitIdentity(formData: FormData) {
   "use server";
@@ -81,12 +82,7 @@ export default async function StartPage({
           </div>
         )}
 
-        <button
-          type="submit"
-          className="w-full py-3 bg-neutral-900 text-white rounded-lg font-medium hover:bg-neutral-800 transition"
-        >
-          Let&rsquo;s go →
-        </button>
+        <SubmitButton />
       </form>
 
       <div className="mt-8 text-center text-xs text-neutral-500">

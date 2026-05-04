@@ -249,7 +249,7 @@ export default function ResultsView({
       <main className="mx-auto w-full max-w-6xl px-6 py-12 sm:py-16 min-h-[70vh] flex flex-col items-center justify-center text-center">
         <div className="w-10 h-10 border-2 border-neutral-300 border-t-neutral-700 rounded-full animate-spin mb-6" />
         <h1 className="text-2xl sm:text-3xl font-serif mb-3">
-          Mapping your constellation...
+          Generating your intellectual map...
         </h1>
         <p className="text-sm text-neutral-500">
           This takes a few seconds.
@@ -274,7 +274,7 @@ export default function ResultsView({
 
       {phase === "error" && (
         <div className="mb-8 p-5 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
-          <strong>Could not generate your constellation.</strong>{" "}
+          <strong>Could not generate your intellectual map.</strong>{" "}
           {previewError ?? "Please try again."}
         </div>
       )}
@@ -337,7 +337,7 @@ export default function ResultsView({
             href={`/profile?email=${encodeURIComponent(userEmail)}`}
             className="inline-block mt-3 underline underline-offset-4 text-neutral-700 hover:text-neutral-900"
           >
-            View all your constellations →
+            View all your intellectual maps →
           </Link>
         </div>
       )}
@@ -350,7 +350,7 @@ export default function ResultsView({
           ← Explore another topic
         </Link>
         <div className="text-xs text-neutral-400">
-          Bookmark this page — your constellation lives at this URL.
+          Bookmark this page — your intellectual map lives at this URL.
         </div>
       </footer>
 

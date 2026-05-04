@@ -81,6 +81,12 @@ export type ThinkerQuestion = {
   how_thinker_sees_it: string;
 };
 
+export type ThinkerImpact = {
+  group: string;
+  emoji?: string;
+  impact: string;
+};
+
 export type ThinkerProfileData = {
   why_matched: string;
   what_they_believe: string;
@@ -89,4 +95,5 @@ export type ThinkerProfileData = {
   how_they_think: string;
   tension: ThinkerTension;
   questions_worth_sitting_with: ThinkerQuestion[];
+  who_they_impact: ThinkerImpact[];
 };

@@ -52,6 +52,17 @@ const questionSchema = {
   additionalProperties: false,
 } as const;
 
+const impactSchema = {
+  type: "object",
+  properties: {
+    group: { type: "string" },
+    emoji: { type: "string" },
+    impact: { type: "string" },
+  },
+  required: ["group", "impact"],
+  additionalProperties: false,
+} as const;
+
 const profileSchema = {
   type: "object",
   properties: {
@@ -70,6 +81,12 @@ const profileSchema = {
       items: questionSchema,
       minItems: 1,
     },
+    who_they_impact: {
+      type: "array",
+      items: impactSchema,
+      minItems: 3,
+      maxItems: 5,
+    },
   },
   required: [
     "why_matched",
@@ -79,6 +96,7 @@ const profileSchema = {
     "how_they_think",
     "tension",
     "questions_worth_sitting_with",
+    "who_they_impact",
   ],
   additionalProperties: false,
 } as const;
@@ -133,7 +151,14 @@ Make it specific and slightly uncomfortable to read.
 - question: a genuine intellectual provocation (not rhetorical, not easy)
 - what_you_said: one sentence connecting to a specific thing the user revealed (in plain language, no answer codes)
 - how_thinker_sees_it: their actual position in 1-2 sentences — something to push against, not just context
-The user should be able to engage immediately — no off-platform research required. The substance is in the question itself.`;
+The user should be able to engage immediately — no off-platform research required. The substance is in the question itself.
+
+8. who_they_impact
+3-5 stakeholder groups whose lives are meaningfully shaped by this thinker's ideas. Concrete real-world actors, communities, or institutions — not abstract categories. For each:
+- group: a short label (e.g. "Tech platforms", "Incarcerated people", "Climate policymakers")
+- emoji: a single emoji representing the group (optional but preferred)
+- impact: one sentence describing how this thinker's specific thesis affects or implicates them — concrete, not abstract
+The LAST entry must always have group: "You" with a one-sentence statement of how this thinker's position lands personally for someone who answered the quiz the way this user did. Use the user's actual answers to make it specific.`;
 
 export async function POST(req: Request) {
   let body: Body;
@@ -189,7 +214,7 @@ User's existing match reason for this thinker:
 
 ${formatAnswers(session.topic, answers)}
 
-Generate all 7 sections as a single JSON object conforming to the schema.`;
+Generate all 8 sections as a single JSON object conforming to the schema.`;
 
   try {
     const stream = anthropic.messages.stream({

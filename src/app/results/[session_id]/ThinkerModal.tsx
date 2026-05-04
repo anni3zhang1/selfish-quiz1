@@ -99,13 +99,13 @@ export default function ThinkerModal({
         {/* Body — photo/emoji, name, tagline, CTA */}
         <div className="px-6 sm:px-8 pt-4 pb-7 flex-1 flex flex-col">
           {card.thumbnail_url ? (
-            <div className="flex items-center gap-4 mb-6">
+            <div className="flex items-center gap-5 mb-6">
               <Image
                 src={card.thumbnail_url}
                 alt={card.name}
-                width={80}
-                height={80}
-                className="rounded-full object-cover w-[80px] h-[80px] ring-2 ring-white/40 shadow-md shrink-0"
+                width={120}
+                height={120}
+                className="rounded-full object-cover w-[120px] h-[120px] ring-2 ring-white/40 shadow-md shrink-0"
               />
               <div className="text-4xl opacity-90">{meta.emoji}</div>
             </div>

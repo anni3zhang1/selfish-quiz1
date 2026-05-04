@@ -4,11 +4,27 @@
     "topic": "meaning_crisis",
     "text": "In 2023, Gallup found that church membership in the U.S. dropped below 50% for the first time — down from 70% in 1999. Across Europe, most people under 30 identify as non-religious. Meanwhile, astrology apps, psychedelic retreats, and online communities built around identity are booming. What's actually being lost as religion declines?",
     "options": [
-      {"id": "A", "text": "Shared narrative — religion gave people a common story and moral vocabulary; without one, we fragment into tribes that can't talk to each other"},
-      {"id": "B", "text": "Embodied community — not the beliefs but the practice: weekly gathering, mutual obligation, rituals that mark birth, death, and transition"},
-      {"id": "C", "text": "Nothing is being lost — religion was a constraint on human flourishing, and what's replacing it is more honest, just less organized"},
-      {"id": "D", "text": "A relationship to the sacred — something beyond the self that secular substitutes can't replicate because they refuse transcendence by design"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
+      {
+        "id": "A",
+        "text": "Shared narrative — religion gave people a common story and moral vocabulary; without one, we fragment into tribes that can't talk to each other"
+      },
+      {
+        "id": "B",
+        "text": "Embodied community — not the beliefs but the practice: weekly gathering, mutual obligation, rituals that mark birth, death, and transition"
+      },
+      {
+        "id": "C",
+        "text": "Nothing is being lost — religion was a constraint on human flourishing, and what's replacing it is more honest, just less organized"
+      },
+      {
+        "id": "D",
+        "text": "A relationship to the sacred — something beyond the self that secular substitutes can't replicate because they refuse transcendence by design"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
     ],
     "followups": {
       "C": {
@@ -20,70 +36,91 @@
   {
     "id": "q2",
     "topic": "meaning_crisis",
-    "text": "Headspace and Calm are worth over $2 billion each. BetterHelp runs ads on every podcast. The self-help book market generates over $13 billion annually. Ayahuasca retreats in Costa Rica charge $5,000 a week. Therapy, meditation apps, wellness culture — the meaning industry is booming. Is this a genuine response to a real crisis, or a market exploiting a wound?",
-    "options": [
-      {"id": "A", "text": "Genuine — people are finding real tools for real suffering; the delivery mechanism being commercial doesn't invalidate the relief"},
-      {"id": "B", "text": "Exploitation — commodifying inner life turns transformation into consumption; you can't subscribe your way to meaning"},
-      {"id": "C", "text": "Both — some of it works, but the framing is wrong; meaning isn't a personal optimization problem, it's a collective one that can't be solved app by app"},
-      {"id": "D", "text": "It's a symptom, not a response — the fact that we need an industry for what communities and traditions used to provide for free IS the crisis"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
-    ],
-    "followups": {}
-  },
-  {
-    "id": "q3",
-    "topic": "meaning_crisis",
     "text": "Psychologist Jonathan Haidt documents in \"The Righteous Mind\" how political identity activates the same moral psychology as religion — sacred values, tribal loyalty, ritual, and heresy-policing. A 2022 Pew study found that partisan identity is now a stronger predictor of social behavior than race, class, or religion in the U.S. Is politics-as-religion dangerous?",
     "options": [
-      {"id": "A", "text": "Yes — politics as religion produces zealots, not citizens; it makes compromise impossible because concession feels like apostasy"},
-      {"id": "B", "text": "It's inevitable — humans need moral community, and politics is where moral questions actually get decided; this is just what democracy looks like"},
-      {"id": "C", "text": "The danger isn't political identity itself but the absence of anything else — when politics is your only source of meaning, losing an election feels existential"},
-      {"id": "D", "text": "It's not new — nationalism, communism, and fascism were all political religions; we just forgot because liberal democracy was boring enough to feel neutral"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
+      {
+        "id": "A",
+        "text": "Yes — politics as religion produces zealots, not citizens; it makes compromise impossible because concession feels like apostasy"
+      },
+      {
+        "id": "B",
+        "text": "It's inevitable — humans need moral community, and politics is where moral questions actually get decided; this is just what democracy looks like"
+      },
+      {
+        "id": "C",
+        "text": "The danger isn't political identity itself but the absence of anything else — when politics is your only source of meaning, losing an election feels existential"
+      },
+      {
+        "id": "D",
+        "text": "It's not new — nationalism, communism, and fascism were all political religions; we just forgot because liberal democracy was boring enough to feel neutral"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
     ],
     "followups": {
       "A": {
         "type": "mc",
-        "question_id": "q3a"
+        "question_id": "q2a"
       }
     }
   },
   {
-    "id": "q3a",
+    "id": "q3",
     "topic": "meaning_crisis",
-    "text": "If political identity as religion is dangerous, what should fill the need for moral community instead?",
+    "text": "The U.S. Surgeon General Vivek Murthy declared loneliness a public health epidemic in 2023, comparing its mortality effects to smoking 15 cigarettes a day. Yet the internet connects more people than any technology in history. Some people's deepest relationships exist entirely online. Murthy's advisory focused on in-person connection — but is that the right frame?",
     "options": [
-      {"id": "A", "text": "Local community — neighborhood, mutual aid, place-based belonging that doesn't require ideological alignment"},
-      {"id": "B", "text": "Renewed philosophical or spiritual traditions — adapted for modernity but grounded in something older than last week's discourse"},
-      {"id": "C", "text": "Nothing needs to \"replace\" it — the goal is a plurality of meaning sources so no single one becomes totalizing"},
-      {"id": "D", "text": "Shared projects — climate action, space exploration, pandemic preparedness; meaning through collective doing, not collective believing"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
-    ],
-    "followups": {}
+      {
+        "id": "A",
+        "text": "Net negative — parasocial relationships and algorithmic feeds simulate connection while eroding the capacity for the real thing"
+      },
+      {
+        "id": "B",
+        "text": "Net positive — the internet let millions of people find their people, especially those marginalized or isolated in physical spaces"
+      },
+      {
+        "id": "C",
+        "text": "The medium is neutral — what matters is whether online connection leads to offline commitment, or permanently substitutes for it"
+      },
+      {
+        "id": "D",
+        "text": "Wrong question — the internet didn't cause loneliness; it revealed how hollow our in-person communities had already become before the first smartphone"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ]
   },
   {
     "id": "q4",
     "topic": "meaning_crisis",
-    "text": "The U.S. Surgeon General Vivek Murthy declared loneliness a public health epidemic in 2023, comparing its mortality effects to smoking 15 cigarettes a day. Yet the internet connects more people than any technology in history. Some people's deepest relationships exist entirely online. Murthy's advisory focused on in-person connection — but is that the right frame?",
-    "options": [
-      {"id": "A", "text": "Net negative — parasocial relationships and algorithmic feeds simulate connection while eroding the capacity for the real thing"},
-      {"id": "B", "text": "Net positive — the internet let millions of people find their people, especially those marginalized or isolated in physical spaces"},
-      {"id": "C", "text": "The medium is neutral — what matters is whether online connection leads to offline commitment, or permanently substitutes for it"},
-      {"id": "D", "text": "Wrong question — the internet didn't cause loneliness; it revealed how hollow our in-person communities had already become before the first smartphone"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
-    ],
-    "followups": {}
-  },
-  {
-    "id": "q5",
-    "topic": "meaning_crisis",
     "text": "In 1882, Nietzsche wrote \"God is dead\" and warned that without a replacement for the Christian moral framework, Europe would descend into nihilism and catastrophic ideological warfare. Within 60 years, two world wars and the Holocaust had played out. Cognitive scientist John Vervaeke argues we're in a second wave — that the secular substitutes (nationalism, Marxism, consumerism, therapeutic culture) are themselves now failing. Was Nietzsche right?",
     "options": [
-      {"id": "A", "text": "Yes — we're living in exactly the nihilism he predicted; we just masked it with consumption, productivity, and distraction"},
-      {"id": "B", "text": "Partially — the nihilism came, but so did genuine alternatives he didn't foresee: secular humanism, existentialism, effective altruism, human rights frameworks"},
-      {"id": "C", "text": "No — he underestimated ordinary human resilience; most people construct workable meaning from love, work, and relationships without any grand narrative"},
-      {"id": "D", "text": "He was right about the diagnosis but wrong about the timeline — the real crisis is hitting now, because the 20th-century substitutes are finally exhausted too"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
+      {
+        "id": "A",
+        "text": "Yes — we're living in exactly the nihilism he predicted; we just masked it with consumption, productivity, and distraction"
+      },
+      {
+        "id": "B",
+        "text": "Partially — the nihilism came, but so did genuine alternatives he didn't foresee: secular humanism, existentialism, effective altruism, human rights frameworks"
+      },
+      {
+        "id": "C",
+        "text": "No — he underestimated ordinary human resilience; most people construct workable meaning from love, work, and relationships without any grand narrative"
+      },
+      {
+        "id": "D",
+        "text": "He was right about the diagnosis but wrong about the timeline — the real crisis is hitting now, because the 20th-century substitutes are finally exhausted too"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
     ],
     "followups": {
       "A": {
@@ -93,53 +130,94 @@
     }
   },
   {
-    "id": "q6",
+    "id": "q5",
     "topic": "meaning_crisis",
     "text": "Gallup's global workplace study found that 77% of workers worldwide are disengaged from their jobs. Meanwhile, \"follow your passion\" is the dominant career advice of the educated class, from Steve Jobs' Stanford commencement speech to every LinkedIn influencer. The Japanese concept of ikigai — finding purpose at the intersection of love, skill, need, and pay — has become a bestselling self-help framework. Where do you land on meaning in work?",
     "options": [
-      {"id": "A", "text": "Work can be genuinely meaningful — craft, service, creation are human needs, not capitalist inventions; the problem is most jobs are designed badly"},
-      {"id": "B", "text": "\"Find your passion\" is a privilege narrative that erases the reality of most work, which is coerced, repetitive, and done to survive"},
-      {"id": "C", "text": "The problem isn't work itself but conditions — meaningful work requires autonomy, mastery, and fair compensation, which most employment structures deny"},
-      {"id": "D", "text": "Both are true, and that's the tension — work is a genuine source of meaning AND the system exploits that desire to extract more labor for less pay"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
+      {
+        "id": "A",
+        "text": "Work can be genuinely meaningful — craft, service, creation are human needs, not capitalist inventions; the problem is most jobs are designed badly"
+      },
+      {
+        "id": "B",
+        "text": "\"Find your passion\" is a privilege narrative that erases the reality of most work, which is coerced, repetitive, and done to survive"
+      },
+      {
+        "id": "C",
+        "text": "The problem isn't work itself but conditions — meaningful work requires autonomy, mastery, and fair compensation, which most employment structures deny"
+      },
+      {
+        "id": "D",
+        "text": "Both are true, and that's the tension — work is a genuine source of meaning AND the system exploits that desire to extract more labor for less pay"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ]
+  },
+  {
+    "id": "q6",
+    "topic": "meaning_crisis",
+    "text": "Philosopher Charles Taylor argues in \"A Secular Age\" that modernity didn't just remove God — it created a new condition he calls \"the immanent frame,\" where all experience is understood as natural, material, and self-contained. Nothing points beyond itself. Some see this as liberation; others as a kind of imprisonment. When everything is explainable, is anything still sacred?",
+    "options": [
+      {
+        "id": "A",
+        "text": "No, and that's fine — sacredness was always a human projection; understanding the world as it actually is, without mystification, is a gain, not a loss"
+      },
+      {
+        "id": "B",
+        "text": "No, and that's the problem — without the sacred, everything becomes instrumental; people become resources, nature becomes material, relationships become transactions"
+      },
+      {
+        "id": "C",
+        "text": "Yes — sacredness doesn't require the supernatural; awe, beauty, moral obligation, and love are all sacred experiences fully available within a materialist frame"
+      },
+      {
+        "id": "D",
+        "text": "The question is premature — we're only a few centuries into the secular experiment; we don't yet know what new forms of the sacred might emerge from a post-religious culture"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ]
+  },
+  {
+    "id": "q2a",
+    "topic": "meaning_crisis",
+    "text": "If political identity as religion is dangerous, what should fill the need for moral community instead?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Local community — neighborhood, mutual aid, place-based belonging that doesn't require ideological alignment"
+      },
+      {
+        "id": "B",
+        "text": "Renewed philosophical or spiritual traditions — adapted for modernity but grounded in something older than last week's discourse"
+      },
+      {
+        "id": "C",
+        "text": "Nothing needs to \"replace\" it — the goal is a plurality of meaning sources so no single one becomes totalizing"
+      },
+      {
+        "id": "D",
+        "text": "Shared projects — climate action, space exploration, pandemic preparedness; meaning through collective doing, not collective believing"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
     ],
     "followups": {}
   },
   {
     "id": "q7",
     "topic": "meaning_crisis",
-    "text": "Sociologist Émile Durkheim predicted in the 1890s that as societies modernized, they'd produce more anomie — a state of normlessness where individuals feel disconnected from collective life. He saw suicide rates as the clearest indicator. Today, the U.S. suicide rate is at a 50-year high. \"Deaths of despair\" — suicide, overdose, alcohol-related deaths — have become the leading cause of death for Americans under 45. Economists Anne Case and Angus Deaton linked this directly to the collapse of working-class community structures. Is the meaning crisis primarily a class issue?",
-    "options": [
-      {"id": "A", "text": "Yes — the educated class has replaced religion with careers, credentials, and therapy; the working class lost religion AND economic dignity, with nothing to fill either void"},
-      {"id": "B", "text": "No — the crisis is universal; affluent people mask it better with consumption and status, but rates of anxiety and emptiness are rising across every demographic"},
-      {"id": "C", "text": "It's a class issue in its expression but not its cause — the underlying problem is the collapse of shared institutions, which affects everyone differently based on what else they have"},
-      {"id": "D", "text": "The class frame is the wrong lens — it's a technological transition; the internet and smartphones disrupted the social infrastructure that produced meaning across all classes simultaneously"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
-    ],
-    "followups": {
-      "A": {
-        "type": "freeform",
-        "prompt": "If the educated class has substituted career identity for community — is that actually working for them, or is it just a more respectable form of the same emptiness?"
-      }
-    }
-  },
-  {
-    "id": "q8",
-    "topic": "meaning_crisis",
-    "text": "Philosopher Charles Taylor argues in \"A Secular Age\" that modernity didn't just remove God — it created a new condition he calls \"the immanent frame,\" where all experience is understood as natural, material, and self-contained. Nothing points beyond itself. Some see this as liberation; others as a kind of imprisonment. When everything is explainable, is anything still sacred?",
-    "options": [
-      {"id": "A", "text": "No, and that's fine — sacredness was always a human projection; understanding the world as it actually is, without mystification, is a gain, not a loss"},
-      {"id": "B", "text": "No, and that's the problem — without the sacred, everything becomes instrumental; people become resources, nature becomes material, relationships become transactions"},
-      {"id": "C", "text": "Yes — sacredness doesn't require the supernatural; awe, beauty, moral obligation, and love are all sacred experiences fully available within a materialist frame"},
-      {"id": "D", "text": "The question is premature — we're only a few centuries into the secular experiment; we don't yet know what new forms of the sacred might emerge from a post-religious culture"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
-    ],
-    "followups": {}
-  },
-  {
-    "id": "q9",
-    "topic": "meaning_crisis",
-    "text": "What's the meaning crisis question nobody is asking loudly enough?",
+    "text": "Describe a moment — real or hypothetical — where you felt genuine meaning that wasn’t transactional, performative, or consumable. What made it different?",
     "options": [],
     "freeform_only": true,
     "followups": {}

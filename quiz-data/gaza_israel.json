@@ -1,0 +1,184 @@
+[
+  {
+    "id": "q1",
+    "topic": "gaza_israel",
+    "text": "On October 7, 2023, Hamas launched an attack on southern Israel, killing approximately 1,200 people — including 364 at a music festival — and taking over 250 hostages. Israel responded with a military campaign in Gaza that, by early 2025, had killed over 45,000 Palestinians according to Gaza's Health Ministry, displaced roughly 1.9 million people, and destroyed an estimated 60% of Gaza's buildings. The International Court of Justice ruled it plausible that Israel was committing genocide. How do you frame what's happening?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Israel has a right to self-defense, but the scale of civilian casualties is disproportionate and has crossed into collective punishment — the response has become worse than the attack it was meant to answer"
+      },
+      {
+        "id": "B",
+        "text": "Hamas deliberately embeds in civilian infrastructure; the civilian death toll is a tragedy but the moral responsibility lies with Hamas for starting the war and using human shields"
+      },
+      {
+        "id": "C",
+        "text": "Both framings are true and insufficient — October 7 was an atrocity, the response is an atrocity, and choosing sides requires ignoring one set of dead people"
+      },
+      {
+        "id": "D",
+        "text": "This can't be understood as a single event — it's the latest escalation in a 75-year conflict rooted in occupation, displacement, and denial of Palestinian statehood; October 7 didn't happen in a vacuum"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ],
+    "followups": {
+      "B": {
+        "type": "freeform",
+        "prompt": "International humanitarian law holds that even when an enemy uses human shields, the attacking force retains the obligation to minimize civilian casualties. If over 15,000 children have been killed, at what point does the 'human shields' defense lose its moral force?"
+      }
+    }
+  },
+  {
+    "id": "q2",
+    "topic": "gaza_israel",
+    "text": "The two-state solution — an independent Palestinian state alongside Israel — has been the official international consensus since the Oslo Accords in 1993. In 2024, over 140 UN member states recognized Palestine. But on the ground, Israel has expanded settlements in the West Bank to over 700,000 settlers, and Gaza has been under blockade since 2007. Former Israeli Prime Minister Ehud Olmert said the two-state solution is 'dead.' Palestinian Authority President Mahmoud Abbas has called it 'meaningless without Jerusalem.' Is two states still viable?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Yes — it's the only framework that gives both peoples self-determination; the obstacles are political, not geographic, and can be overcome with sufficient international pressure"
+      },
+      {
+        "id": "B",
+        "text": "No — settlements have made a contiguous Palestinian state physically impossible; the two-state framework is a diplomatic fiction that prevents serious alternatives from being discussed"
+      },
+      {
+        "id": "C",
+        "text": "The question of viability is separate from the question of justice — two states may be impractical, but one democratic state for both peoples is even harder given current levels of hatred and distrust"
+      },
+      {
+        "id": "D",
+        "text": "Neither one state nor two states addresses the core issue — the problem is the power asymmetry; any solution that doesn't address Israeli military dominance and Palestinian subjugation is rearranging chairs"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ]
+  },
+  {
+    "id": "q3",
+    "topic": "gaza_israel",
+    "text": "The U.S. provides Israel with approximately $3.8 billion in military aid annually under a 10-year memorandum of understanding signed in 2016. During the Gaza campaign, the Biden administration approved additional arms transfers while simultaneously calling for restraint. In 2024, the ICC issued arrest warrants for both Hamas leaders and Israeli Prime Minister Netanyahu for alleged war crimes. Should U.S. military aid to Israel be conditional on compliance with international humanitarian law?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Yes — unconditional aid makes the U.S. complicit in violations of international law; conditioning aid is the most powerful leverage available and should be used"
+      },
+      {
+        "id": "B",
+        "text": "No — Israel faces genuine existential threats from hostile neighbors and armed groups; conditioning aid undermines a democratic ally's ability to defend itself"
+      },
+      {
+        "id": "C",
+        "text": "Aid should be conditional but carefully — restrict offensive weapons and settlement expansion while maintaining defensive systems like Iron Dome; the distinction matters"
+      },
+      {
+        "id": "D",
+        "text": "The conditionality debate is performative — no U.S. administration will meaningfully restrict aid to Israel; the domestic political costs are prohibitive; this is about AIPAC, not policy"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ]
+  },
+  {
+    "id": "q4",
+    "topic": "gaza_israel",
+    "text": "On college campuses across the U.S. in 2024, pro-Palestinian encampments demanded university divestment from Israel. Jewish students reported feeling unsafe. The Anti-Defamation League recorded a 360% increase in antisemitic incidents. Simultaneously, the State Department's definition of antisemitism — the IHRA definition — includes 'claiming that the existence of a State of Israel is a racist endeavor' as a form of antisemitism. Critics say this definition conflates criticism of Israeli policy with hatred of Jews. Where is the line between anti-Zionism and antisemitism?",
+    "options": [
+      {
+        "id": "A",
+        "text": "They're distinct — criticizing Israel's policies, including its existence as an ethnostate, is political speech; conflating it with antisemitism silences legitimate dissent and cheapens the fight against real hatred"
+      },
+      {
+        "id": "B",
+        "text": "They're deeply intertwined — denying Jewish self-determination while supporting it for every other people is a double standard that functionally is antisemitic, even when the speaker doesn't intend it"
+      },
+      {
+        "id": "C",
+        "text": "The line exists but is context-dependent — 'from the river to the sea' means different things to different people; intent, pattern, and context matter more than any single statement"
+      },
+      {
+        "id": "D",
+        "text": "The debate over the line is itself a distraction — while people argue about definitions, Palestinians are being killed and displaced; the definitional fight serves those who want to avoid the substantive one"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ]
+  },
+  {
+    "id": "q5",
+    "topic": "gaza_israel",
+    "text": "Amnesty International, Human Rights Watch, and the Israeli human rights organization B'Tselem have all published reports concluding that Israel's treatment of Palestinians meets the legal definition of apartheid under international law. Israel and its supporters categorically reject this characterization, arguing that the situations are fundamentally different — Arab citizens of Israel have voting rights and representation in the Knesset. South Africa filed the genocide case against Israel at the ICJ, explicitly drawing the apartheid parallel. Is the apartheid framework applicable?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Yes — two populations under one sovereign authority with systematically different legal rights, freedom of movement, and access to resources is the definition of apartheid, regardless of what you call it"
+      },
+      {
+        "id": "B",
+        "text": "No — Israel is a democracy with Arab citizens in parliament and on the Supreme Court; the analogy to South Africa erases meaningful differences and delegitimizes a democratic state"
+      },
+      {
+        "id": "C",
+        "text": "The framework is partially applicable — conditions in the West Bank and Gaza resemble apartheid even if the situation inside Israel proper doesn't; the distinction between territories matters"
+      },
+      {
+        "id": "D",
+        "text": "Whether the legal term applies matters less than the reality — millions of people live under military occupation with no political rights; the label debate distracts from the lived experience"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ]
+  },
+  {
+    "id": "q6",
+    "topic": "gaza_israel",
+    "text": "In early 2025, over 2 million Gazans faced famine conditions according to the UN, with aid deliveries blocked or severely restricted. UNRWA, the primary aid agency for Palestinian refugees, was defunded by multiple countries after Israel alleged some employees participated in October 7. Hospitals were destroyed or rendered non-functional. International humanitarian organizations described the situation as the worst aid crisis in the world. What obligation does the international community have?",
+    "options": [
+      {
+        "id": "A",
+        "text": "An absolute obligation — international humanitarian law requires protection of civilian populations in wartime; the failure to enforce this in Gaza undermines the entire post-WWII legal order"
+      },
+      {
+        "id": "B",
+        "text": "A limited obligation — humanitarian aid should flow, but the international community can't dictate the terms of a war between a sovereign state and a designated terrorist organization"
+      },
+      {
+        "id": "C",
+        "text": "The obligation exists but the mechanisms don't — the UN Security Council is paralyzed by the U.S. veto; the ICC has no enforcement power; international law without enforcement is aspiration, not law"
+      },
+      {
+        "id": "D",
+        "text": "The humanitarian framing, while correct, is insufficient — aid access treats symptoms; the obligation is to address the political conditions that created 2 million people trapped in a war zone with nowhere to go"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ]
+  },
+  {
+    "id": "q7",
+    "topic": "gaza_israel",
+    "text": "What would a just and lasting resolution to the Israeli-Palestinian conflict actually require — not what's politically feasible, but what would be right? Be specific.",
+    "options": [],
+    "freeform_only": true,
+    "followups": {}
+  }
+]

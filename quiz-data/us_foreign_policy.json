@@ -1,0 +1,218 @@
+[
+  {
+    "id": "q1",
+    "topic": "us_foreign_policy",
+    "text": "In 2026, the U.S. launched airstrikes against Iranian nuclear facilities after months of escalating tensions — including Iranian-backed attacks on U.S. bases in Iraq and Syria that killed American service members, and Iran's enrichment of uranium to near-weapons-grade levels confirmed by the IAEA. Supporters called it a necessary act of prevention. Critics called it an illegal act of war without congressional authorization. When is military intervention justified?",
+    "options": [
+      {
+        "id": "A",
+        "text": "When there's an imminent threat — preemptive strikes against nuclear-capable adversaries are the definition of justified force; waiting until after a nuclear weapon exists is too late"
+      },
+      {
+        "id": "B",
+        "text": "Only with explicit authorization — Congress hasn't declared war since 1942; the executive branch using military force unilaterally is a constitutional violation regardless of the threat"
+      },
+      {
+        "id": "C",
+        "text": "Only with international consensus — unilateral U.S. strikes, however justified domestically, undermine the international order that prevents larger wars"
+      },
+      {
+        "id": "D",
+        "text": "Almost never — the track record of U.S. military intervention since 1950 suggests it reliably makes things worse; the burden of proof should be overwhelmingly high"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ],
+    "followups": {
+      "A": {
+        "type": "freeform",
+        "prompt": "The same 'imminent threat' logic was used to justify the 2003 Iraq invasion, which found no weapons of mass destruction. What's the standard of evidence that would satisfy you before a preemptive strike — and who checks that evidence?"
+      }
+    }
+  },
+  {
+    "id": "q2",
+    "topic": "us_foreign_policy",
+    "text": "The 2003 Iraq War cost over $2 trillion, killed an estimated 300,000+ Iraqi civilians, destabilized the entire Middle East, and produced ISIS. The intelligence justifying the invasion was fabricated or exaggerated. Yet in 2003, 72% of Americans supported the war. Twenty years later, a Brown University study found that the post-9/11 wars collectively cost $8 trillion and displaced 38 million people. What's the most important lesson?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Intelligence failures must have structural consequences — no one was fired or prosecuted for fabricating the case for war; without accountability, it will happen again"
+      },
+      {
+        "id": "B",
+        "text": "Public opinion is not a justification for war — democracies can be manipulated into supporting catastrophic decisions; institutional checks need to be stronger than popular sentiment"
+      },
+      {
+        "id": "C",
+        "text": "The lesson is simpler than people make it — regime change doesn't work; the U.S. is bad at nation-building and should stop pretending otherwise"
+      },
+      {
+        "id": "D",
+        "text": "Iraq wasn't an aberration, it was the system working as designed — the military-industrial complex, defense contractors, and oil interests got exactly what they wanted"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ]
+  },
+  {
+    "id": "q3",
+    "topic": "us_foreign_policy",
+    "text": "In 1994, 800,000 Rwandans were massacred in 100 days while the U.S. and UN did nothing. In 2011, NATO intervened in Libya citing the 'Responsibility to Protect' doctrine — Gaddafi was overthrown, and Libya descended into a decade of civil war and became a hub for human trafficking. In Syria, the U.S. drew a 'red line' on chemical weapons, Assad crossed it, and nothing happened. When does humanitarian obligation override sovereignty?",
+    "options": [
+      {
+        "id": "A",
+        "text": "When genocide is occurring or imminent — Rwanda proves the cost of inaction is unconscionable; sovereignty doesn't include the right to slaughter your own people"
+      },
+      {
+        "id": "B",
+        "text": "Almost never — Libya proves that intervention 'to save lives' reliably creates more suffering than it prevents; the road to hell is paved with humanitarian justifications"
+      },
+      {
+        "id": "C",
+        "text": "Only with a credible plan for what comes after — the failure isn't intervention itself but the refusal to commit to post-conflict reconstruction; you break it, you own it"
+      },
+      {
+        "id": "D",
+        "text": "The question assumes the U.S. intervenes for humanitarian reasons — the pattern shows it intervenes when strategic interests align with humanitarian language, and ignores atrocities when they don't"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ],
+    "followups": {
+      "A": {
+        "type": "mc",
+        "question_id": "q3a"
+      }
+    }
+  },
+  {
+    "id": "q3a",
+    "topic": "us_foreign_policy",
+    "text": "If genocide justifies intervention — the U.S. has historically been selective about which genocides it responds to. The Rohingya genocide in Myanmar (2017), the Uyghur detention camps in China (ongoing since 2017), and the Darfur genocide in Sudan (2003-2008) all received limited or no military response. What determines which atrocities get intervention and which get statements of concern?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Strategic interest — the U.S. intervenes where it has something to gain and ignores atrocities where it doesn't; this is realism, not hypocrisy"
+      },
+      {
+        "id": "B",
+        "text": "Feasibility — intervening against a nuclear power like China is categorically different from intervening in Libya; capability constrains morality"
+      },
+      {
+        "id": "C",
+        "text": "Media attention and domestic politics — atrocities that dominate the news cycle create political pressure to act; the ones that don't, don't"
+      },
+      {
+        "id": "D",
+        "text": "The selectivity itself proves the framework is broken — a 'responsibility to protect' that only applies to weak states isn't a principle, it's imperialism with better PR"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ]
+  },
+  {
+    "id": "q4",
+    "topic": "us_foreign_policy",
+    "text": "The U.S. defense budget for 2024 was $886 billion — more than the next ten countries combined. The State Department's budget was roughly $60 billion. The U.S. maintains over 750 military bases in at least 80 countries. Diplomatic historian Andrew Bacevich argues that America has become addicted to militarism at the expense of diplomacy. Others, like defense scholar Elbridge Colby, argue that military dominance is what keeps the peace. Is the current balance right?",
+    "options": [
+      {
+        "id": "A",
+        "text": "No — the ratio is insane; shifting even 10% from defense to diplomacy, development, and conflict prevention would make America safer, not weaker"
+      },
+      {
+        "id": "B",
+        "text": "Yes — hard power underwrites soft power; the reason diplomacy works at all is because military force backs it up; cutting defense invites aggression"
+      },
+      {
+        "id": "C",
+        "text": "The budget question is a distraction — the real issue is strategy; you can spend $886 billion wisely or foolishly, and the U.S. has done both"
+      },
+      {
+        "id": "D",
+        "text": "The military budget isn't a security policy, it's an industrial policy — it exists because defense contractors employ people in every congressional district, not because the threats justify the spending"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ]
+  },
+  {
+    "id": "q5",
+    "topic": "us_foreign_policy",
+    "text": "Between 2004 and 2023, the U.S. conducted over 14,000 drone strikes across Pakistan, Yemen, Somalia, Libya, and other countries — killing an estimated 10,000-17,000 people, including up to 2,200 civilians according to the Bureau of Investigative Journalism. A 2021 New York Times investigation found that a U.S. drone strike in Kabul during the Afghanistan withdrawal killed 10 civilians, including 7 children. No one was disciplined. Is drone warfare morally different from conventional war?",
+    "options": [
+      {
+        "id": "A",
+        "text": "It's more moral — drones allow precision targeting with fewer military casualties on both sides; the alternative is boots on the ground, which kills far more people"
+      },
+      {
+        "id": "B",
+        "text": "It's less moral — the distance and low cost of drones make killing too easy; when there's no political cost (no body bags), there's no democratic check on who gets killed"
+      },
+      {
+        "id": "C",
+        "text": "The technology is neutral — the moral question is the same as any use of force: is the target legitimate, is the intelligence reliable, and is the civilian harm proportionate?"
+      },
+      {
+        "id": "D",
+        "text": "Drone warfare is assassination policy — the U.S. is executing people in sovereign nations without trial, without declaration of war, and often without even knowing who they're killing"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ]
+  },
+  {
+    "id": "q6",
+    "topic": "us_foreign_policy",
+    "text": "The U.S. has fought a war roughly every 15 years since World War II — Korea, Vietnam, Gulf War, Afghanistan, Iraq. Each was justified differently but followed a similar pattern: threat inflation, initial public support, protracted conflict, eventual withdrawal without achieving stated objectives. George Kennan, the architect of Cold War containment, warned in 1948 that America would struggle with the tension between its democratic values and its imperial responsibilities. Was he right?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Yes — the U.S. is structurally incapable of sustaining the kind of long-term, patient strategy that great power competition requires; democracy and empire are fundamentally incompatible"
+      },
+      {
+        "id": "B",
+        "text": "No — the pattern is real but it's political, not structural; better leadership and better institutions can break the cycle without abandoning America's global role"
+      },
+      {
+        "id": "C",
+        "text": "The framing is wrong — these weren't failures of democracy, they were failures of accountability; the system didn't self-correct because the costs fell on other countries and on the poor"
+      },
+      {
+        "id": "D",
+        "text": "Kennan's real insight was about restraint — the U.S. should be a balancing power, not a crusading one; the problem is the messianic impulse to remake the world in America's image"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ]
+  },
+  {
+    "id": "q7",
+    "topic": "us_foreign_policy",
+    "text": "If you could permanently change one thing about how the U.S. decides to use military force — a law, a norm, an institution, a requirement — what would it be?",
+    "options": [],
+    "freeform_only": true,
+    "followups": {}
+  }
+]

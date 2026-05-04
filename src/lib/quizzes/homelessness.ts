@@ -31,7 +31,9 @@ const main: AnyQuestion[] = [
       { id: "D", text: "It's a systems failure — homelessness is the visible endpoint of failures in healthcare, housing, education, criminal justice, and social support simultaneously; single-cause framing is always wrong" },
       f("None of these / I see it differently"),
     ],
-    followups: { A: { type: "mc", question_id: "q1a" } },
+    followups: {
+      A: { type: "mc", question_id: "q1a" }
+    },
   },
   {
     id: "q2",
@@ -60,24 +62,6 @@ const main: AnyQuestion[] = [
   {
     id: "q4",
     topic: TOPIC,
-    text: "In San Francisco, the city spends over $1 billion annually on homelessness services — roughly $100,000 per homeless person per year. Despite this, the homeless population has remained roughly stable. A 2023 UCSF study led by Dr. Margot Kushel found that 90% of California's homeless population lost their housing within the state, contradicting the narrative that they migrated from elsewhere. The study also found that the median income before becoming homeless was $960/month. Is San Francisco's spending failing, or is it preventing an even worse crisis?",
-    options: [
-      { id: "A", text: "Failing — a billion dollars a year with no reduction in homelessness is a policy failure by any measure; the money is being absorbed by a bureaucratic services industry, not solving the problem" },
-      { id: "B", text: "Preventing worse — without that spending, homelessness would be dramatically higher; the number staying stable while housing costs skyrocket is actually a success being misread as failure" },
-      { id: "C", text: "The spending is misallocated — too much goes to emergency services (shelters, outreach, cleanups) and not enough to the only thing that works: building permanent affordable housing" },
-      { id: "D", text: "The spending level reveals the real cost of the housing crisis — $1 billion is what it costs to manage the symptoms of an unaffordable city; the fix isn't better spending, it's a housing market that doesn't produce homelessness in the first place" },
-      f("None of these / I see it differently"),
-    ],
-    followups: {
-      A: {
-        type: "freeform",
-        prompt: "If the current spending is a bureaucratic failure — what would you actually cut, and what would you redirect the money toward? Be specific.",
-      },
-    },
-  },
-  {
-    id: "q5",
-    topic: TOPIC,
     text: "Encampments in Los Angeles, Portland, Seattle, and other cities have become semi-permanent features of the urban landscape — some with hundreds of tents, informal governance structures, mutual aid networks, and resident-led safety systems. Some advocates, including organizations like the Los Angeles Community Action Network, argue that encampments should be recognized and supported with sanitation, security, and services rather than swept. Others, including many housed residents and business owners, see them as dangerous, unsanitary, and a visible sign of government failure. Should encampments be tolerated, supported, or removed?",
     options: [
       { id: "A", text: "Supported — until housing is available, encampments are where people live; providing sanitation, electricity, and services is more humane and cheaper than repeated sweeps" },
@@ -88,7 +72,7 @@ const main: AnyQuestion[] = [
     ],
   },
   {
-    id: "q6",
+    id: "q5",
     topic: TOPIC,
     text: "The U.S. closed most of its state psychiatric hospitals between 1955 and 1994 — from a peak of 559,000 beds to fewer than 38,000 — as part of deinstitutionalization. The promise was that community mental health centers would replace them. The federal funding for those centers never fully materialized. Today, the largest psychiatric facilities in the U.S. are jails: Los Angeles County Jail, Cook County Jail in Chicago, and Rikers Island in New York. Should involuntary psychiatric treatment for homeless people with severe mental illness be expanded?",
     options: [
@@ -102,23 +86,11 @@ const main: AnyQuestion[] = [
       A: {
         type: "freeform",
         prompt: "Who should have the power to decide when someone is \"too ill to consent\" — a judge, a psychiatrist, a family member, a social worker? And what prevents that power from being abused against people who are just poor, inconvenient, or non-conforming?",
-      },
+      }
     },
   },
   {
-    id: "q7",
-    topic: TOPIC,
-    text: "In 2023, Houston became the national model for reducing homelessness — cutting its homeless population by 64% since 2011 through a coordinated approach: centralized data systems, rapid rehousing, and a coalition of 100+ organizations working from a single \"by-name\" list. The approach was championed by civic leader Marc Katz and required unprecedented collaboration between nonprofits, government, and the private sector. But Houston also has cheap land and lax zoning — conditions that don't exist in coastal cities. Is Houston's success replicable?",
-    options: [
-      { id: "A", text: "Yes — the core elements (coordination, data, political will, housing-focused approach) can work anywhere; the cheap land just made it easier; the methodology is the innovation" },
-      { id: "B", text: "Only partially — the coordination model is transferable but the results depend heavily on housing costs; coastal cities can't replicate a 64% reduction without building far more affordable housing first" },
-      { id: "C", text: "The real lesson isn't the program design — it's that Houston treated homelessness as a solvable logistics problem rather than a moral or political one; that mindset is what other cities are missing" },
-      { id: "D", text: "Houston's numbers look good but may overstate success — rapid rehousing sometimes means people cycle back into homelessness; long-term retention data is less impressive than the headline reduction" },
-      f("None of these / I see it differently"),
-    ],
-  },
-  {
-    id: "q8",
+    id: "q6",
     topic: TOPIC,
     text: "Veterans, youth aging out of foster care, domestic violence survivors, and people leaving incarceration are all at dramatically elevated risk of homelessness. The VA's SSVF (Supportive Services for Veteran Families) program helped cut veteran homelessness by nearly 55% between 2010 and 2023. No comparable targeted program exists for the other high-risk groups. Should homelessness policy be universal or targeted at specific populations?",
     options: [
@@ -130,9 +102,9 @@ const main: AnyQuestion[] = [
     ],
   },
   {
-    id: "q9",
+    id: "q7",
     topic: TOPIC,
-    text: "What's the homelessness question nobody is asking loudly enough?",
+    text: "If you had a billion dollars and five years to reduce homelessness in one U.S. city by 50%, what would you actually spend it on — be specific?",
     freeformOnly: true,
   },
 ];

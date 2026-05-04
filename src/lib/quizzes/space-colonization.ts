@@ -1,0 +1,117 @@
+import type { AnyQuestion, Question } from "../types";
+
+const TOPIC = "space_colonization";
+
+const f = (text: string) => ({ id: "E", text, freeform: true as const });
+
+const followupQuestions: Record<string, Question> = {
+  q3a: {
+    id: "q3a",
+    topic: TOPIC,
+    text: "If private companies are already defining the facts on the ground — or in orbit — before governance frameworks exist, is regulation even possible after the fact? What would meaningful space governance look like given that enforcement in orbit is essentially impossible?",
+    options: [
+      { id: "A", text: "Launch licensing — you can\'t get to orbit without ground infrastructure; regulate access at the launchpad, not in space" },
+      { id: "B", text: "Financial incentives — create an international insurance and liability framework that makes irresponsible behavior in orbit prohibitively expensive" },
+      { id: "C", text: "Treat orbit like spectrum — auction orbital slots, create tradeable rights, and establish a global body to manage allocation and enforce de-orbiting requirements" },
+      { id: "D", text: "It\'s already too late for meaningful regulation — the only realistic path is industry self-governance with transparency requirements; pretending otherwise ignores how tech regulation actually works" },
+      f("None of these / I see it differently"),
+    ],
+  },
+};
+
+const main: AnyQuestion[] = [
+  {
+    id: "q1",
+    topic: TOPIC,
+    text: "In 2024, NASA\'s Artemis program aimed to return humans to the Moon by 2026 at an estimated cost of $93 billion. SpaceX\'s Starship — designed to eventually carry humans to Mars — completed its first successful orbital test in 2024. Elon Musk has repeatedly stated his goal of making humanity \"multiplanetary\" within decades. Meanwhile, the UN estimates that ending world hunger would cost roughly $30 billion per year. Is space colonization a visionary investment or a misallocation of resources?",
+    options: [
+      { id: "A", text: "Visionary investment — existential risks (asteroids, pandemics, nuclear war) mean a single-planet species is eventually a dead species; redundancy is the only long-term survival strategy" },
+      { id: "B", text: "Misallocation — spending billions to escape Earth while billions suffer on it is morally indefensible; fix this planet first" },
+      { id: "C", text: "False choice — space investment and earthly problems aren\'t competing; the technology developed for space (solar, water purification, materials science) directly benefits life on Earth" },
+      { id: "D", text: "The real question is who benefits — when space colonization is led by billionaires and military contractors, it will reproduce the same power structures and inequalities we already have" },
+      f("None of these / I see it differently"),
+    ],
+    followups: {
+      A: {
+        type: "freeform",
+        prompt: "The existential risk argument assumes Mars colonization is technically feasible on a meaningful timeline. Given that Mars has no magnetosphere, toxic soil, and is a 7-month journey away — is this actually a realistic survival strategy, or a thought experiment being treated as engineering?",
+      }
+    },
+  },
+  {
+    id: "q2",
+    topic: TOPIC,
+    text: "The 1967 Outer Space Treaty — signed by 114 countries including the U.S., Russia, and China — declares that outer space \"is not subject to national appropriation.\" But the 2015 U.S. Commercial Space Launch Competitiveness Act grants American citizens the right to own resources they extract from asteroids and celestial bodies. Luxembourg passed similar legislation in 2017. A single metallic asteroid could contain trillions of dollars worth of platinum-group metals. Who should own space resources?",
+    options: [
+      { id: "A", text: "Whoever extracts them — property rights incentivize investment; without ownership, nobody will spend billions developing extraction technology" },
+      { id: "B", text: "Everyone — space is the common heritage of humanity; resources extracted from it should be managed like deep-sea minerals under the UN Convention on the Law of the Sea" },
+      { id: "C", text: "A new international framework is needed — neither unilateral national claims nor the existing treaty regime was designed for commercial extraction; the rules need to be written before the race starts" },
+      { id: "D", text: "The question is premature but the precedent matters — whoever sets the rules for asteroid mining sets the template for all space governance; getting this wrong now locks in inequality permanently" },
+      f("None of these / I see it differently"),
+    ],
+  },
+  {
+    id: "q3",
+    topic: TOPIC,
+    text: "SpaceX has launched over 6,000 Starlink satellites as of 2024, providing internet access to remote areas but also filling low-Earth orbit with hardware that astronomers say is degrading their ability to observe the universe. The Kessler Syndrome — a theoretical cascade where collisions generate debris that causes more collisions — could eventually make certain orbits unusable. There are currently over 30,000 tracked pieces of orbital debris. Who governs orbit?",
+    options: [
+      { id: "A", text: "An international regulatory body — orbit is a shared resource like international waters; no single company or country should be able to fill it unilaterally" },
+      { id: "B", text: "The market, with liability rules — make companies financially responsible for debris and collisions; the incentive to avoid liability will self-regulate" },
+      { id: "C", text: "National regulators with international coordination — the FAA model; each country licenses its own launches, with treaties setting minimum standards" },
+      { id: "D", text: "First-mover advantage is already deciding this — SpaceX occupies orbit the way tech platforms occupy markets; by the time governance catches up, the incumbents will have locked in their position" },
+      f("None of these / I see it differently"),
+    ],
+    followups: {
+      D: { type: "mc", question_id: "q3a" }
+    },
+  },
+  {
+    id: "q4",
+    topic: TOPIC,
+    text: "NASA\'s Mars mission planning assumes a crew of 4-6 people in a sealed habitat for 2-3 years with no possibility of resupply or rescue. Psychological research from Antarctic stations and submarine crews shows that isolation, confinement, and communication delays (up to 24 minutes each way for Mars) produce severe interpersonal conflict and mental health deterioration. Kim Stanley Robinson\'s Mars trilogy and Andy Weir\'s The Martian imagine very different realities. What governance structure makes sense for an early Mars colony?",
+    options: [
+      { id: "A", text: "Military-style hierarchy — in survival conditions with no rescue option, clear chain of command and obedience aren\'t authoritarian, they\'re necessary" },
+      { id: "B", text: "Direct democracy — a colony is a new society; the colonists should govern themselves from day one, establishing the precedent that space societies are self-governing" },
+      { id: "C", text: "Corporate governance — if SpaceX funds the mission, SpaceX sets the rules; the alternative is expecting private companies to spend billions building infrastructure they don\'t control" },
+      { id: "D", text: "The governance question reveals the real stakes — whoever writes the rules for the first colony writes the constitution for humanity\'s expansion; this is too important to leave to a CEO, a general, or a small crew" },
+      f("None of these / I see it differently"),
+    ],
+  },
+  {
+    id: "q5",
+    topic: TOPIC,
+    text: "In 2020, scientists detected phosphine in Venus\'s atmosphere — a possible biosignature — though the finding remains contested. NASA\'s Europa Clipper mission, launched in 2024, will investigate whether Jupiter\'s moon Europa has conditions suitable for life beneath its ice shell. If we discover microbial life on Mars or Europa, it would be the most significant scientific finding in human history. But it would also raise an immediate practical question: should we continue colonization plans that might contaminate or destroy that life?",
+    options: [
+      { id: "A", text: "Halt colonization — extraterrestrial life, even microbial, has intrinsic value and scientific importance that outweighs any colonization timeline; contamination is irreversible" },
+      { id: "B", text: "Proceed with contamination protocols — we can study and protect alien life while still establishing a presence; planetary protection guidelines already exist for this scenario" },
+      { id: "C", text: "It depends on what we find — microbial life on Mars doesn\'t have the same moral weight as a complex ecosystem on Europa; the response should be proportional to what\'s discovered" },
+      { id: "D", text: "The question exposes our track record — humans have never encountered a new ecosystem and successfully protected it; expecting us to do so on another planet ignores every colonial precedent on Earth" },
+      f("None of these / I see it differently"),
+    ],
+  },
+  {
+    id: "q6",
+    topic: TOPIC,
+    text: "Jeff Bezos envisions moving heavy industry off Earth entirely — manufacturing in orbit, mining asteroids, and keeping Earth as a residential \"nature preserve.\" His company Blue Origin is developing orbital habitats inspired by physicist Gerard O\'Neill\'s 1970s designs. Critics like philosopher Daniel Deudney argue in Dark Skies (2020) that space militarization and colonization will increase existential risk, not reduce it, by spreading weapons and conflict beyond Earth. Is expanding into space more likely to save humanity or endanger it?",
+    options: [
+      { id: "A", text: "Save it — diversifying beyond one planet is the definition of reducing existential risk; every other concern is secondary to survival" },
+      { id: "B", text: "Endanger it — space colonization will militarize orbit, create new territorial conflicts, and extend the worst human patterns to new frontiers; Deudney is right" },
+      { id: "C", text: "Both — space expansion simultaneously reduces some existential risks (asteroid impact, single-planet failure) and increases others (weapons in orbit, resource wars); the net effect depends entirely on governance" },
+      { id: "D", text: "The question assumes we have a choice — the geopolitical reality is that if the U.S. doesn\'t pursue space dominance, China and Russia will; the decision has already been made by competition" },
+      f("None of these / I see it differently"),
+    ],
+  },
+  {
+    id: "q7",
+    topic: TOPIC,
+    text: "Imagine you\'re selecting the first 100 colonists for a permanent Mars settlement. What\'s the single most important criterion for selection — and what does your answer reveal about what you think a society needs most?",
+    freeformOnly: true,
+  },
+];
+
+export const spaceColonizationQuiz = {
+  topic: TOPIC,
+  topicLabel: "Space Colonization",
+  questions: main,
+  followupQuestions,
+};

@@ -5,8 +5,8 @@ const TOPIC = "gun_rights";
 const f = (text: string) => ({ id: "E", text, freeform: true as const });
 
 const followupQuestions: Record<string, Question> = {
-  q3a: {
-    id: "q3a",
+  q2a: {
+    id: "q2a",
     topic: TOPIC,
     text: "Red flag laws (Extreme Risk Protection Orders) allow family members or law enforcement to petition a court to temporarily remove firearms from someone in crisis. As of 2024, 21 states have them. Studies show they're associated with reduced gun suicides. But they also allow firearms to be seized without the owner being accused of a crime. Is due process being adequately protected?",
     options: [
@@ -35,23 +35,11 @@ const main: AnyQuestion[] = [
       B: {
         type: "freeform",
         prompt: "If the problem is enforcement and mental health — the U.S. spends more on both per capita than most peer countries and still has 20x the gun death rate. What specifically would change the outcome?",
-      },
+      }
     },
   },
   {
     id: "q2",
-    topic: TOPIC,
-    text: "After the 2019 Christchurch mosque shooting that killed 51 people, New Zealand's parliament passed a comprehensive ban on semi-automatic weapons within 26 days, with near-unanimous support. After the 2012 Sandy Hook shooting that killed 20 children, the U.S. Congress failed to pass even expanded background checks. Australia's 1996 buyback after the Port Arthur massacre is widely credited with preventing mass shootings for over 20 years. Why can't the U.S. do what other democracies have done?",
-    options: [
-      { id: "A", text: "The NRA and gun lobby — the firearms industry has captured one political party and enough of the other to block any legislation; this is a lobbying problem, not a values problem" },
-      { id: "B", text: "Genuine cultural difference — gun ownership is woven into American identity in a way that has no parallel in New Zealand or Australia; 400 million guns and a frontier mythology can't be legislated away" },
-      { id: "C", text: "Structural politics — the Senate gives disproportionate power to rural, gun-owning states; the filibuster makes 60 votes required for any legislation; the system is designed to prevent action on divisive issues" },
-      { id: "D", text: "Comparison is misleading — those countries had fewer guns, less polarization, and parliamentary systems that allow fast action; the U.S. situation is structurally different, not just politically weaker" },
-      f("None of these / I see it differently"),
-    ],
-  },
-  {
-    id: "q3",
     topic: TOPIC,
     text: "Two-thirds of U.S. gun deaths are suicides — over 27,000 in 2022, compared to roughly 20,000 homicides. Research by Harvard's Matthew Miller shows that access to a gun increases suicide risk by a factor of 3, and that gun suicides are more impulsive than other methods (most attempts are preceded by less than 10 minutes of deliberation). Yet the gun debate in America focuses almost entirely on mass shootings and homicides. Should suicide prevention reshape the gun policy conversation?",
     options: [
@@ -61,10 +49,12 @@ const main: AnyQuestion[] = [
       { id: "D", text: "The suicide data actually undermines the standard gun control narrative — if most gun deaths are self-inflicted, the problem isn't \"gun violence\" as popularly framed, it's despair, isolation, and a broken mental health system" },
       f("None of these / I see it differently"),
     ],
-    followups: { A: { type: "mc", question_id: "q3a" } },
+    followups: {
+      A: { type: "mc", question_id: "q2a" }
+    },
   },
   {
-    id: "q4",
+    id: "q3",
     topic: TOPIC,
     text: "In rural America, guns are tools — used for hunting, predator control, and property protection where police response times can exceed 30 minutes. In urban America, guns are overwhelmingly associated with violence — homicide, armed robbery, and mass shootings. Sociologist Jennifer Carlson's research shows that for many rural Americans, gun ownership is about self-reliance and community identity, not ideology. Is it possible to have a gun policy that respects both realities?",
     options: [
@@ -76,19 +66,7 @@ const main: AnyQuestion[] = [
     ],
   },
   {
-    id: "q5",
-    topic: TOPIC,
-    text: "The AR-15 and similar semi-automatic rifles account for a small fraction of overall gun deaths — roughly 3% of gun homicides involve any type of rifle. Handguns are used in over 75% of gun homicides. Yet the AR-15 is the weapon of choice in most high-profile mass shootings (Uvalde, Parkland, Sandy Hook, Las Vegas, Orlando). The 1994 Federal Assault Weapons Ban expired in 2004 and has not been renewed. Should policy focus on the weapons that kill the most people, or the ones that enable the worst single events?",
-    options: [
-      { id: "A", text: "Focus on handguns — they cause the overwhelming majority of gun deaths; an assault weapons ban is symbolically satisfying but statistically marginal" },
-      { id: "B", text: "Focus on assault-style weapons — mass shootings cause disproportionate psychological and social damage; their terror effect justifies prioritizing them regardless of overall numbers" },
-      { id: "C", text: "Both — but politically, assault weapons bans are more achievable because they affect fewer owners; start there and build momentum for broader reform" },
-      { id: "D", text: "The weapon-type focus is a trap — the variable that matters most isn't what type of gun someone has, but how easily any gun can be acquired by someone in crisis or with violent intent" },
-      f("None of these / I see it differently"),
-    ],
-  },
-  {
-    id: "q6",
+    id: "q4",
     topic: TOPIC,
     text: "The Black Panthers' armed patrols of Oakland police in the 1960s prompted California's Republican governor Ronald Reagan to sign the Mulford Act, banning open carry. Philando Castile, a licensed gun owner, was shot and killed by police during a traffic stop in 2016 after informing the officer he had a legal firearm. Research by economists at Stanford found that \"stand your ground\" laws are applied more favorably to white defendants than Black defendants. Does the Second Amendment protect everyone equally?",
     options: [
@@ -100,7 +78,7 @@ const main: AnyQuestion[] = [
     ],
   },
   {
-    id: "q7",
+    id: "q5",
     topic: TOPIC,
     text: "After the Uvalde shooting in 2022 — where 19 children and 2 teachers were killed while police waited 77 minutes to breach the classroom — Congress passed the Bipartisan Safer Communities Act. It was the first federal gun legislation in nearly 30 years. It enhanced background checks for buyers under 21, funded state crisis intervention programs, and closed the \"boyfriend loophole\" for domestic violence. Gun control advocates called it insufficient. Gun rights advocates called it overreach. Fifteen Republican senators voted for it. Was the compromise worth it?",
     options: [
@@ -114,11 +92,11 @@ const main: AnyQuestion[] = [
       D: {
         type: "freeform",
         prompt: "If the political system structurally cannot produce meaningful gun legislation even after mass child casualties — is there a path that doesn't run through Congress? What else could work?",
-      },
+      }
     },
   },
   {
-    id: "q8",
+    id: "q6",
     topic: TOPIC,
     text: "3D-printed firearms (\"ghost guns\") and parts kits that require no background check and no serial number have proliferated — the ATF recovered over 25,000 ghost guns at crime scenes in 2022, up from fewer than 4,000 in 2018. A Biden administration rule in 2022 required serial numbers on ghost gun kits, but enforcement is difficult. Meanwhile, Defense Distributed, founded by Cody Wilson, has published downloadable gun designs, arguing it's a First Amendment issue. As manufacturing technology improves, is traditional gun regulation becoming obsolete?",
     options: [
@@ -130,9 +108,9 @@ const main: AnyQuestion[] = [
     ],
   },
   {
-    id: "q9",
+    id: "q7",
     topic: TOPIC,
-    text: "What's the gun rights question nobody is asking loudly enough?",
+    text: "Set aside what’s politically possible. If you could design gun policy for the U.S. from scratch — no Second Amendment, no existing laws, blank slate — what would it look like?",
     freeformOnly: true,
   },
 ];

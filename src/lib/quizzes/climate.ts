@@ -17,8 +17,8 @@ const followupQuestions: Record<string, Question> = {
       f("None of these / I see it differently"),
     ],
   },
-  q5a: {
-    id: "q5a",
+  q4a: {
+    id: "q4a",
     topic: TOPIC,
     text: "In 2023, Mexico banned solar geoengineering experiments after a U.S. startup, Make Sunsets, launched sulfur dioxide balloons from Baja California without government approval. If a country facing mass casualties from extreme heat — say India during a 50°C heat wave — decided to unilaterally geoengineer, would that be justified?",
     options: [
@@ -43,7 +43,9 @@ const main: AnyQuestion[] = [
       { id: "D", text: "The real failure is structural — no amount of target-setting works when the global economic system rewards extraction" },
       f("None of these / I see it differently"),
     ],
-    followups: { A: { type: "mc", question_id: "q1a" } },
+    followups: {
+      A: { type: "mc", question_id: "q1a" }
+    },
   },
   {
     id: "q2",
@@ -60,7 +62,7 @@ const main: AnyQuestion[] = [
       D: {
         type: "freeform",
         prompt: "Centralized vs. distributed — which do you trust more with something as critical as energy infrastructure, and why?",
-      },
+      }
     },
   },
   {
@@ -78,23 +80,11 @@ const main: AnyQuestion[] = [
       C: {
         type: "freeform",
         prompt: "Rich countries have been promising climate finance for decades — $100 billion/year was pledged in 2009 and still not fully delivered by 2023. What would actually make them pay?",
-      },
+      }
     },
   },
   {
     id: "q4",
-    topic: TOPIC,
-    text: "In 2017, the Carbon Disclosure Project reported that just 100 companies were responsible for 71% of global industrial greenhouse gas emissions since 1988. BP popularized the term \"carbon footprint\" in a 2004 ad campaign, shifting responsibility from producers to consumers. Individual action — recycling, flying less, going vegan — vs. systemic change: where do you land?",
-    options: [
-      { id: "A", text: "Systemic change is what matters — producer responsibility and regulation, not consumer guilt engineered by the industry itself" },
-      { id: "B", text: "Individual action builds the political will for systemic change — movements are made of people who changed their own behavior first" },
-      { id: "C", text: "Both matter, but the emphasis on individual action has been strategically deployed by fossil fuel interests to prevent regulation" },
-      { id: "D", text: "The distinction is false — systems are made of individuals; changing how millions of people consume IS changing the system" },
-      f("None of these / I see it differently"),
-    ],
-  },
-  {
-    id: "q5",
     topic: TOPIC,
     text: "Harvard's Solar Geoengineering Research Program, led by David Keith, has studied stratospheric aerosol injection — spraying reflective particles into the upper atmosphere to reflect sunlight and cool the planet. It could work within months and cost as little as $2 billion per year. But it doesn't reduce CO₂, carries unknown risks to monsoon patterns, and any country could do it unilaterally. Your instinct?",
     options: [
@@ -104,10 +94,12 @@ const main: AnyQuestion[] = [
       { id: "D", text: "Research it aggressively, but treat deployment as an absolute last resort requiring broad international consent" },
       f("None of these / I see it differently"),
     ],
-    followups: { C: { type: "mc", question_id: "q5a" } },
+    followups: {
+      C: { type: "mc", question_id: "q4a" }
+    },
   },
   {
-    id: "q6",
+    id: "q5",
     topic: TOPIC,
     text: "Just Stop Oil activists threw tomato soup on Van Gogh's Sunflowers in London's National Gallery. Extinction Rebellion blocked bridges across central London for weeks. Scientist Peter Kalmus chained himself to a JPMorgan Chase building, weeping, saying \"we're going to lose everything.\" Polling shows these actions consistently lower public support for climate policy. Does radical protest help or hurt the cause?",
     options: [
@@ -119,19 +111,7 @@ const main: AnyQuestion[] = [
     ],
   },
   {
-    id: "q7",
-    topic: TOPIC,
-    text: "The Inflation Reduction Act, signed by Biden in 2022, committed $369 billion to clean energy — the largest climate investment in U.S. history. It passed with zero Republican votes by framing climate action as industrial policy and job creation, not environmental protection. China now manufactures over 80% of the world's solar panels and dominates battery supply chains. Is climate action becoming primarily an economic competition rather than an environmental mission?",
-    options: [
-      { id: "A", text: "Yes, and that's a good thing — self-interest and competition will drive decarbonization faster than altruism ever did" },
-      { id: "B", text: "Yes, and that's dangerous — economic competition creates winners and losers, and the losers will be the countries that can't afford to play" },
-      { id: "C", text: "The framing is being used to justify massive subsidies to domestic industries under the banner of climate; it's protectionism in green packaging" },
-      { id: "D", text: "It doesn't matter what drives decarbonization — moral purity about motivation is a luxury the climate can't afford" },
-      f("None of these / I see it differently"),
-    ],
-  },
-  {
-    id: "q8",
+    id: "q6",
     topic: TOPIC,
     text: "Shell's CEO Wael Sawan said in 2023 that cutting oil production would be \"dangerous and irresponsible.\" That same year, Shell reported $28 billion in profits. Meanwhile, the company's own scientists accurately predicted climate change in the 1980s. TotalEnergies, BP, and ExxonMobil have all scaled back or quietly abandoned their renewable energy targets. Should fossil fuel companies be held legally liable for climate damages?",
     options: [
@@ -143,9 +123,9 @@ const main: AnyQuestion[] = [
     ],
   },
   {
-    id: "q9",
+    id: "q7",
     topic: TOPIC,
-    text: "What's the climate question nobody is asking loudly enough?",
+    text: "If you could force one country, one company, or one institution to change one specific thing about how they handle climate — who, and what?",
     freeformOnly: true,
   },
 ];

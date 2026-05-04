@@ -4,11 +4,27 @@
     "topic": "truth_and_media",
     "text": "In 2024, AI-generated deepfakes of political figures went viral in elections across the US, India, Indonesia, and the UK. A fake robocall impersonating Joe Biden told New Hampshire voters to stay home. In Slovakia, an AI-generated audio clip of a liberal candidate discussing vote rigging circulated two days before a close election. We now live in a world where anyone can produce convincing fake audio, video, and text for under $10. What's the most important response?",
     "options": [
-      {"id": "A", "text": "Technical — mandate watermarking and provenance standards (like C2PA) on all AI-generated content so fakes can be detected at the platform level"},
-      {"id": "B", "text": "Legal — criminalize the creation and distribution of political deepfakes with real penalties; the technology exists, so the law must catch up"},
-      {"id": "C", "text": "Educational — media literacy is the only durable solution; detection tools will always lag behind generation tools, so people need to be skeptical by default"},
-      {"id": "D", "text": "None of these will work — the real damage isn't any single fake; it's that the existence of deepfakes lets everyone dismiss real evidence as fake too; truth itself becomes optional"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
+      {
+        "id": "A",
+        "text": "Technical — mandate watermarking and provenance standards (like C2PA) on all AI-generated content so fakes can be detected at the platform level"
+      },
+      {
+        "id": "B",
+        "text": "Legal — criminalize the creation and distribution of political deepfakes with real penalties; the technology exists, so the law must catch up"
+      },
+      {
+        "id": "C",
+        "text": "Educational — media literacy is the only durable solution; detection tools will always lag behind generation tools, so people need to be skeptical by default"
+      },
+      {
+        "id": "D",
+        "text": "None of these will work — the real damage isn't any single fake; it's that the existence of deepfakes lets everyone dismiss real evidence as fake too; truth itself becomes optional"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
     ],
     "followups": {
       "D": {
@@ -22,24 +38,55 @@
     "topic": "truth_and_media",
     "text": "Trust in media has collapsed. Gallup's 2023 survey found that only 32% of Americans trust mass media — the lowest on record. The Reuters Institute's Digital News Report found similar declines across 46 countries. Meanwhile, podcasters like Joe Rogan (11 million listeners per episode) and newsletter writers on Substack regularly outperform legacy outlets in audience size. Is the crisis one of media quality, or audience trust?",
     "options": [
-      {"id": "A", "text": "Media quality — legacy outlets abandoned neutrality for engagement, lost credibility, and deserve the distrust they're getting"},
-      {"id": "B", "text": "Audience trust — deliberate campaigns to delegitimize journalism (from politicians, platforms, and foreign actors) have worked; the media is flawed but the distrust is manufactured"},
-      {"id": "C", "text": "Both — media consolidated, cut investigative journalism, and chased clicks, while audiences were simultaneously radicalized by algorithms and partisan media ecosystems"},
-      {"id": "D", "text": "Neither — the real shift is structural; the gatekeeping model is dead, and trust in institutions generally is declining; media isn't special, it's just visible"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
-    ],
-    "followups": {}
+      {
+        "id": "A",
+        "text": "Media quality — legacy outlets abandoned neutrality for engagement, lost credibility, and deserve the distrust they're getting"
+      },
+      {
+        "id": "B",
+        "text": "Audience trust — deliberate campaigns to delegitimize journalism (from politicians, platforms, and foreign actors) have worked; the media is flawed but the distrust is manufactured"
+      },
+      {
+        "id": "C",
+        "text": "Both — media consolidated, cut investigative journalism, and chased clicks, while audiences were simultaneously radicalized by algorithms and partisan media ecosystems"
+      },
+      {
+        "id": "D",
+        "text": "Neither — the real shift is structural; the gatekeeping model is dead, and trust in institutions generally is declining; media isn't special, it's just visible"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ]
   },
   {
     "id": "q3",
     "topic": "truth_and_media",
     "text": "In 2020, Twitter and Facebook suppressed the New York Post's Hunter Biden laptop story weeks before the presidential election, citing concerns about hacked materials and potential disinformation. The story turned out to be genuine. In 2023, the Supreme Court heard Murthy v. Missouri, a case alleging the Biden administration pressured social media companies to censor content. Should platforms make editorial judgments about what's true?",
     "options": [
-      {"id": "A", "text": "Yes — platforms are publishers in practice; letting everything through equally is itself a choice that amplifies the loudest and most outrageous voices"},
-      {"id": "B", "text": "No — platforms shouldn't be arbiters of truth; the Hunter Biden episode proved they'll suppress real stories under the guise of fighting disinformation"},
-      {"id": "C", "text": "The problem isn't moderation itself but who decides — platforms making these calls privately is dangerous; we need transparent, independent content review bodies"},
-      {"id": "D", "text": "The framing is obsolete — algorithmic amplification is the real editorial choice; a platform can \"allow\" content while ensuring almost no one sees it, or boost it to millions; moderation policy is a distraction from architecture"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
+      {
+        "id": "A",
+        "text": "Yes — platforms are publishers in practice; letting everything through equally is itself a choice that amplifies the loudest and most outrageous voices"
+      },
+      {
+        "id": "B",
+        "text": "No — platforms shouldn't be arbiters of truth; the Hunter Biden episode proved they'll suppress real stories under the guise of fighting disinformation"
+      },
+      {
+        "id": "C",
+        "text": "The problem isn't moderation itself but who decides — platforms making these calls privately is dangerous; we need transparent, independent content review bodies"
+      },
+      {
+        "id": "D",
+        "text": "The framing is obsolete — algorithmic amplification is the real editorial choice; a platform can \"allow\" content while ensuring almost no one sees it, or boost it to millions; moderation policy is a distraction from architecture"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
     ],
     "followups": {
       "B": {
@@ -49,67 +96,87 @@
     }
   },
   {
-    "id": "q3a",
-    "topic": "truth_and_media",
-    "text": "If platforms shouldn't moderate for truth, what happens when genuinely dangerous misinformation spreads — like anti-vaccine content during a pandemic, or election fraud claims that lead to political violence? Is that an acceptable cost of openness?",
-    "options": [
-      {"id": "A", "text": "Yes — the cost of censorship is higher than the cost of bad speech; the answer to bad speech is more speech, not less"},
-      {"id": "B", "text": "No — there are categories of speech (public health emergencies, incitement to violence) where the harm is so direct and immediate that moderation is justified"},
-      {"id": "C", "text": "The question proves the problem with platform power — no private company should be making these decisions at all; this is a role for democratic governance"},
-      {"id": "D", "text": "The binary is wrong — instead of removing content, platforms should change the algorithm; don't censor the post, just stop amplifying it to millions"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
-    ],
-    "followups": {}
-  },
-  {
     "id": "q4",
     "topic": "truth_and_media",
-    "text": "OpenAI's GPT-4 can write news articles indistinguishable from human journalism. Newsrooms including the Associated Press, CNET, and BuzzFeed have used AI to generate content, sometimes without disclosure. In January 2023, CNET was caught publishing AI-generated financial advice articles riddled with factual errors, with no AI byline. Meanwhile, local newspapers are dying — the US has lost over 2,500 since 2005, leaving \"news deserts\" where no professional journalist covers local government. Will AI save journalism or destroy it?",
+    "text": "Philosopher Michael Lynch argues in \"The Internet of Us\" that we've shifted from an \"evidence-based\" epistemic culture to a \"Google-knowing\" culture — where confidence comes from the ability to find information, not from understanding it. Psychologist Daniel Kahneman showed that cognitive biases make humans reliably bad at evaluating evidence, even when it's available. If humans are naturally bad at determining truth and technology makes it harder — is the Enlightenment ideal of an informed citizenry still viable?",
     "options": [
-      {"id": "A", "text": "Destroy it — AI-generated content floods the zone with cheap slop, further devaluing the human judgment and source relationships that make real journalism possible"},
-      {"id": "B", "text": "Save it — AI can handle commodity reporting (earnings, weather, sports scores) and free human journalists to do investigative work they don't have time for now"},
-      {"id": "C", "text": "Neither — journalism's crisis is economic, not technological; AI is a tool that will be used well or badly depending on the business model and editorial standards of whoever deploys it"},
-      {"id": "D", "text": "The question assumes journalism survives as a category — what's actually happening is that the distinction between \"news,\" \"content,\" and \"AI output\" is dissolving, and we don't have a framework for what replaces it"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
-    ],
-    "followups": {}
+      {
+        "id": "A",
+        "text": "No — it was always aspirational and is now functionally dead; we need institutions designed for cognitively limited citizens, not mythically rational ones"
+      },
+      {
+        "id": "B",
+        "text": "Yes, but only if we invest massively in education — critical thinking, statistical literacy, and epistemic humility should be core curriculum, not electives"
+      },
+      {
+        "id": "C",
+        "text": "The Enlightenment ideal was never about individual rationality — it was about institutional design: free press, courts, peer review; those can be rebuilt for the digital age"
+      },
+      {
+        "id": "D",
+        "text": "The ideal is viable but requires accepting limits — most people will defer to trusted authorities most of the time, and the real question is how to make authority trustworthy again"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ]
   },
   {
     "id": "q5",
     "topic": "truth_and_media",
-    "text": "Philosopher Michael Lynch argues in \"The Internet of Us\" that we've shifted from an \"evidence-based\" epistemic culture to a \"Google-knowing\" culture — where confidence comes from the ability to find information, not from understanding it. Psychologist Daniel Kahneman showed that cognitive biases make humans reliably bad at evaluating evidence, even when it's available. If humans are naturally bad at determining truth and technology makes it harder — is the Enlightenment ideal of an informed citizenry still viable?",
+    "text": "Elon Musk acquired Twitter for $44 billion in 2022, renamed it X, reinstated banned accounts including Donald Trump's, gutted the trust and safety team, and replaced verified accounts with a paid subscription. Meta launched Threads as a competitor. Bluesky, backed by Twitter co-founder Jack Dorsey, built a decentralized alternative. Mastodon runs on a federated protocol with no central owner. Is the future of public discourse better served by billionaire-owned platforms, decentralized protocols, or something else entirely?",
     "options": [
-      {"id": "A", "text": "No — it was always aspirational and is now functionally dead; we need institutions designed for cognitively limited citizens, not mythically rational ones"},
-      {"id": "B", "text": "Yes, but only if we invest massively in education — critical thinking, statistical literacy, and epistemic humility should be core curriculum, not electives"},
-      {"id": "C", "text": "The Enlightenment ideal was never about individual rationality — it was about institutional design: free press, courts, peer review; those can be rebuilt for the digital age"},
-      {"id": "D", "text": "The ideal is viable but requires accepting limits — most people will defer to trusted authorities most of the time, and the real question is how to make authority trustworthy again"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
-    ],
-    "followups": {}
+      {
+        "id": "A",
+        "text": "Decentralized protocols — no single person or company should control the infrastructure of public conversation; Bluesky and Mastodon point the way"
+      },
+      {
+        "id": "B",
+        "text": "Billionaire ownership is bad but decentralization is worse — moderation requires resources and coordination that volunteer-run networks can't sustain at scale"
+      },
+      {
+        "id": "C",
+        "text": "Public infrastructure — the digital public square should be publicly funded and governed, like the postal service or public broadcasting, not left to markets or hobbyists"
+      },
+      {
+        "id": "D",
+        "text": "The \"public square\" metaphor is the problem — there is no single town square anymore; the future is many smaller communities with different norms, not one platform with universal rules"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ]
   },
   {
     "id": "q6",
     "topic": "truth_and_media",
-    "text": "Elon Musk acquired Twitter for $44 billion in 2022, renamed it X, reinstated banned accounts including Donald Trump's, gutted the trust and safety team, and replaced verified accounts with a paid subscription. Meta launched Threads as a competitor. Bluesky, backed by Twitter co-founder Jack Dorsey, built a decentralized alternative. Mastodon runs on a federated protocol with no central owner. Is the future of public discourse better served by billionaire-owned platforms, decentralized protocols, or something else entirely?",
-    "options": [
-      {"id": "A", "text": "Decentralized protocols — no single person or company should control the infrastructure of public conversation; Bluesky and Mastodon point the way"},
-      {"id": "B", "text": "Billionaire ownership is bad but decentralization is worse — moderation requires resources and coordination that volunteer-run networks can't sustain at scale"},
-      {"id": "C", "text": "Public infrastructure — the digital public square should be publicly funded and governed, like the postal service or public broadcasting, not left to markets or hobbyists"},
-      {"id": "D", "text": "The \"public square\" metaphor is the problem — there is no single town square anymore; the future is many smaller communities with different norms, not one platform with universal rules"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
-    ],
-    "followups": {}
-  },
-  {
-    "id": "q7",
-    "topic": "truth_and_media",
     "text": "In 2024, Google's AI Overviews — AI-generated summaries shown above search results — started replacing the need to click through to source websites. Traffic to news sites and independent creators dropped. Wikipedia co-founder Jimmy Wales warned that AI answers without attribution could \"destroy the ecosystem that produces the information AI was trained on.\" If AI can summarize everything, what happens to the people and institutions that produce the underlying knowledge?",
     "options": [
-      {"id": "A", "text": "They'll be destroyed unless revenue-sharing is mandated — AI companies are building a business on the back of others' work without paying for it; this is the music industry's Napster moment"},
-      {"id": "B", "text": "They'll adapt — just as some musicians found new revenue models after streaming, creators and newsrooms will find new ways to monetize expertise that AI can't replicate"},
-      {"id": "C", "text": "The knowledge ecosystem will collapse and it won't be rebuilt — once the incentive to create original reporting, research, and analysis disappears, AI will be summarizing increasingly stale and unreliable information"},
-      {"id": "D", "text": "This is a feature, not a bug — the gatekeeping model where a few institutions controlled knowledge production was itself a problem; AI democratizes access even if it disrupts the producers"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
+      {
+        "id": "A",
+        "text": "They'll be destroyed unless revenue-sharing is mandated — AI companies are building a business on the back of others' work without paying for it; this is the music industry's Napster moment"
+      },
+      {
+        "id": "B",
+        "text": "They'll adapt — just as some musicians found new revenue models after streaming, creators and newsrooms will find new ways to monetize expertise that AI can't replicate"
+      },
+      {
+        "id": "C",
+        "text": "The knowledge ecosystem will collapse and it won't be rebuilt — once the incentive to create original reporting, research, and analysis disappears, AI will be summarizing increasingly stale and unreliable information"
+      },
+      {
+        "id": "D",
+        "text": "This is a feature, not a bug — the gatekeeping model where a few institutions controlled knowledge production was itself a problem; AI democratizes access even if it disrupts the producers"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
     ],
     "followups": {
       "C": {
@@ -119,22 +186,38 @@
     }
   },
   {
-    "id": "q8",
+    "id": "q3a",
     "topic": "truth_and_media",
-    "text": "Researcher Renée DiResta, who studied information warfare at the Stanford Internet Observatory, coined the phrase \"freedom of speech is not freedom of reach.\" The idea is that platforms can allow any content to exist while controlling how far it spreads through algorithmic amplification. Critics from both left and right call this \"soft censorship\" — letting speech exist technically while ensuring no one sees it. Is algorithmic de-amplification a reasonable middle ground, or censorship by another name?",
+    "text": "If platforms shouldn't moderate for truth, what happens when genuinely dangerous misinformation spreads — like anti-vaccine content during a pandemic, or election fraud claims that lead to political violence? Is that an acceptable cost of openness?",
     "options": [
-      {"id": "A", "text": "Reasonable middle ground — no one has a right to algorithmic amplification; a platform choosing not to boost harmful content is editorial judgment, not censorship"},
-      {"id": "B", "text": "Censorship by another name — if a platform can silently make your speech invisible to 99% of people, the distinction between suppression and de-amplification is meaningless in practice"},
-      {"id": "C", "text": "The problem is transparency, not the practice — de-amplification is fine if users know it's happening and can see the criteria; the danger is when it's invisible and unaccountable"},
-      {"id": "D", "text": "The whole debate misses the point — the fact that private algorithms determine which ideas spread and which die is the core problem, regardless of whether they amplify or suppress"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
+      {
+        "id": "A",
+        "text": "Yes — the cost of censorship is higher than the cost of bad speech; the answer to bad speech is more speech, not less"
+      },
+      {
+        "id": "B",
+        "text": "No — there are categories of speech (public health emergencies, incitement to violence) where the harm is so direct and immediate that moderation is justified"
+      },
+      {
+        "id": "C",
+        "text": "The question proves the problem with platform power — no private company should be making these decisions at all; this is a role for democratic governance"
+      },
+      {
+        "id": "D",
+        "text": "The binary is wrong — instead of removing content, platforms should change the algorithm; don't censor the post, just stop amplifying it to millions"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
     ],
     "followups": {}
   },
   {
-    "id": "q9",
+    "id": "q7",
     "topic": "truth_and_media",
-    "text": "What's the truth and media question nobody is asking loudly enough?",
+    "text": "Think of a belief you hold strongly. How did you arrive at it — and how would you know if it were wrong?",
     "options": [],
     "freeform_only": true,
     "followups": {}

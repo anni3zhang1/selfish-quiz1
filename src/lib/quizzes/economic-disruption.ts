@@ -35,7 +35,7 @@ const main: AnyQuestion[] = [
       B: {
         type: "freeform",
         prompt: "The \"new jobs will appear\" argument depends on humans having some persistent advantage over machines. What is that advantage, specifically, once AI can reason, create, and learn?",
-      },
+      }
     },
   },
   {
@@ -61,22 +61,12 @@ const main: AnyQuestion[] = [
       { id: "D", text: "The question frames it too narrowly — Amazon didn't create the conditions that make warehouse work people's best option; automation is downstream of an economy that already failed these workers" },
       f("None of these / I see it differently"),
     ],
-    followups: { B: { type: "mc", question_id: "q3a" } },
+    followups: {
+      B: { type: "mc", question_id: "q3a" }
+    },
   },
   {
     id: "q4",
-    topic: TOPIC,
-    text: "The gig economy — Uber, DoorDash, TaskRabbit, Fiverr — now employs an estimated 59 million Americans, according to a 2023 McKinsey survey. These workers have no employer-provided health insurance, no retirement benefits, no unemployment insurance, and no collective bargaining rights. California's AB5 law tried to reclassify gig workers as employees; Uber and Lyft spent $200 million on Proposition 22 to overturn it. The EU passed a directive in 2024 presuming gig workers are employees. Which approach is right?",
-    options: [
-      { id: "A", text: "The EU — gig companies have built a business model on misclassifying employees as contractors to avoid paying benefits; close the loophole" },
-      { id: "B", text: "Neither — the real problem is tying healthcare and retirement to employment at all; decouple benefits from jobs and the classification fight becomes irrelevant" },
-      { id: "C", text: "A third category is needed — gig work genuinely is different from traditional employment; create a new legal status with portable benefits, minimum earnings guarantees, and some protections without full employee classification" },
-      { id: "D", text: "The gig economy is a preview of what all work becomes under AI — project-based, insecure, and with all the risk shifted to the worker; the fix has to be systemic, not sector-specific" },
-      f("None of these / I see it differently"),
-    ],
-  },
-  {
-    id: "q5",
     topic: TOPIC,
     text: "Between 2020 and 2023, the three largest U.S. tech companies — Apple, Microsoft, and Google — collectively held over $400 billion in cash reserves while conducting multiple rounds of layoffs totaling over 200,000 workers. Corporate profits as a share of GDP are near all-time highs. Wages, adjusted for inflation, have barely grown for the bottom 50% in four decades. Economist Thomas Piketty argues this is the inevitable result of returns on capital outpacing returns on labor. Is the economy broken, or working as designed?",
     options: [
@@ -88,7 +78,7 @@ const main: AnyQuestion[] = [
     ],
   },
   {
-    id: "q6",
+    id: "q5",
     topic: TOPIC,
     text: "The Rust Belt — Detroit, Cleveland, Youngstown, Gary — has been in economic decline since the 1970s as manufacturing moved overseas or automated. Fifty years of retraining programs, enterprise zones, and economic development initiatives have largely failed to replace the jobs lost. Economists David Autor and Gordon Hanson documented how the \"China shock\" permanently damaged U.S. manufacturing communities with no recovery in sight. If half a century of policy couldn't fix the last automation wave, why would this time be different?",
     options: [
@@ -102,23 +92,11 @@ const main: AnyQuestion[] = [
       A: {
         type: "freeform",
         prompt: "\"Managed decline\" sounds humane in theory. In practice, what does it mean for a 35-year-old in a town that's not coming back — and who decides when a community's time is up?",
-      },
+      }
     },
   },
   {
-    id: "q7",
-    topic: TOPIC,
-    text: "OpenAI, originally founded as a nonprofit in 2015 to \"ensure AI benefits all of humanity,\" restructured as a capped-profit company in 2019 and was valued at over $80 billion by 2024. Sam Altman owns no equity. Microsoft invested $13 billion. Google, Amazon, and Apple are all building competing foundation models. The companies building the most powerful AI systems are also the ones positioned to capture most of the economic value from automation. Is the AI industry's structure compatible with broadly shared prosperity?",
-    options: [
-      { id: "A", text: "No — the concentration of AI capability in 4-5 megacorps is a structural threat to economic democracy; antitrust action or public alternatives are essential" },
-      { id: "B", text: "Yes — competition between these companies will drive down costs and increase access; AI is following the same path as cloud computing, which started concentrated and became ubiquitous" },
-      { id: "C", text: "The structure matters less than the governance — what we need is mandated open-source requirements, profit-sharing with affected workers, and public representation on AI company boards" },
-      { id: "D", text: "The nonprofit-to-profit pipeline tells you everything — even organizations explicitly designed to serve humanity's interests get captured by capital; the structure isn't fixable within capitalism" },
-      f("None of these / I see it differently"),
-    ],
-  },
-  {
-    id: "q8",
+    id: "q6",
     topic: TOPIC,
     text: "Economist Daron Acemoglu, who won the 2024 Nobel Prize in Economics, argues that the choice between \"automation\" (replacing workers) and \"augmentation\" (making workers more productive) is not technologically determined — it's a policy choice. He estimates that AI focused on augmentation could raise wages for 80% of workers, while AI focused on automation would concentrate gains at the top. If the same technology can go either way, what determines which path we take?",
     options: [
@@ -130,9 +108,9 @@ const main: AnyQuestion[] = [
     ],
   },
   {
-    id: "q9",
+    id: "q7",
     topic: TOPIC,
-    text: "What's the economic disruption question nobody is asking loudly enough?",
+    text: "Name a job that exists today that you think AI will make obsolete within 10 years — and one you think it never will. What’s your reasoning?",
     freeformOnly: true,
   },
 ];

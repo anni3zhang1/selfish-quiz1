@@ -35,7 +35,7 @@ const main: AnyQuestion[] = [
       D: {
         type: "freeform",
         prompt: "If the real damage is that everything becomes deniable — \"the liar's dividend\" — is there any institutional design that can restore shared epistemic ground, or is that gone permanently?",
-      },
+      }
     },
   },
   {
@@ -61,22 +61,12 @@ const main: AnyQuestion[] = [
       { id: "D", text: "The framing is obsolete — algorithmic amplification is the real editorial choice; a platform can \"allow\" content while ensuring almost no one sees it, or boost it to millions; moderation policy is a distraction from architecture" },
       f("None of these / I see it differently"),
     ],
-    followups: { B: { type: "mc", question_id: "q3a" } },
+    followups: {
+      B: { type: "mc", question_id: "q3a" }
+    },
   },
   {
     id: "q4",
-    topic: TOPIC,
-    text: "OpenAI's GPT-4 can write news articles indistinguishable from human journalism. Newsrooms including the Associated Press, CNET, and BuzzFeed have used AI to generate content, sometimes without disclosure. In January 2023, CNET was caught publishing AI-generated financial advice articles riddled with factual errors, with no AI byline. Meanwhile, local newspapers are dying — the US has lost over 2,500 since 2005, leaving \"news deserts\" where no professional journalist covers local government. Will AI save journalism or destroy it?",
-    options: [
-      { id: "A", text: "Destroy it — AI-generated content floods the zone with cheap slop, further devaluing the human judgment and source relationships that make real journalism possible" },
-      { id: "B", text: "Save it — AI can handle commodity reporting (earnings, weather, sports scores) and free human journalists to do investigative work they don't have time for now" },
-      { id: "C", text: "Neither — journalism's crisis is economic, not technological; AI is a tool that will be used well or badly depending on the business model and editorial standards of whoever deploys it" },
-      { id: "D", text: "The question assumes journalism survives as a category — what's actually happening is that the distinction between \"news,\" \"content,\" and \"AI output\" is dissolving, and we don't have a framework for what replaces it" },
-      f("None of these / I see it differently"),
-    ],
-  },
-  {
-    id: "q5",
     topic: TOPIC,
     text: "Philosopher Michael Lynch argues in \"The Internet of Us\" that we've shifted from an \"evidence-based\" epistemic culture to a \"Google-knowing\" culture — where confidence comes from the ability to find information, not from understanding it. Psychologist Daniel Kahneman showed that cognitive biases make humans reliably bad at evaluating evidence, even when it's available. If humans are naturally bad at determining truth and technology makes it harder — is the Enlightenment ideal of an informed citizenry still viable?",
     options: [
@@ -88,7 +78,7 @@ const main: AnyQuestion[] = [
     ],
   },
   {
-    id: "q6",
+    id: "q5",
     topic: TOPIC,
     text: "Elon Musk acquired Twitter for $44 billion in 2022, renamed it X, reinstated banned accounts including Donald Trump's, gutted the trust and safety team, and replaced verified accounts with a paid subscription. Meta launched Threads as a competitor. Bluesky, backed by Twitter co-founder Jack Dorsey, built a decentralized alternative. Mastodon runs on a federated protocol with no central owner. Is the future of public discourse better served by billionaire-owned platforms, decentralized protocols, or something else entirely?",
     options: [
@@ -100,7 +90,7 @@ const main: AnyQuestion[] = [
     ],
   },
   {
-    id: "q7",
+    id: "q6",
     topic: TOPIC,
     text: "In 2024, Google's AI Overviews — AI-generated summaries shown above search results — started replacing the need to click through to source websites. Traffic to news sites and independent creators dropped. Wikipedia co-founder Jimmy Wales warned that AI answers without attribution could \"destroy the ecosystem that produces the information AI was trained on.\" If AI can summarize everything, what happens to the people and institutions that produce the underlying knowledge?",
     options: [
@@ -114,25 +104,13 @@ const main: AnyQuestion[] = [
       C: {
         type: "freeform",
         prompt: "If AI hollows out the knowledge production ecosystem it depends on, what breaks first — and would we notice before it's too late?",
-      },
+      }
     },
   },
   {
-    id: "q8",
+    id: "q7",
     topic: TOPIC,
-    text: "Researcher Renée DiResta, who studied information warfare at the Stanford Internet Observatory, coined the phrase \"freedom of speech is not freedom of reach.\" The idea is that platforms can allow any content to exist while controlling how far it spreads through algorithmic amplification. Critics from both left and right call this \"soft censorship\" — letting speech exist technically while ensuring no one sees it. Is algorithmic de-amplification a reasonable middle ground, or censorship by another name?",
-    options: [
-      { id: "A", text: "Reasonable middle ground — no one has a right to algorithmic amplification; a platform choosing not to boost harmful content is editorial judgment, not censorship" },
-      { id: "B", text: "Censorship by another name — if a platform can silently make your speech invisible to 99% of people, the distinction between suppression and de-amplification is meaningless in practice" },
-      { id: "C", text: "The problem is transparency, not the practice — de-amplification is fine if users know it's happening and can see the criteria; the danger is when it's invisible and unaccountable" },
-      { id: "D", text: "The whole debate misses the point — the fact that private algorithms determine which ideas spread and which die is the core problem, regardless of whether they amplify or suppress" },
-      f("None of these / I see it differently"),
-    ],
-  },
-  {
-    id: "q9",
-    topic: TOPIC,
-    text: "What's the truth and media question nobody is asking loudly enough?",
+    text: "Think of a belief you hold strongly. How did you arrive at it — and how would you know if it were wrong?",
     freeformOnly: true,
   },
 ];

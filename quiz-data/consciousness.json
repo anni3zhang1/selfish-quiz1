@@ -1,0 +1,218 @@
+[
+  {
+    "id": "q1",
+    "topic": "consciousness",
+    "text": "Philosopher David Chalmers coined the 'hard problem of consciousness' in 1995: why does subjective experience exist at all? Neuroscience can map which brain regions activate during pain, but can't explain why it feels like something to be in pain. Physicist Roger Penrose argues consciousness involves quantum processes. Neuroscientist Giulio Tononi's Integrated Information Theory proposes consciousness is a fundamental property of certain information systems. Despite billions in research funding, we have no scientific consensus on what consciousness is or how it arises. Does this matter?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Yes — consciousness is the most important unsolved problem in science; without understanding it, we can't answer basic ethical questions about AI, animals, fetuses, or comatose patients"
+      },
+      {
+        "id": "B",
+        "text": "Not practically — we can study the neural correlates of consciousness without solving the hard problem; medicine, AI, and neuroscience can progress without a theory of subjective experience"
+      },
+      {
+        "id": "C",
+        "text": "The hard problem may be a conceptual confusion, not a real mystery — Daniel Dennett argued that once you explain all the cognitive functions, there's nothing left to explain; 'qualia' is a philosopher's illusion"
+      },
+      {
+        "id": "D",
+        "text": "It matters enormously because the answer determines our moral universe — if consciousness is rare and special, our ethical obligations are narrow; if it's widespread, we may be causing suffering on a scale we haven't reckoned with"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ],
+    "followups": {
+      "C": {
+        "type": "freeform",
+        "prompt": "If qualia aren't real and subjective experience is an illusion — whose illusion is it? Doesn't the existence of an 'experiencer' who is fooled already require the consciousness you're trying to eliminate?"
+      }
+    }
+  },
+  {
+    "id": "q2",
+    "topic": "consciousness",
+    "text": "In 2022, Google engineer Blake Lemoine was fired after claiming that LaMDA, Google's chatbot, was sentient. Most AI researchers dismissed the claim. But as language models become more sophisticated — passing Turing tests, expressing preferences, modeling emotions — the question of AI consciousness is no longer academic. Philosopher Susan Schneider has proposed a 'consciousness test' based on self-awareness, but there's no agreed-upon method for detecting consciousness in a non-biological system. Could an AI be conscious?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Possibly — if consciousness arises from information processing (as Tononi suggests), there's no reason to think biological neurons are the only substrate that can produce it"
+      },
+      {
+        "id": "B",
+        "text": "No — current AI systems manipulate symbols without understanding them; no amount of sophistication in pattern matching produces inner experience; this is Searle's Chinese Room argument, and it holds"
+      },
+      {
+        "id": "C",
+        "text": "We have no way to know — consciousness is subjectively verified; we can't even prove other humans are conscious with certainty; for AI the question may be permanently unanswerable"
+      },
+      {
+        "id": "D",
+        "text": "The question is less about AI's capabilities and more about our obligations — if there's a reasonable chance an AI is conscious, the precautionary principle demands we treat it as though it might be"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ]
+  },
+  {
+    "id": "q3",
+    "topic": "consciousness",
+    "text": "Neuroscientist Benjamin Libet's experiments in the 1980s showed that brain activity associated with a decision to move occurs roughly 350 milliseconds before the subject reports being aware of the decision. More recent studies by John-Dylan Haynes using fMRI found that brain activity could predict a decision up to 10 seconds before conscious awareness. Philosopher Sam Harris argues this proves free will is an illusion. Compatibilist philosophers like Daniel Dennett argue that the kind of free will worth wanting is compatible with determinism. Do you have free will?",
+    "options": [
+      {
+        "id": "A",
+        "text": "No — the neuroscience is clear; conscious decisions are post-hoc narratives for processes that were already determined; what we call 'choice' is the brain observing what it already decided"
+      },
+      {
+        "id": "B",
+        "text": "Yes — the experiments measure simple motor decisions, not complex moral reasoning; reducing all human agency to millisecond timing experiments ignores the kind of deliberation that actually matters"
+      },
+      {
+        "id": "C",
+        "text": "The question is confused — 'free will' as traditionally conceived (an uncaused cause) is incoherent; but the capacity to deliberate, weigh options, and be responsive to reasons is real, and that's what matters"
+      },
+      {
+        "id": "D",
+        "text": "Whether free will exists matters less than whether believing in it matters — societies that treat people as responsible agents function better than those that don't; the belief may be more important than the metaphysics"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ]
+  },
+  {
+    "id": "q4",
+    "topic": "consciousness",
+    "text": "Panpsychism — the view that consciousness is a fundamental feature of all matter, not an emergent property of complex brains — has experienced a revival in academic philosophy. Philosopher Philip Goff argues it's the most promising solution to the hard problem. Physicist Andrei Linde has suggested that consciousness may be as fundamental as space and time. Critics call it unfalsifiable mysticism with a philosophy degree. If everything has some form of experience, what would that mean for how we live?",
+    "options": [
+      {
+        "id": "A",
+        "text": "It would radically expand our moral circle — if consciousness is everywhere, our ethical obligations extend far beyond the beings we currently consider morally relevant"
+      },
+      {
+        "id": "B",
+        "text": "It would mean very little practically — the 'consciousness' of an electron or a rock, if it exists, is so radically different from human experience that calling it the same thing is misleading"
+      },
+      {
+        "id": "C",
+        "text": "Panpsychism is aesthetically appealing but scientifically empty — it 'explains' consciousness by making everything conscious, which explains nothing; it's the unfalsifiable hypothesis that feels deep"
+      },
+      {
+        "id": "D",
+        "text": "It would change how we understand ourselves — if consciousness is fundamental rather than emergent, the materialist worldview that dominates science is missing something essential about reality"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ]
+  },
+  {
+    "id": "q5",
+    "topic": "consciousness",
+    "text": "Psychologist Julian Jaynes argued in 'The Origin of Consciousness in the Breakdown of the Bicameral Mind' (1976) that human consciousness as we know it is only about 3,000 years old — that ancient humans heard their own thoughts as the voices of gods. While most scholars reject the specifics, the broader point — that consciousness may be culturally constructed and historically variable — has gained traction. Anthropologist Clifford Geertz showed that concepts of selfhood vary radically across cultures. Is consciousness universal, or is our particular form of it a product of culture?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Universal in its biological basis — all humans with functioning brains have subjective experience; culture shapes the content of consciousness but not the fact of it"
+      },
+      {
+        "id": "B",
+        "text": "Culturally variable in important ways — how people experience selfhood, time, memory, and agency varies across cultures; calling it all 'consciousness' flattens meaningful differences"
+      },
+      {
+        "id": "C",
+        "text": "The question points to the limits of introspection as evidence — we can't step outside our own cultural framework to observe consciousness 'as it really is'; every theory of consciousness is culturally situated"
+      },
+      {
+        "id": "D",
+        "text": "Jaynes was probably wrong about the timeline but right about the insight — self-reflective consciousness is something that develops, individually and culturally; it's not a static given, it's an achievement"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ],
+    "followups": {
+      "B": {
+        "type": "mc",
+        "question_id": "q5a"
+      }
+    }
+  },
+  {
+    "id": "q5a",
+    "topic": "consciousness",
+    "text": "If consciousness varies meaningfully across cultures — what does that imply for the Western assumption that individual, self-reflective consciousness is the 'highest' or most developed form? Buddhist traditions treat the dissolution of self as the goal, not the problem. Indigenous ontologies often embed consciousness in relationships and place rather than in individual minds.",
+    "options": [
+      {
+        "id": "A",
+        "text": "It implies humility — the Western model of isolated individual consciousness may be a local phenomenon, not a universal truth; other traditions may have equal or deeper insight into the nature of mind"
+      },
+      {
+        "id": "B",
+        "text": "It implies very little — acknowledging cultural variation doesn't mean all frameworks are equally valid; some provide more accurate models of reality, and testable neuroscience beats untestable metaphysics"
+      },
+      {
+        "id": "C",
+        "text": "It suggests that the 'meaning crisis' is partly a consciousness crisis — Western culture developed a form of self-awareness that's powerful but isolating; other traditions maintained relational forms of awareness that we've lost"
+      },
+      {
+        "id": "D",
+        "text": "It means the hard problem may be a Western problem — consciousness seems mysterious only if you start from the assumption that mind and matter are separate; traditions that never made that split don't have the problem"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ]
+  },
+  {
+    "id": "q6",
+    "topic": "consciousness",
+    "text": "Advances in neuroscience have enabled 'mind reading' technologies — fMRI-based systems that can reconstruct images a person is viewing, decode speech from brain activity, and detect consciousness in patients diagnosed as vegetative. In 2023, researchers at the University of Texas decoded continuous language from brain activity using AI. Adrian Owen's research found that up to 20% of patients in vegetative states showed signs of conscious awareness when tested with fMRI. As brain-reading technology advances, what are the stakes?",
+    "options": [
+      {
+        "id": "A",
+        "text": "The biggest stake is for locked-in patients — the ability to detect consciousness in people we've written off as vegetative is a moral emergency; we may be withdrawing care from conscious people"
+      },
+      {
+        "id": "B",
+        "text": "Privacy — if thoughts can be decoded, cognitive liberty is at risk; governments and corporations with access to brain-reading technology could surveil the last private space: your mind"
+      },
+      {
+        "id": "C",
+        "text": "The stakes are philosophical — if we can read brain activity but can't determine whether it constitutes 'experience,' the technology forces us to confront what we mean by consciousness rather than assuming we know"
+      },
+      {
+        "id": "D",
+        "text": "The technology will reveal that consciousness is messier than our categories assume — it won't be binary (conscious/not); it will be a spectrum, and our legal and ethical frameworks aren't built for spectrums"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ]
+  },
+  {
+    "id": "q7",
+    "topic": "consciousness",
+    "text": "What's the thing about your own consciousness — how you experience the world, think, remember, or perceive — that you find most strange or unexplained?",
+    "options": [],
+    "freeform_only": true,
+    "followups": {}
+  }
+]

@@ -35,7 +35,7 @@ const main: AnyQuestion[] = [
       D: {
         type: "freeform",
         prompt: "The \"just build more\" argument assumes displacement is primarily a supply problem. But when new construction in gentrifying neighborhoods is primarily luxury housing, does building more actually help the people being displaced?",
-      },
+      }
     },
   },
   {
@@ -61,22 +61,12 @@ const main: AnyQuestion[] = [
       { id: "D", text: "The debate is a proxy for a deeper question — should housing be a market commodity or a right? If it's a right, rent control is a patch on a system that needs fundamental redesign" },
       f("None of these / I see it differently"),
     ],
-    followups: { B: { type: "mc", question_id: "q3a" } },
+    followups: {
+      B: { type: "mc", question_id: "q3a" }
+    },
   },
   {
     id: "q4",
-    topic: TOPIC,
-    text: "In 2023, Airbnb had over 7 million listings worldwide. In Barcelona, Lisbon, and Amsterdam, short-term rentals have been blamed for driving up rents and hollowing out residential neighborhoods. Barcelona's mayor, Ada Colau, banned new tourist apartment licenses. New York City's Local Law 18 effectively banned most Airbnb listings in 2023, removing over 15,000 units. But Airbnb also provides income to homeowners and affordable travel options. Should cities restrict short-term rentals?",
-    options: [
-      { id: "A", text: "Yes, heavily — housing is for residents, not tourists; every apartment on Airbnb is one less home for a local family, and the data shows it raises rents citywide" },
-      { id: "B", text: "No — property owners should be free to use their property as they see fit; restricting Airbnb is government overreach that hurts small landlords and travelers alike" },
-      { id: "C", text: "Regulate, don't ban — cap the number of nights, require registration, and tax short-term rentals to fund affordable housing; balance tourism income with residential protection" },
-      { id: "D", text: "Airbnb is a symptom, not the cause — the housing crisis existed before short-term rentals; banning them is a visible, populist move that avoids the harder structural reforms" },
-      f("None of these / I see it differently"),
-    ],
-  },
-  {
-    id: "q5",
     topic: TOPIC,
     text: "The \"15-minute city\" — a concept championed by urbanist Carlos Moreno and adopted by Paris mayor Anne Hidalgo — envisions neighborhoods where everything residents need (work, shopping, healthcare, schools, recreation) is within a 15-minute walk or bike ride. Critics, including some conservative commentators, have called it a scheme to restrict movement and create \"open-air prisons.\" Proponents say it's just good urban design that reduces car dependency. But in practice, the neighborhoods closest to achieving this ideal are often the most expensive. Is walkability a public good or a luxury amenity?",
     options: [
@@ -88,7 +78,7 @@ const main: AnyQuestion[] = [
     ],
   },
   {
-    id: "q6",
+    id: "q5",
     topic: TOPIC,
     text: "In the 1960s and 70s, the U.S. federal government demolished thousands of homes and businesses in Black neighborhoods under the banner of \"urban renewal\" — nicknamed \"Negro removal\" by James Baldwin. Highway construction through cities like Detroit, Atlanta, and the Bronx deliberately bisected Black communities. Today, some of those same neighborhoods are gentrifying, and the language of \"revitalization\" and \"renewal\" has returned. How should the history of deliberate destruction shape how we think about current neighborhood change?",
     options: [
@@ -102,23 +92,11 @@ const main: AnyQuestion[] = [
       C: {
         type: "freeform",
         prompt: "What would reparative housing policy actually look like in practice — who gets what, decided by whom, and funded how?",
-      },
+      }
     },
   },
   {
-    id: "q7",
-    topic: TOPIC,
-    text: "In Tokyo, housing prices have remained roughly stable for decades despite massive population — largely because Japan's zoning system allows much more construction by right. The national government, not local municipalities, controls zoning. In the U.S., local zoning boards — often dominated by existing homeowners — can block new housing to protect their property values. Economist William Fischel calls this \"homevoter\" politics. Is local control of zoning the root cause of the housing crisis?",
-    options: [
-      { id: "A", text: "Yes — NIMBYism is the primary barrier to housing supply; homeowners who block construction are the biggest obstacles to affordability, and zoning reform is the most important single policy change" },
-      { id: "B", text: "Partially — restrictive zoning matters, but the crisis also involves wage stagnation, financialization of housing, and the retreat of public investment; it's not just a supply problem" },
-      { id: "C", text: "Zoning reform is necessary but not sufficient — even with liberal zoning, the market builds for the high end; you need public investment in affordable housing alongside deregulation" },
-      { id: "D", text: "Local control has value — communities should have a say in what gets built where they live; the Tokyo model trades democratic participation for efficiency, and that's a real loss" },
-      f("None of these / I see it differently"),
-    ],
-  },
-  {
-    id: "q8",
+    id: "q6",
     topic: TOPIC,
     text: "BlackRock, Invitation Homes, and other institutional investors bought over 100,000 single-family homes in the U.S. between 2020 and 2023, often outbidding individual buyers with all-cash offers. In some Sun Belt markets, institutional buyers accounted for over 25% of home purchases. They convert these homes to rentals and extract steady returns for shareholders. Meanwhile, homeownership rates for Americans under 35 are at historic lows. Is Wall Street buying up the housing stock a market efficiency or a systemic threat?",
     options: [
@@ -130,9 +108,9 @@ const main: AnyQuestion[] = [
     ],
   },
   {
-    id: "q9",
+    id: "q7",
     topic: TOPIC,
-    text: "What's the gentrification question nobody is asking loudly enough?",
+    text: "Think about a neighborhood you know well that has changed significantly. Who benefited, who was harmed, and was there a version of that change that could have worked for both?",
     freeformOnly: true,
   },
 ];

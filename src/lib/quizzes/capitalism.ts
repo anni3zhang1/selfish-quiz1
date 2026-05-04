@@ -1,0 +1,117 @@
+import type { AnyQuestion, Question } from "../types";
+
+const TOPIC = "capitalism";
+
+const f = (text: string) => ({ id: "E", text, freeform: true as const });
+
+const followupQuestions: Record<string, Question> = {
+  q4a: {
+    id: "q4a",
+    topic: TOPIC,
+    text: "The \'decoupling\' thesis — that economic growth can be separated from environmental destruction — is central to green growth arguments. But a 2020 study in The Lancet Planetary Health found no evidence of absolute decoupling at the global scale. Rich countries have reduced domestic emissions partly by offshoring production to poorer countries. Is green growth empirically real, or is it a comforting story that avoids hard choices?",
+    options: [
+      { id: "A", text: "It\'s real but incomplete — renewable energy costs have dropped 90% in a decade; the trend is clear even if we haven\'t achieved full decoupling yet; the trajectory matters more than today\'s snapshot" },
+      { id: "B", text: "It\'s a comforting fiction — absolute decoupling has never happened at global scale; claiming it will is faith in future technology, not evidence-based policy; we need to plan for degrowth" },
+      { id: "C", text: "The question is political, not empirical — whether decoupling is \'possible\' depends on how aggressively we invest in it; the answer is determined by policy choices, not by physical law" },
+      { id: "D", text: "Both sides overstate their case — green growth alone won\'t save us, but voluntary degrowth in democracies is politically impossible; the real path is forced efficiency through carbon pricing and regulation" },
+      f("None of these / I see it differently"),
+    ],
+  },
+};
+
+const main: AnyQuestion[] = [
+  {
+    id: "q1",
+    topic: TOPIC,
+    text: "Since 1980, the share of global income going to the bottom 50% has remained roughly flat while the top 1%\'s share has doubled, according to the World Inequality Lab. At the same time, global extreme poverty fell from 36% to under 10%. Economist Branko Milanovic calls this the \'elephant curve\' — massive gains for the global middle class (mostly in Asia) and the global ultra-rich, while the Western working class stagnated. Is capitalism working?",
+    options: [
+      { id: "A", text: "Yes, globally — lifting 1 billion people out of poverty is the greatest achievement in human history; the system creates inequality but also creates abundance; the net is overwhelmingly positive" },
+      { id: "B", text: "No — a system that produces both billionaires and food banks in the same city is not \'working\'; extreme inequality undermines democracy, health, and social cohesion; the poverty reduction would have happened faster with better distribution" },
+      { id: "C", text: "It depends on which capitalism — Nordic social democracy, Chinese state capitalism, and American laissez-faire produce radically different outcomes; \'capitalism\' is too broad a category to evaluate as a whole" },
+      { id: "D", text: "The question is outdated — capitalism worked for the industrial era; in the age of AI, platform monopolies, and financialization, the relationship between capital and labor has fundamentally changed; we need a new framework" },
+      f("None of these / I see it differently"),
+    ],
+    followups: {
+      A: {
+        type: "freeform",
+        prompt: "If capitalism\'s success is measured by poverty reduction — China (which achieved most of it) did so through state-directed industrial policy, not free markets. Does that undermine or support your argument?",
+      }
+    },
+  },
+  {
+    id: "q2",
+    topic: TOPIC,
+    text: "The Mondragon Corporation in Spain\'s Basque Country is the world\'s largest worker cooperative — 80,000 worker-owners, $12 billion in annual revenue, operating since 1956. The maximum pay ratio between executives and workers is 6:1 (compared to 399:1 at the average S&P 500 company). Germany\'s codetermination system puts workers on corporate boards. The Evergreen Cooperatives in Cleveland have revitalized distressed neighborhoods through community-owned businesses. Do alternatives to shareholder capitalism work at scale?",
+    options: [
+      { id: "A", text: "Yes — Mondragon and German codetermination prove that shared ownership and worker power produce stability, lower inequality, and competitive performance; the barrier to scaling is political, not economic" },
+      { id: "B", text: "In some contexts — cooperatives work well for certain industries and cultures but can\'t match the innovation speed and capital formation of shareholder-driven firms; they\'re a complement, not a replacement" },
+      { id: "C", text: "The question isn\'t whether they work but whether they can be imposed — cooperative models succeed when they emerge organically; mandating them through policy creates bureaucracy without ownership culture" },
+      { id: "D", text: "They work but they\'ll never displace shareholder capitalism because the political system is controlled by capital — cooperative models are a threat to concentrated wealth, and concentrated wealth controls the rules" },
+      f("None of these / I see it differently"),
+    ],
+  },
+  {
+    id: "q3",
+    topic: TOPIC,
+    text: "In the U.S., healthcare costs are roughly $4.5 trillion per year — 18% of GDP, double the OECD average — yet life expectancy is lower than in peer countries and 27 million people remain uninsured. Housing costs consume over 30% of income for nearly half of American renters. Student loan debt exceeds $1.7 trillion. These three sectors — health, housing, and education — are ones where the market has conspicuously failed to deliver affordable, universal access. Are these market failures or system features?",
+    options: [
+      { id: "A", text: "Market failures — healthcare, housing, and education are goods where markets don\'t work properly due to information asymmetry, inelastic demand, and externalities; they need public provision or heavy regulation" },
+      { id: "B", text: "Government failures — these sectors are the most regulated and subsidized in the economy; the high costs are caused by regulation, credentialism, and subsidy-driven demand inflation, not by markets" },
+      { id: "C", text: "System features — capitalism works by generating profit from essential needs; when you can\'t opt out of healthcare, housing, or education, producers have permanent pricing power; this is the system working as designed" },
+      { id: "D", text: "The market/government binary is the wrong frame — the real problem is that these sectors have been captured by industry incumbents who use both market power and regulatory capture to extract rents; the fix is structural, not ideological" },
+      f("None of these / I see it differently"),
+    ],
+  },
+  {
+    id: "q4",
+    topic: TOPIC,
+    text: "Economist Kate Raworth\'s \'Doughnut Economics\' proposes that the economy should operate between a social foundation (meeting everyone\'s basic needs) and an ecological ceiling (staying within planetary boundaries). Degrowth economists like Jason Hickel argue that infinite growth on a finite planet is physically impossible and that wealthy nations must deliberately shrink their economies. Mainstream economists counter that growth is necessary to fund the transition to sustainability. Can capitalism survive without growth?",
+    options: [
+      { id: "A", text: "No, and it doesn\'t need to — green growth is possible through efficiency, innovation, and decoupling GDP from resource use; the data shows emissions intensity declining even as economies grow" },
+      { id: "B", text: "No, and that\'s the problem — capitalism requires growth to function (returns on investment, employment, debt servicing); a post-growth capitalism is a contradiction in terms; we need a different system" },
+      { id: "C", text: "Growth in wealthy countries should stop; growth in poor countries must continue — the degrowth demand should apply to the Global North, which has already exceeded its ecological share, not to countries still lifting people out of poverty" },
+      { id: "D", text: "The growth question is a distraction — what matters is what grows and what shrinks; we need massive growth in clean energy, healthcare, and housing, and massive contraction in fossil fuels, waste, and luxury consumption" },
+      f("None of these / I see it differently"),
+    ],
+    followups: {
+      A: { type: "mc", question_id: "q4a" }
+    },
+  },
+  {
+    id: "q5",
+    topic: TOPIC,
+    text: "In 2024, the three richest Americans — Elon Musk, Jeff Bezos, and Bernard Arnault — held combined wealth exceeding $500 billion, more than the GDP of 80% of the world\'s countries. Philosopher Elizabeth Anderson argues that the workplace is the last domain of authoritarian control in democratic societies — bosses can dictate speech, appearance, bathroom breaks, and can terminate livelihoods at will. Karl Marx called this \'wage slavery.\' Libertarians call it freedom of contract. Who\'s closer to right?",
+    options: [
+      { id: "A", text: "Marx — the power asymmetry between employer and employee makes \'free contract\' a fiction; most workers have no meaningful bargaining power; the workplace is a site of domination, not voluntary exchange" },
+      { id: "B", text: "Libertarians — nobody is forced to work for any particular employer; the freedom to quit and find another job is real; calling voluntary employment \'slavery\' trivializes actual slavery" },
+      { id: "C", text: "Anderson — the answer isn\'t to abolish employment but to democratize it; workers should have rights, representation, and power within the workplace; the issue is governance, not abolition" },
+      { id: "D", text: "Both are right about different parts — the labor market is free in the aggregate and coercive in the particular; you can choose which boss dominates you, but you can\'t choose not to be dominated" },
+      f("None of these / I see it differently"),
+    ],
+  },
+  {
+    id: "q6",
+    topic: TOPIC,
+    text: "China\'s state-capitalist model combines market competition with central planning, state-owned enterprises, and authoritarian political control. Vietnam and Ethiopia have followed similar paths with significant growth. Nordic social democracies combine private ownership with strong unions, universal welfare, and high taxes. The U.S. model combines private ownership with weak unions, limited welfare, and low taxes. All call themselves \'market economies.\' What\'s the most important variable?",
+    options: [
+      { id: "A", text: "Worker power — the difference between Nordic success and American dysfunction is union density, collective bargaining, and worker representation; the form of capitalism matters less than who has power within it" },
+      { id: "B", text: "State capacity — the difference between successful and failed economies, regardless of ideology, is whether the government can build infrastructure, enforce rules, and deliver services; competence trumps system" },
+      { id: "C", text: "Distribution of ownership — who owns the productive assets determines who captures the gains; whether it\'s state ownership, worker ownership, or shareholder ownership is the variable that shapes everything else" },
+      { id: "D", text: "Democratic accountability — the Nordic model works because government is accountable to citizens; China\'s model works because the party fears revolution; the U.S. model fails because government is accountable to donors" },
+      f("None of these / I see it differently"),
+    ],
+  },
+  {
+    id: "q7",
+    topic: TOPIC,
+    text: "If you could change one structural feature of the economic system you live in — not a policy, but a rule of the game — what would it be?",
+    freeformOnly: true,
+  },
+];
+
+export const capitalismQuiz = {
+  topic: TOPIC,
+  topicLabel: "Capitalism",
+  questions: main,
+  followupQuestions,
+};

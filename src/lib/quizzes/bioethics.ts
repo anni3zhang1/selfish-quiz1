@@ -4,20 +4,7 @@ const TOPIC = "bioethics";
 
 const f = (text: string) => ({ id: "E", text, freeform: true as const });
 
-const followupQuestions: Record<string, Question> = {
-  q3a: {
-    id: "q3a",
-    topic: TOPIC,
-    text: "If there's no principled line between coffee and a brain chip — does that mean we should have no regulation at all, or does it mean we need a completely new regulatory framework that doesn't rely on the natural/artificial distinction?",
-    options: [
-      { id: "A", text: "New framework needed — regulate by impact and reversibility, not by whether something is \"natural\"; a chemical that permanently alters cognition matters more than a removable device" },
-      { id: "B", text: "Minimal regulation — adults should be free to modify their own bodies and minds; the state has no business deciding what counts as \"too enhanced\"" },
-      { id: "C", text: "Regulate access, not the technology — the danger isn't enhancement itself but a world where only the rich can afford cognitive upgrades" },
-      { id: "D", text: "We need regulation but don't yet know enough to write it — fund research, establish ethics boards, and impose a temporary moratorium on non-medical applications" },
-      f("None of these / I see it differently"),
-    ],
-  },
-};
+const followupQuestions: Record<string, Question> = {};
 
 const main: AnyQuestion[] = [
   {
@@ -35,7 +22,7 @@ const main: AnyQuestion[] = [
       B: {
         type: "freeform",
         prompt: "If the therapy-enhancement line is unsustainable, what's the actual limiting principle — or is there none?",
-      },
+      }
     },
   },
   {
@@ -53,31 +40,6 @@ const main: AnyQuestion[] = [
   {
     id: "q3",
     topic: TOPIC,
-    text: "Neuralink, Elon Musk's brain-computer interface company, implanted its first chip in a human patient in January 2024. The patient, Noland Arbaugh, who is quadriplegic, was able to control a computer cursor with his thoughts within weeks. Competitors like Synchron and Blackrock Neurotech are pursuing similar technology. The initial use case is medical — restoring function to paralyzed patients. But Musk has repeatedly said the long-term goal is \"symbiosis with AI.\" Where's your comfort line?",
-    options: [
-      { id: "A", text: "Restoring lost function is clearly ethical; enhancing normal function crosses a line — a cochlear implant for deafness is different from a chip that gives you superhuman memory" },
-      { id: "B", text: "There is no principled line — glasses, caffeine, and smartphones already enhance cognition; a brain chip is a difference in degree, not kind" },
-      { id: "C", text: "The comfort line depends on reversibility — anything you can remove is acceptable; permanent alterations to brain architecture require a much higher bar" },
-      { id: "D", text: "The individual choice framing is a distraction — the real question is whether brain-computer interfaces create an unequal cognitive class system that can't be undone" },
-      f("None of these / I see it differently"),
-    ],
-    followups: { B: { type: "mc", question_id: "q3a" } },
-  },
-  {
-    id: "q4",
-    topic: TOPIC,
-    text: "In 2023, the first gene therapy for a genetic condition — Hemgenix, for hemophilia B — was priced at $3.5 million per dose, making it the most expensive drug in history. Bluebird Bio's gene therapy for sickle cell, Lyfgenia, launched at $3.1 million. Both are potentially one-time cures for lifelong diseases. Who should pay, and who decides who gets access?",
-    options: [
-      { id: "A", text: "Insurers and governments should pay — a one-time cure that eliminates decades of treatment costs is actually cheaper in the long run; the sticker price is misleading" },
-      { id: "B", text: "The pricing reflects a broken system — no therapy costs $3.5 million to produce; this is monopoly pricing enabled by patent exclusivity, and the model needs to be dismantled" },
-      { id: "C", text: "Public funding for development should mean public ownership of the result — if NIH grants funded the basic science, the public should own the patent" },
-      { id: "D", text: "The access question is more urgent than the pricing question — even at a \"fair\" price, without global distribution infrastructure, cures will reach rich countries first and poor countries never" },
-      f("None of these / I see it differently"),
-    ],
-  },
-  {
-    id: "q5",
-    topic: TOPIC,
     text: "Whole genome sequencing now costs under $200 — down from $3 billion for the first human genome in 2003. Companies like 23andMe and Nebula Genomics offer consumer genetic testing that reveals disease risks, carrier status, and ancestry. In Iceland, deCODE Genetics has sequenced nearly the entire population. China's BGI has built the world's largest genetic database. Who should own your genetic data?",
     options: [
       { id: "A", text: "You should — genetic data is the most personal information that exists; it should be treated like medical records, with strict consent and control by the individual" },
@@ -90,11 +52,11 @@ const main: AnyQuestion[] = [
       D: {
         type: "freeform",
         prompt: "If genetic data is already out there and can't be recalled — what's the most important safeguard to build now, before insurers, employers, and governments start using it?",
-      },
+      }
     },
   },
   {
-    id: "q6",
+    id: "q4",
     topic: TOPIC,
     text: "In the U.S., surrogacy is a $14 billion industry. Ukraine and India were major surrogacy destinations before regulatory crackdowns. Wealthy couples in the U.S., UK, and Australia routinely pay women in lower-income countries — or lower-income women domestically — to carry pregnancies. Feminist critics like Kajsa Ekis Ekman call it \"reproductive exploitation.\" Advocates say it gives women economic agency and helps people who can't otherwise have children. Is commercial surrogacy ethical?",
     options: [
@@ -106,7 +68,7 @@ const main: AnyQuestion[] = [
     ],
   },
   {
-    id: "q7",
+    id: "q5",
     topic: TOPIC,
     text: "Psychedelic-assisted therapy is being fast-tracked by regulators worldwide. MDMA for PTSD reached Phase 3 trials run by MAPS (Multidisciplinary Association for Psychedelic Studies) — though the FDA rejected it in 2024 citing study design concerns. Psilocybin therapy for depression has been approved in Australia and is in late-stage trials in the US and Europe. Oregon legalized supervised psilocybin use in 2023. The science is promising but early. How should society handle this?",
     options: [
@@ -118,7 +80,7 @@ const main: AnyQuestion[] = [
     ],
   },
   {
-    id: "q8",
+    id: "q6",
     topic: TOPIC,
     text: "In Denmark, prenatal screening for Down syndrome is offered to all pregnant women and has a near-100% uptake rate. Approximately 95% of pregnancies with a Down syndrome diagnosis are terminated. Iceland has nearly eliminated Down syndrome births entirely. Disability rights advocates call this a form of eugenics. Parents who chose termination say they made a deeply personal, agonizing decision. Is population-level screening that effectively eliminates a genetic condition ethically different from individual reproductive choice?",
     options: [
@@ -132,13 +94,13 @@ const main: AnyQuestion[] = [
       A: {
         type: "freeform",
         prompt: "If 95% of parents in a system make the same choice, at what point does the system itself — the screening protocol, the counseling, the cultural context — become the agent, not the individual?",
-      },
+      }
     },
   },
   {
-    id: "q9",
+    id: "q7",
     topic: TOPIC,
-    text: "What's the bioethics question nobody is asking loudly enough?",
+    text: "What’s one thing about your own body or mind that you would change if the technology existed — and one thing you wouldn’t change even if you could? What’s the difference?",
     freeformOnly: true,
   },
 ];

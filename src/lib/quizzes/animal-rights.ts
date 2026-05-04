@@ -1,0 +1,117 @@
+import type { AnyQuestion, Question } from "../types";
+
+const TOPIC = "animal_rights";
+
+const f = (text: string) => ({ id: "E", text, freeform: true as const });
+
+const followupQuestions: Record<string, Question> = {
+  q4a: {
+    id: "q4a",
+    topic: TOPIC,
+    text: "If animal testing is justified to save human lives — where does that logic stop? Researchers at the University of Pittsburgh in 2020 faced backlash for experiments grafting fetal scalps onto immunodeficient mice. Neuralink reported that approximately 1,500 animals died in its brain-chip experiments between 2018 and 2023. At what point does the suffering inflicted exceed the knowledge gained?",
+    options: [
+      { id: "A", text: "There\'s no fixed line — each experiment must be individually justified through ethics review; the system of institutional review boards exists precisely for this purpose" },
+      { id: "B", text: "The line is cognitive capacity — experiments causing severe suffering to primates and mammals with rich inner lives should be banned; there\'s no justification for torturing a monkey for a brain chip" },
+      { id: "C", text: "The line is the quality of alternatives — animal testing is only justified when no alternative method can answer the question; as alternatives improve, the permissible scope must narrow" },
+      { id: "D", text: "The ethics review system is compromised — researchers review each other, institutions profit from grants, and there\'s no meaningful accountability for animal suffering; the system needs external oversight" },
+      f("None of these / I see it differently"),
+    ],
+  },
+};
+
+const main: AnyQuestion[] = [
+  {
+    id: "q1",
+    topic: TOPIC,
+    text: "Globally, over 80 billion land animals are slaughtered for food each year. In the U.S., over 99% of farmed animals live in factory farms — concentrated animal feeding operations (CAFOs) where chickens have less space than a sheet of paper, pigs are confined in gestation crates too small to turn around, and cattle stand in their own waste. The industry produces 14.5% of global greenhouse gas emissions. A 2023 Gallup poll found that 47% of Americans believe animals should have the same rights as people. What\'s the right moral framework for our treatment of animals?",
+    options: [
+      { id: "A", text: "Animal suffering matters morally — factory farming is the largest source of unnecessary suffering on Earth and should be abolished; the scale alone demands a moral response" },
+      { id: "B", text: "Animals deserve welfare protections but not rights — there\'s a meaningful moral distinction between humans and animals; humane treatment is required, but equivalence is absurd" },
+      { id: "C", text: "The moral framework depends on the animal — great apes, dolphins, and elephants demonstrate self-awareness that most farm animals don\'t; a single standard for all species ignores real cognitive differences" },
+      { id: "D", text: "The individual morality framing is a distraction — factory farming exists because of economic incentives and consumer demand; systemic change (regulation, subsidies, alternatives) matters more than personal ethics" },
+      f("None of these / I see it differently"),
+    ],
+    followups: {
+      B: {
+        type: "freeform",
+        prompt: "What specifically is the morally relevant difference between humans and animals that justifies confining a cognitively complex animal like a pig — which outperforms dogs on cognitive tests — in a space too small to turn around for its entire life?",
+      }
+    },
+  },
+  {
+    id: "q2",
+    topic: TOPIC,
+    text: "Philosopher Peter Singer\'s 1975 book \'Animal Liberation\' argued that the capacity to suffer, not species membership, is what gives a being moral standing — a position he called \'speciesism\' by analogy with racism and sexism. Legal scholar Steven Wise has spent decades arguing for legal personhood for great apes, elephants, and cetaceans. In 2022, Ecuador\'s Constitutional Court granted legal rights to individual wild animals. Should animals have legal rights?",
+    options: [
+      { id: "A", text: "Yes — at minimum, cognitively complex animals deserve legal personhood; they have interests, feel pain, and form social bonds; denying them rights is a moral failure comparable to historical denials of human rights" },
+      { id: "B", text: "No — rights entail responsibilities; animals can\'t enter contracts, vote, or bear legal obligations; extending \'rights\' to animals dilutes the concept and undermines human rights frameworks" },
+      { id: "C", text: "Not rights, but legal protections — stronger animal welfare laws with real enforcement are more practical and achievable than the philosophical leap to animal personhood" },
+      { id: "D", text: "Singer\'s framework is correct but the political strategy is wrong — arguing for animal rights alienates people; arguing against cruelty and for environmental sustainability achieves the same outcomes without the backlash" },
+      f("None of these / I see it differently"),
+    ],
+  },
+  {
+    id: "q3",
+    topic: TOPIC,
+    text: "In 2020, Singapore became the first country to approve lab-grown meat for human consumption. By 2024, companies like Upside Foods and Eat Just had received USDA approval in the U.S. But cultured meat remains roughly 10x the cost of conventional meat and requires significant energy inputs. Meanwhile, plant-based meat sales (Impossible Foods, Beyond Meat) peaked in 2021 and have since declined as consumers returned to conventional products. Can technology solve the ethics of meat?",
+    options: [
+      { id: "A", text: "Yes — cultured meat is the only realistic path to ending factory farming; people won\'t stop eating meat, so the answer is making meat without animals; scale will bring the cost down" },
+      { id: "B", text: "No — technology is a delay tactic; the ethical imperative is to change what we eat, not to engineer guilt-free versions of the same consumption pattern" },
+      { id: "C", text: "Technology helps but can\'t do it alone — you need lab-grown meat AND regulation of factory farming AND cultural shift; any one alone is insufficient" },
+      { id: "D", text: "The framing assumes meat is the problem — the issue is industrialization, not consumption; small-scale, regenerative animal farming is ecologically and ethically defensible; factory farming isn\'t" },
+      f("None of these / I see it differently"),
+    ],
+  },
+  {
+    id: "q4",
+    topic: TOPIC,
+    text: "The development of the COVID-19 vaccines — which saved an estimated 20 million lives in their first year — depended on animal testing, particularly in mice and primates. The mRNA technology behind the Pfizer and Moderna vaccines was tested in animals for over a decade before the pandemic. Roughly 100 million animals are used in research in the U.S. annually. The EU has committed to phasing out animal testing by 2030 where alternatives exist. Is animal testing for medical research justified?",
+    options: [
+      { id: "A", text: "Yes — when human lives are at stake, using animals in research is justified; the COVID vaccines proved the stakes are real; this isn\'t cosmetics testing, it\'s saving millions of lives" },
+      { id: "B", text: "It\'s justified now but shouldn\'t be permanent — invest aggressively in alternatives (organoids, AI modeling, human-on-a-chip) with the explicit goal of ending animal research as soon as possible" },
+      { id: "C", text: "Only for certain animals and certain purposes — there should be a strict hierarchy based on cognitive complexity; testing on primates requires a much higher bar than testing on mice" },
+      { id: "D", text: "The justification is weaker than people think — much animal research doesn\'t translate to humans; the failure rate of drugs that passed animal trials is over 90%; we\'re causing suffering for marginal scientific value" },
+      f("None of these / I see it differently"),
+    ],
+    followups: {
+      A: { type: "mc", question_id: "q4a" }
+    },
+  },
+  {
+    id: "q5",
+    topic: TOPIC,
+    text: "Cambridge neuroscientist Lori Marino\'s research demonstrates that pigs show self-awareness, empathy, and complex social cognition comparable to dogs and young children. Octopuses solve puzzles, recognize individual humans, and display what appears to be play behavior. In 2012, the Cambridge Declaration on Consciousness concluded that many non-human animals possess the neurological substrates for conscious experience. If animals are conscious and can suffer, does eating them require a moral justification that most people haven\'t made?",
+    options: [
+      { id: "A", text: "Yes — most meat-eating in wealthy countries is a preference, not a necessity; if an animal is conscious, killing it for a taste preference is morally indefensible once you acknowledge what you\'re doing" },
+      { id: "B", text: "No — humans are omnivores; eating animals is part of our evolutionary biology and cultural heritage; the moral framework that condemns it is historically novel and culturally specific" },
+      { id: "C", text: "Consciousness exists on a spectrum, and the moral weight should too — eating a conscious pig raised humanely is different from eating a factory-farmed one; how matters more than whether" },
+      { id: "D", text: "The question is correct but the conclusion is wrong — the answer isn\'t veganism, it\'s radically reforming how we raise animals; pastoral farming with genuine welfare standards is the ethical middle ground" },
+      f("None of these / I see it differently"),
+    ],
+  },
+  {
+    id: "q6",
+    topic: TOPIC,
+    text: "India\'s constitution includes animal protection as a fundamental duty of citizens. Switzerland requires that social animals like parrots not be kept alone. In contrast, most U.S. states exempt farm animals from animal cruelty laws entirely — the same treatment that would be a felony if done to a dog is legal if done to a pig. \'Ag-gag\' laws in several states criminalize filming inside factory farms. Why the inconsistency?",
+    options: [
+      { id: "A", text: "Cultural attachment — we love dogs because we know them; we eat pigs because we don\'t; the inconsistency is emotional, not rational, and a serious ethical framework would eliminate it" },
+      { id: "B", text: "Economic reality — the food system depends on cheap animal protein; exempting farm animals from cruelty laws is a policy choice that prioritizes affordable food over animal welfare" },
+      { id: "C", text: "Industry capture — ag-gag laws exist because the farming industry has successfully lobbied to shield itself from scrutiny; the inconsistency is the product of corporate power, not consumer preference" },
+      { id: "D", text: "The inconsistency is the most honest thing about our relationship with animals — we know what we\'re doing is wrong, so we hide it; the laws exist to protect our comfort, not the animals" },
+      f("None of these / I see it differently"),
+    ],
+  },
+  {
+    id: "q7",
+    topic: TOPIC,
+    text: "In 200 years, how do you think future humans will judge our treatment of animals — and what will they find most incomprehensible?",
+    freeformOnly: true,
+  },
+];
+
+export const animalRightsQuiz = {
+  topic: TOPIC,
+  topicLabel: "Animal Rights",
+  questions: main,
+  followupQuestions,
+};

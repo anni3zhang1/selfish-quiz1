@@ -4,11 +4,27 @@
     "topic": "economic_disruption",
     "text": "Goldman Sachs estimated in 2023 that generative AI could automate 300 million full-time jobs globally. McKinsey's research suggests 30% of current work hours in the U.S. could be automated by 2030. Unlike past automation waves that targeted factory floors, this one hits knowledge workers — lawyers, accountants, copywriters, radiologists, programmers. Is this time structurally different from previous technological disruptions?",
     "options": [
-      {"id": "A", "text": "Yes — cognitive work is qualitatively different; when machines can think, write, and reason, the \"new jobs will appear\" argument loses its historical basis"},
-      {"id": "B", "text": "No — we've heard this every generation since the Luddites; the economy always creates new categories of work we can't predict from inside the transition"},
-      {"id": "C", "text": "Both — the long run will probably be fine, but the transition will involve decades of real displacement and pain that nobody is seriously preparing for"},
-      {"id": "D", "text": "The jobs question is secondary — the real issue is power concentration; whoever owns the AI owns the productivity gains, and that's a smaller group than ever before"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
+      {
+        "id": "A",
+        "text": "Yes — cognitive work is qualitatively different; when machines can think, write, and reason, the \"new jobs will appear\" argument loses its historical basis"
+      },
+      {
+        "id": "B",
+        "text": "No — we've heard this every generation since the Luddites; the economy always creates new categories of work we can't predict from inside the transition"
+      },
+      {
+        "id": "C",
+        "text": "Both — the long run will probably be fine, but the transition will involve decades of real displacement and pain that nobody is seriously preparing for"
+      },
+      {
+        "id": "D",
+        "text": "The jobs question is secondary — the real issue is power concentration; whoever owns the AI owns the productivity gains, and that's a smaller group than ever before"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
     ],
     "followups": {
       "B": {
@@ -22,24 +38,55 @@
     "topic": "economic_disruption",
     "text": "In 2024, UBI pilot programs were running in over 100 cities worldwide, including Stockton (California), where Mayor Michael Tubbs gave 125 residents $500/month with no strings attached. Finland ran a national experiment giving 2,000 unemployed citizens €560/month. Results were mixed — recipients reported better wellbeing and modest employment gains, but critics like economist Edward Glaeser argue UBI is fiscally unsustainable at scale. If automation eliminates millions of jobs, is universal basic income the right response?",
     "options": [
-      {"id": "A", "text": "Yes — UBI is the simplest, most dignified safety net; it lets people retrain, care for family, or create without the surveillance and stigma of traditional welfare"},
-      {"id": "B", "text": "No — people need purpose, not just income; UBI without meaningful work or community structure will produce an epidemic of purposelessness"},
-      {"id": "C", "text": "UBI is necessary but insufficient — it addresses survival but doesn't address the power imbalance; pair it with wealth taxes, public ownership of AI, or profit-sharing mandates"},
-      {"id": "D", "text": "UBI is a distraction — the goal should be a federal jobs guarantee; the government should be the employer of last resort, not the check-writer of last resort"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
-    ],
-    "followups": {}
+      {
+        "id": "A",
+        "text": "Yes — UBI is the simplest, most dignified safety net; it lets people retrain, care for family, or create without the surveillance and stigma of traditional welfare"
+      },
+      {
+        "id": "B",
+        "text": "No — people need purpose, not just income; UBI without meaningful work or community structure will produce an epidemic of purposelessness"
+      },
+      {
+        "id": "C",
+        "text": "UBI is necessary but insufficient — it addresses survival but doesn't address the power imbalance; pair it with wealth taxes, public ownership of AI, or profit-sharing mandates"
+      },
+      {
+        "id": "D",
+        "text": "UBI is a distraction — the goal should be a federal jobs guarantee; the government should be the employer of last resort, not the check-writer of last resort"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ]
   },
   {
     "id": "q3",
     "topic": "economic_disruption",
     "text": "Amazon employs 1.5 million people globally but has increasingly automated its warehouses — the company deployed over 750,000 robots by 2023. Simultaneously, Amazon's workforce has one of the highest injury rates in the industry, and workers at facilities in Staten Island and Bessemer, Alabama voted on unionization. The company has invested billions in the robots that will eventually replace many of those same workers. When a company automates, what does it owe the workers it displaces?",
     "options": [
-      {"id": "A", "text": "Retraining and transition support — companies that profit from automation have a direct obligation to fund reskilling for displaced workers, not just severance"},
-      {"id": "B", "text": "Nothing beyond legal requirements — the purpose of a company is to create value for shareholders; requiring companies to manage social transitions is the government's job"},
-      {"id": "C", "text": "A share of the gains — automation increases profits; displaced workers should receive ongoing royalties or equity, not just a one-time payout"},
-      {"id": "D", "text": "The question frames it too narrowly — Amazon didn't create the conditions that make warehouse work people's best option; automation is downstream of an economy that already failed these workers"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
+      {
+        "id": "A",
+        "text": "Retraining and transition support — companies that profit from automation have a direct obligation to fund reskilling for displaced workers, not just severance"
+      },
+      {
+        "id": "B",
+        "text": "Nothing beyond legal requirements — the purpose of a company is to create value for shareholders; requiring companies to manage social transitions is the government's job"
+      },
+      {
+        "id": "C",
+        "text": "A share of the gains — automation increases profits; displaced workers should receive ongoing royalties or equity, not just a one-time payout"
+      },
+      {
+        "id": "D",
+        "text": "The question frames it too narrowly — Amazon didn't create the conditions that make warehouse work people's best option; automation is downstream of an economy that already failed these workers"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
     ],
     "followups": {
       "B": {
@@ -49,54 +96,59 @@
     }
   },
   {
-    "id": "q3a",
-    "topic": "economic_disruption",
-    "text": "If automation's social costs are the government's responsibility — but the government is funded by taxes on the companies doing the automating — aren't we just adding a step? What's the actual accountability mechanism?",
-    "options": [
-      {"id": "A", "text": "Automation taxes — companies should pay a tax on each job automated, creating a fund for displaced workers; Bill Gates proposed this in 2017 and it's gaining traction"},
-      {"id": "B", "text": "Windfall profit taxes — don't tax the robot, tax the extraordinary profits that automation generates; let companies automate freely but capture the upside publicly"},
-      {"id": "C", "text": "Public ownership stake — if AI-driven automation was built on publicly funded research (DARPA, university labs, open-source code), the public should own a share of the resulting companies"},
-      {"id": "D", "text": "There is no clean mechanism — the history of taxing concentrated wealth shows it gets captured, evaded, and lobbied away; the structural power imbalance is the real problem"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
-    ],
-    "followups": {}
-  },
-  {
     "id": "q4",
     "topic": "economic_disruption",
-    "text": "The gig economy — Uber, DoorDash, TaskRabbit, Fiverr — now employs an estimated 59 million Americans, according to a 2023 McKinsey survey. These workers have no employer-provided health insurance, no retirement benefits, no unemployment insurance, and no collective bargaining rights. California's AB5 law tried to reclassify gig workers as employees; Uber and Lyft spent $200 million on Proposition 22 to overturn it. The EU passed a directive in 2024 presuming gig workers are employees. Which approach is right?",
+    "text": "Between 2020 and 2023, the three largest U.S. tech companies — Apple, Microsoft, and Google — collectively held over $400 billion in cash reserves while conducting multiple rounds of layoffs totaling over 200,000 workers. Corporate profits as a share of GDP are near all-time highs. Wages, adjusted for inflation, have barely grown for the bottom 50% in four decades. Economist Thomas Piketty argues this is the inevitable result of returns on capital outpacing returns on labor. Is the economy broken, or working as designed?",
     "options": [
-      {"id": "A", "text": "The EU — gig companies have built a business model on misclassifying employees as contractors to avoid paying benefits; close the loophole"},
-      {"id": "B", "text": "Neither — the real problem is tying healthcare and retirement to employment at all; decouple benefits from jobs and the classification fight becomes irrelevant"},
-      {"id": "C", "text": "A third category is needed — gig work genuinely is different from traditional employment; create a new legal status with portable benefits, minimum earnings guarantees, and some protections without full employee classification"},
-      {"id": "D", "text": "The gig economy is a preview of what all work becomes under AI — project-based, insecure, and with all the risk shifted to the worker; the fix has to be systemic, not sector-specific"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
-    ],
-    "followups": {}
+      {
+        "id": "A",
+        "text": "Broken — market concentration, regulatory capture, and the decline of unions have distorted an otherwise functional system; reforms can fix it"
+      },
+      {
+        "id": "B",
+        "text": "Working as designed — capitalism concentrates wealth by design; this isn't a bug, and pretending reforms will fix it avoids the structural question"
+      },
+      {
+        "id": "C",
+        "text": "Piketty is right on the diagnosis but the solution isn't redistribution alone — it's restructuring ownership so that workers share in the returns on capital, not just labor"
+      },
+      {
+        "id": "D",
+        "text": "The framing is too Western — globally, capitalism has lifted billions out of poverty in the last 50 years; the inequality story looks different depending on where you draw the frame"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ]
   },
   {
     "id": "q5",
     "topic": "economic_disruption",
-    "text": "Between 2020 and 2023, the three largest U.S. tech companies — Apple, Microsoft, and Google — collectively held over $400 billion in cash reserves while conducting multiple rounds of layoffs totaling over 200,000 workers. Corporate profits as a share of GDP are near all-time highs. Wages, adjusted for inflation, have barely grown for the bottom 50% in four decades. Economist Thomas Piketty argues this is the inevitable result of returns on capital outpacing returns on labor. Is the economy broken, or working as designed?",
-    "options": [
-      {"id": "A", "text": "Broken — market concentration, regulatory capture, and the decline of unions have distorted an otherwise functional system; reforms can fix it"},
-      {"id": "B", "text": "Working as designed — capitalism concentrates wealth by design; this isn't a bug, and pretending reforms will fix it avoids the structural question"},
-      {"id": "C", "text": "Piketty is right on the diagnosis but the solution isn't redistribution alone — it's restructuring ownership so that workers share in the returns on capital, not just labor"},
-      {"id": "D", "text": "The framing is too Western — globally, capitalism has lifted billions out of poverty in the last 50 years; the inequality story looks different depending on where you draw the frame"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
-    ],
-    "followups": {}
-  },
-  {
-    "id": "q6",
-    "topic": "economic_disruption",
     "text": "The Rust Belt — Detroit, Cleveland, Youngstown, Gary — has been in economic decline since the 1970s as manufacturing moved overseas or automated. Fifty years of retraining programs, enterprise zones, and economic development initiatives have largely failed to replace the jobs lost. Economists David Autor and Gordon Hanson documented how the \"China shock\" permanently damaged U.S. manufacturing communities with no recovery in sight. If half a century of policy couldn't fix the last automation wave, why would this time be different?",
     "options": [
-      {"id": "A", "text": "It won't be — the honest answer is that communities disrupted by AI will follow the same trajectory as manufacturing towns, and we should plan for managed decline, not false promises of renewal"},
-      {"id": "B", "text": "This time IS different, but not in a good way — the speed and breadth of AI disruption will be faster and wider than manufacturing loss, which means the policy response needs to be faster and bigger too"},
-      {"id": "C", "text": "The failure wasn't inevitable — the Rust Belt decline was a policy choice: we chose free trade without adequate transition support; the lesson is to build the safety net before the disruption hits, not after"},
-      {"id": "D", "text": "The question assumes place-based recovery is the goal — maybe the answer is making it easier for people to move where the opportunities are, with relocation support, portable benefits, and housing vouchers"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
+      {
+        "id": "A",
+        "text": "It won't be — the honest answer is that communities disrupted by AI will follow the same trajectory as manufacturing towns, and we should plan for managed decline, not false promises of renewal"
+      },
+      {
+        "id": "B",
+        "text": "This time IS different, but not in a good way — the speed and breadth of AI disruption will be faster and wider than manufacturing loss, which means the policy response needs to be faster and bigger too"
+      },
+      {
+        "id": "C",
+        "text": "The failure wasn't inevitable — the Rust Belt decline was a policy choice: we chose free trade without adequate transition support; the lesson is to build the safety net before the disruption hits, not after"
+      },
+      {
+        "id": "D",
+        "text": "The question assumes place-based recovery is the goal — maybe the answer is making it easier for people to move where the opportunities are, with relocation support, portable benefits, and housing vouchers"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
     ],
     "followups": {
       "A": {
@@ -106,35 +158,66 @@
     }
   },
   {
-    "id": "q7",
-    "topic": "economic_disruption",
-    "text": "OpenAI, originally founded as a nonprofit in 2015 to \"ensure AI benefits all of humanity,\" restructured as a capped-profit company in 2019 and was valued at over $80 billion by 2024. Sam Altman owns no equity. Microsoft invested $13 billion. Google, Amazon, and Apple are all building competing foundation models. The companies building the most powerful AI systems are also the ones positioned to capture most of the economic value from automation. Is the AI industry's structure compatible with broadly shared prosperity?",
-    "options": [
-      {"id": "A", "text": "No — the concentration of AI capability in 4-5 megacorps is a structural threat to economic democracy; antitrust action or public alternatives are essential"},
-      {"id": "B", "text": "Yes — competition between these companies will drive down costs and increase access; AI is following the same path as cloud computing, which started concentrated and became ubiquitous"},
-      {"id": "C", "text": "The structure matters less than the governance — what we need is mandated open-source requirements, profit-sharing with affected workers, and public representation on AI company boards"},
-      {"id": "D", "text": "The nonprofit-to-profit pipeline tells you everything — even organizations explicitly designed to serve humanity's interests get captured by capital; the structure isn't fixable within capitalism"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
-    ],
-    "followups": {}
-  },
-  {
-    "id": "q8",
+    "id": "q6",
     "topic": "economic_disruption",
     "text": "Economist Daron Acemoglu, who won the 2024 Nobel Prize in Economics, argues that the choice between \"automation\" (replacing workers) and \"augmentation\" (making workers more productive) is not technologically determined — it's a policy choice. He estimates that AI focused on augmentation could raise wages for 80% of workers, while AI focused on automation would concentrate gains at the top. If the same technology can go either way, what determines which path we take?",
     "options": [
-      {"id": "A", "text": "Market incentives — automation is cheaper than augmentation because replacing a worker eliminates a salary; without policy intervention, the market will always choose replacement"},
-      {"id": "B", "text": "Corporate governance — if workers had seats on boards or strong unions, companies would choose augmentation because it serves the workforce; the problem is who's at the table"},
-      {"id": "C", "text": "Tax policy — if we taxed capital (robots, AI) and subsidized labor, we'd flip the incentive; automation happens because labor is taxed and capital isn't"},
-      {"id": "D", "text": "Culture — Silicon Valley's ideology celebrates disruption and replacement; a different engineering culture that valued human complementarity would build different tools"},
-      {"id": "E", "text": "None of these / I see it differently", "freeform": true}
+      {
+        "id": "A",
+        "text": "Market incentives — automation is cheaper than augmentation because replacing a worker eliminates a salary; without policy intervention, the market will always choose replacement"
+      },
+      {
+        "id": "B",
+        "text": "Corporate governance — if workers had seats on boards or strong unions, companies would choose augmentation because it serves the workforce; the problem is who's at the table"
+      },
+      {
+        "id": "C",
+        "text": "Tax policy — if we taxed capital (robots, AI) and subsidized labor, we'd flip the incentive; automation happens because labor is taxed and capital isn't"
+      },
+      {
+        "id": "D",
+        "text": "Culture — Silicon Valley's ideology celebrates disruption and replacement; a different engineering culture that valued human complementarity would build different tools"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
+    ]
+  },
+  {
+    "id": "q3a",
+    "topic": "economic_disruption",
+    "text": "If automation's social costs are the government's responsibility — but the government is funded by taxes on the companies doing the automating — aren't we just adding a step? What's the actual accountability mechanism?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Automation taxes — companies should pay a tax on each job automated, creating a fund for displaced workers; Bill Gates proposed this in 2017 and it's gaining traction"
+      },
+      {
+        "id": "B",
+        "text": "Windfall profit taxes — don't tax the robot, tax the extraordinary profits that automation generates; let companies automate freely but capture the upside publicly"
+      },
+      {
+        "id": "C",
+        "text": "Public ownership stake — if AI-driven automation was built on publicly funded research (DARPA, university labs, open-source code), the public should own a share of the resulting companies"
+      },
+      {
+        "id": "D",
+        "text": "There is no clean mechanism — the history of taxing concentrated wealth shows it gets captured, evaded, and lobbied away; the structural power imbalance is the real problem"
+      },
+      {
+        "id": "E",
+        "text": "None of these / I see it differently",
+        "freeform": true
+      }
     ],
     "followups": {}
   },
   {
-    "id": "q9",
+    "id": "q7",
     "topic": "economic_disruption",
-    "text": "What's the economic disruption question nobody is asking loudly enough?",
+    "text": "Name a job that exists today that you think AI will make obsolete within 10 years — and one you think it never will. What’s your reasoning?",
     "options": [],
     "freeform_only": true,
     "followups": {}

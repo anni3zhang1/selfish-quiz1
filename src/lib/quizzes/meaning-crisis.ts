@@ -5,8 +5,8 @@ const TOPIC = "meaning_crisis";
 const f = (text: string) => ({ id: "E", text, freeform: true as const });
 
 const followupQuestions: Record<string, Question> = {
-  q3a: {
-    id: "q3a",
+  q2a: {
+    id: "q2a",
     topic: TOPIC,
     text: "If political identity as religion is dangerous, what should fill the need for moral community instead?",
     options: [
@@ -35,23 +35,11 @@ const main: AnyQuestion[] = [
       C: {
         type: "freeform",
         prompt: "If nothing is being lost, why are loneliness, anxiety, and \"deaths of despair\" climbing fastest in the most secular, affluent societies?",
-      },
+      }
     },
   },
   {
     id: "q2",
-    topic: TOPIC,
-    text: "Headspace and Calm are worth over $2 billion each. BetterHelp runs ads on every podcast. The self-help book market generates over $13 billion annually. Ayahuasca retreats in Costa Rica charge $5,000 a week. Therapy, meditation apps, wellness culture — the meaning industry is booming. Is this a genuine response to a real crisis, or a market exploiting a wound?",
-    options: [
-      { id: "A", text: "Genuine — people are finding real tools for real suffering; the delivery mechanism being commercial doesn't invalidate the relief" },
-      { id: "B", text: "Exploitation — commodifying inner life turns transformation into consumption; you can't subscribe your way to meaning" },
-      { id: "C", text: "Both — some of it works, but the framing is wrong; meaning isn't a personal optimization problem, it's a collective one that can't be solved app by app" },
-      { id: "D", text: "It's a symptom, not a response — the fact that we need an industry for what communities and traditions used to provide for free IS the crisis" },
-      f("None of these / I see it differently"),
-    ],
-  },
-  {
-    id: "q3",
     topic: TOPIC,
     text: "Psychologist Jonathan Haidt documents in \"The Righteous Mind\" how political identity activates the same moral psychology as religion — sacred values, tribal loyalty, ritual, and heresy-policing. A 2022 Pew study found that partisan identity is now a stronger predictor of social behavior than race, class, or religion in the U.S. Is politics-as-religion dangerous?",
     options: [
@@ -61,10 +49,12 @@ const main: AnyQuestion[] = [
       { id: "D", text: "It's not new — nationalism, communism, and fascism were all political religions; we just forgot because liberal democracy was boring enough to feel neutral" },
       f("None of these / I see it differently"),
     ],
-    followups: { A: { type: "mc", question_id: "q3a" } },
+    followups: {
+      A: { type: "mc", question_id: "q2a" }
+    },
   },
   {
-    id: "q4",
+    id: "q3",
     topic: TOPIC,
     text: "The U.S. Surgeon General Vivek Murthy declared loneliness a public health epidemic in 2023, comparing its mortality effects to smoking 15 cigarettes a day. Yet the internet connects more people than any technology in history. Some people's deepest relationships exist entirely online. Murthy's advisory focused on in-person connection — but is that the right frame?",
     options: [
@@ -76,7 +66,7 @@ const main: AnyQuestion[] = [
     ],
   },
   {
-    id: "q5",
+    id: "q4",
     topic: TOPIC,
     text: "In 1882, Nietzsche wrote \"God is dead\" and warned that without a replacement for the Christian moral framework, Europe would descend into nihilism and catastrophic ideological warfare. Within 60 years, two world wars and the Holocaust had played out. Cognitive scientist John Vervaeke argues we're in a second wave — that the secular substitutes (nationalism, Marxism, consumerism, therapeutic culture) are themselves now failing. Was Nietzsche right?",
     options: [
@@ -90,11 +80,11 @@ const main: AnyQuestion[] = [
       A: {
         type: "freeform",
         prompt: "If we're living in masked nihilism — what would unmasking it actually look like? And would that be liberating or devastating?",
-      },
+      }
     },
   },
   {
-    id: "q6",
+    id: "q5",
     topic: TOPIC,
     text: "Gallup's global workplace study found that 77% of workers worldwide are disengaged from their jobs. Meanwhile, \"follow your passion\" is the dominant career advice of the educated class, from Steve Jobs' Stanford commencement speech to every LinkedIn influencer. The Japanese concept of ikigai — finding purpose at the intersection of love, skill, need, and pay — has become a bestselling self-help framework. Where do you land on meaning in work?",
     options: [
@@ -106,25 +96,7 @@ const main: AnyQuestion[] = [
     ],
   },
   {
-    id: "q7",
-    topic: TOPIC,
-    text: "Sociologist Émile Durkheim predicted in the 1890s that as societies modernized, they'd produce more anomie — a state of normlessness where individuals feel disconnected from collective life. He saw suicide rates as the clearest indicator. Today, the U.S. suicide rate is at a 50-year high. \"Deaths of despair\" — suicide, overdose, alcohol-related deaths — have become the leading cause of death for Americans under 45. Economists Anne Case and Angus Deaton linked this directly to the collapse of working-class community structures. Is the meaning crisis primarily a class issue?",
-    options: [
-      { id: "A", text: "Yes — the educated class has replaced religion with careers, credentials, and therapy; the working class lost religion AND economic dignity, with nothing to fill either void" },
-      { id: "B", text: "No — the crisis is universal; affluent people mask it better with consumption and status, but rates of anxiety and emptiness are rising across every demographic" },
-      { id: "C", text: "It's a class issue in its expression but not its cause — the underlying problem is the collapse of shared institutions, which affects everyone differently based on what else they have" },
-      { id: "D", text: "The class frame is the wrong lens — it's a technological transition; the internet and smartphones disrupted the social infrastructure that produced meaning across all classes simultaneously" },
-      f("None of these / I see it differently"),
-    ],
-    followups: {
-      A: {
-        type: "freeform",
-        prompt: "If the educated class has substituted career identity for community — is that actually working for them, or is it just a more respectable form of the same emptiness?",
-      },
-    },
-  },
-  {
-    id: "q8",
+    id: "q6",
     topic: TOPIC,
     text: "Philosopher Charles Taylor argues in \"A Secular Age\" that modernity didn't just remove God — it created a new condition he calls \"the immanent frame,\" where all experience is understood as natural, material, and self-contained. Nothing points beyond itself. Some see this as liberation; others as a kind of imprisonment. When everything is explainable, is anything still sacred?",
     options: [
@@ -136,9 +108,9 @@ const main: AnyQuestion[] = [
     ],
   },
   {
-    id: "q9",
+    id: "q7",
     topic: TOPIC,
-    text: "What's the meaning crisis question nobody is asking loudly enough?",
+    text: "Describe a moment — real or hypothetical — where you felt genuine meaning that wasn’t transactional, performative, or consumable. What made it different?",
     freeformOnly: true,
   },
 ];

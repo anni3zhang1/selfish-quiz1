@@ -1,0 +1,117 @@
+import type { AnyQuestion, Question } from "../types";
+
+const TOPIC = "nuclear_deterrence";
+
+const f = (text: string) => ({ id: "E", text, freeform: true as const });
+
+const followupQuestions: Record<string, Question> = {
+  q3a: {
+    id: "q3a",
+    topic: TOPIC,
+    text: "Former Defense Secretary William Perry and physicist James Cartwright have specifically called for eliminating land-based ICBMs entirely — arguing that submarines provide sufficient deterrence while ICBMs create dangerous \'use it or lose it\' pressure. The Air Force has vigorously opposed this. If you could restructure the nuclear arsenal, what would you keep?",
+    options: [
+      { id: "A", text: "Submarines only — they\'re survivable, undetectable, and don\'t create launch-on-warning pressure; everything else is redundant or dangerous" },
+      { id: "B", text: "The full triad — redundancy is the point; if any one leg is compromised, the others ensure retaliation; eliminating ICBMs signals weakness" },
+      { id: "C", text: "Submarines plus bombers — bombers can be recalled, unlike missiles; this gives flexibility without the ICBM\'s hair-trigger vulnerability" },
+      { id: "D", text: "The question of which weapons to keep accepts the premise that nuclear arsenals are permanent — the goal should be multilateral drawdown to minimum deterrence, not optimization of doomsday capability" },
+      f("None of these / I see it differently"),
+    ],
+  },
+};
+
+const main: AnyQuestion[] = [
+  {
+    id: "q1",
+    topic: TOPIC,
+    text: "The doctrine of Mutually Assured Destruction (MAD) has underpinned global security since the 1960s — the idea that nuclear war is unwinnable because both sides would be annihilated. It has \'worked\' in the sense that no nuclear weapon has been used in conflict since 1945. But the Bulletin of Atomic Scientists set the Doomsday Clock to 90 seconds to midnight in 2023 — the closest ever. Russia has 5,977 warheads, the U.S. has 5,428. Is MAD still a stable framework?",
+    options: [
+      { id: "A", text: "Yes — deterrence has prevented great power war for 80 years; nothing else in human history has achieved that; the framework is terrifying but rational" },
+      { id: "B", text: "No — MAD depends on rational actors, and the risk of miscalculation, accidents, or irrational leadership makes catastrophe statistically inevitable over time" },
+      { id: "C", text: "It was stable during the Cold War\'s bipolar structure but is increasingly unstable as nuclear powers multiply — China, North Korea, Pakistan, and potentially Iran change the calculus" },
+      { id: "D", text: "MAD was always a gamble, not a strategy — we\'ve been lucky, not smart; confusing 80 years without nuclear war for 80 years of successful policy is survivorship bias" },
+      f("None of these / I see it differently"),
+    ],
+    followups: {
+      A: {
+        type: "freeform",
+        prompt: "If MAD is rational, how do you account for documented near-misses — Stanislav Petrov in 1983, the Norwegian rocket incident in 1995, the 2018 Hawaii false alarm? How many close calls does a \'rational\' system get before it\'s not rational anymore?",
+      }
+    },
+  },
+  {
+    id: "q2",
+    topic: TOPIC,
+    text: "Nine countries now possess nuclear weapons: the U.S., Russia, China, the UK, France, India, Pakistan, Israel (undeclared), and North Korea. The Treaty on the Non-Proliferation of Nuclear Weapons (NPT), signed in 1968, was supposed to prevent the spread of nuclear weapons while committing nuclear states to eventual disarmament. Neither goal has been achieved. Iran\'s enrichment program is now within weeks of weapons-grade capacity. Saudi Arabia has signaled it would pursue nuclear weapons if Iran acquires them. Can proliferation be stopped?",
+    options: [
+      { id: "A", text: "Yes, but only through credible security guarantees — countries pursue nuclear weapons because they feel threatened; address the underlying insecurity and the incentive disappears" },
+      { id: "B", text: "No — the technology is 80 years old and the knowledge can\'t be unlearned; the goal should shift from preventing proliferation to managing a multi-nuclear world safely" },
+      { id: "C", text: "The NPT is fatally undermined by hypocrisy — the nuclear powers never disarmed as promised; asking other countries to forgo weapons you refuse to give up is a power play, not a principle" },
+      { id: "D", text: "Selective proliferation could actually increase stability — nuclear weapons prevented India-Pakistan from escalating to full-scale war; more deterrence relationships might mean less conventional war" },
+      f("None of these / I see it differently"),
+    ],
+  },
+  {
+    id: "q3",
+    topic: TOPIC,
+    text: "The U.S. is currently undertaking a $1.7 trillion nuclear modernization program — replacing its entire triad of ICBMs, submarine-launched missiles, and strategic bombers over the next 30 years. The new Sentinel ICBM alone is projected to cost $96 billion. Russia and China are also modernizing. Critics like former Defense Secretary William Perry argue that ICBMs are destabilizing because they must be launched on warning — creating pressure to fire before confirming an attack is real. Is nuclear modernization making us safer or more dangerous?",
+    options: [
+      { id: "A", text: "Safer — aging weapons systems are unreliable and vulnerable; modernization ensures the deterrent remains credible; a deterrent that might not work doesn\'t deter" },
+      { id: "B", text: "More dangerous — modernization is an arms race by another name; every upgrade provokes a response; we\'re spending trillions to make nuclear war more likely, not less" },
+      { id: "C", text: "It depends on what\'s being modernized — upgrading submarine systems and command-and-control is stabilizing; building new ICBMs that invite launch-on-warning is destabilizing; not all modernization is equal" },
+      { id: "D", text: "The $1.7 trillion price tag reveals the real driver — this isn\'t about security, it\'s about defense contractor profits; the nuclear-industrial complex has captured the policy process" },
+      f("None of these / I see it differently"),
+    ],
+    followups: {
+      C: { type: "mc", question_id: "q3a" }
+    },
+  },
+  {
+    id: "q4",
+    topic: TOPIC,
+    text: "In 2022, Vladimir Putin explicitly threatened nuclear use over Ukraine, placing Russian nuclear forces on high alert. Russia\'s official doctrine permits nuclear first use when \'the very existence of the state is threatened.\' Analysts debated whether Putin would use tactical nuclear weapons — smaller warheads designed for battlefield use, with yields from 0.1 to 10 kilotons. The U.S. and NATO chose not to intervene directly in Ukraine partly because of this nuclear threat. Did deterrence work — for Russia?",
+    options: [
+      { id: "A", text: "Yes, and that\'s the problem — Russia\'s nuclear threats successfully prevented NATO intervention; this teaches every dictator that nuclear weapons are the ultimate insurance policy against Western interference" },
+      { id: "B", text: "Deterrence worked for both sides — Russia deterred NATO intervention and NATO deterred Russian nuclear use; the system held, however uncomfortably" },
+      { id: "C", text: "Russia was bluffing — no rational actor uses nuclear weapons over Ukraine; the real lesson is that nuclear threats are coercive theater, and giving in to them rewards the bluff" },
+      { id: "D", text: "The fact that we\'re debating whether a nuclear power can invade its neighbor with impunity proves MAD has become a shield for aggression, not a framework for peace" },
+      f("None of these / I see it differently"),
+    ],
+  },
+  {
+    id: "q5",
+    topic: TOPIC,
+    text: "The Treaty on the Prohibition of Nuclear Weapons (TPNW), adopted in 2017 and entered into force in 2021, has been ratified by 70 countries — none of them nuclear-armed states. It declares nuclear weapons illegal under international law. The nuclear powers have dismissed it as naive idealism. The International Campaign to Abolish Nuclear Weapons (ICAN) won the 2017 Nobel Peace Prize for its role. Is abolition a realistic goal or a dangerous fantasy?",
+    options: [
+      { id: "A", text: "Realistic in the long run — slavery, chemical weapons, and landmines were all once considered permanent features of the world; norms change, and the TPNW builds the norm even if enforcement is distant" },
+      { id: "B", text: "Dangerous fantasy — you can\'t uninvent nuclear weapons; abolition in a world where cheating is possible means the first country to secretly rebuild gets to blackmail everyone else" },
+      { id: "C", text: "The goal should be minimum deterrence, not abolition — reduce arsenals to hundreds instead of thousands; maintain enough to deter but not enough to end civilization" },
+      { id: "D", text: "Abolition is morally necessary even if it\'s not achievable in our lifetimes — the existence of weapons that can end human civilization is categorically unacceptable; \'realistic\' is not the only criterion that matters" },
+      f("None of these / I see it differently"),
+    ],
+  },
+  {
+    id: "q6",
+    topic: TOPIC,
+    text: "China is rapidly expanding its nuclear arsenal — from an estimated 350 warheads in 2021 to a projected 1,500 by 2035, according to the Pentagon. For decades, China maintained a \'minimum deterrence\' posture with a no-first-use policy. The expansion suggests a shift toward nuclear parity with the U.S. and Russia. Some analysts, like Caitlin Talmadge at Georgetown, argue this makes arms control more urgent. Others, like Elbridge Colby, argue it requires the U.S. to build up in response. Is a three-way nuclear arms race inevitable?",
+    options: [
+      { id: "A", text: "Not inevitable but likely — without trilateral arms control (which doesn\'t exist and China has refused to discuss), each side will build to match the others; the dynamics are structural, not personal" },
+      { id: "B", text: "Yes — and the U.S. must respond; deterrence requires rough parity, and allowing China to approach American numbers without a U.S. buildup is strategic negligence" },
+      { id: "C", text: "China\'s buildup is a response, not an instigation — the U.S. has 5,400 warheads and is spending $1.7 trillion on modernization; from Beijing, it\'s America that\'s escalating" },
+      { id: "D", text: "The three-way frame is the trap — building more weapons in response to more weapons is the definition of an arms race; the only rational move is to break the cycle through negotiation, not match it through buildup" },
+      f("None of these / I see it differently"),
+    ],
+  },
+  {
+    id: "q7",
+    topic: TOPIC,
+    text: "A nuclear weapon has not been used in war since 1945. What\'s more likely to end that streak — and what\'s the one thing that would most reduce the risk?",
+    freeformOnly: true,
+  },
+];
+
+export const nuclearDeterrenceQuiz = {
+  topic: TOPIC,
+  topicLabel: "Nuclear Deterrence",
+  questions: main,
+  followupQuestions,
+};

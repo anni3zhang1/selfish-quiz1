@@ -35,7 +35,7 @@ const main: AnyQuestion[] = [
       B: {
         type: "freeform",
         prompt: "Where does the meaning that mortality provides actually come from — is it the deadline itself, or something else that happens to correlate with finitude?",
-      },
+      }
     },
   },
   {
@@ -49,7 +49,9 @@ const main: AnyQuestion[] = [
       { id: "D", text: "The question exposes a deeper failure — our inability to distribute insulin equitably means we'll fail at longevity too; this isn't a technology problem, it's a governance one" },
       f("None of these / I see it differently"),
     ],
-    followups: { A: { type: "mc", question_id: "q2a" } },
+    followups: {
+      A: { type: "mc", question_id: "q2a" }
+    },
   },
   {
     id: "q3",
@@ -66,35 +68,11 @@ const main: AnyQuestion[] = [
       D: {
         type: "freeform",
         prompt: "What's one institution or social structure you'd redesign first for a world of 150-year lifespans?",
-      },
+      }
     },
   },
   {
     id: "q4",
-    topic: TOPIC,
-    text: "Aubrey de Grey, one of the most prominent longevity advocates, has argued for decades that aging is an engineering problem with seven specific categories of damage to be repaired. The WHO added an extension code for \"aging-related\" conditions in 2022. David Sinclair at Harvard calls aging \"a disease, and that disease is treatable.\" Does that framing sit right with you?",
-    options: [
-      { id: "A", text: "Yes — calling aging \"natural\" is just accepting suffering we could prevent; it's the same logic that once resisted anesthesia and vaccines" },
-      { id: "B", text: "No — aging is not a malfunction; it's a feature of biological life, and medicalizing it distorts what it means to be human" },
-      { id: "C", text: "The framing is strategically useful even if philosophically imprecise — calling it a disease unlocks research funding, FDA pathways, and insurance coverage" },
-      { id: "D", text: "It depends on what you mean — reducing the suffering of decline is obviously good; eliminating the entire arc of growth, maturity, and release is a different claim" },
-      f("None of these / I see it differently"),
-    ],
-  },
-  {
-    id: "q5",
-    topic: TOPIC,
-    text: "Bryan Johnson, the tech entrepreneur, spends roughly $2 million per year on his \"Blueprint\" anti-aging protocol — including blood plasma exchanges, dozens of daily supplements, strict caloric control, and continuous biomarker monitoring. He publishes all his data publicly and claims his biological age is declining. He's become the most visible face of the longevity movement. Your reaction?",
-    options: [
-      { id: "A", text: "Respect — he's running an open experiment on himself and publishing the data; someone has to go first, and radical self-experimentation has a long scientific history" },
-      { id: "B", text: "Disturbing — this is a man so afraid of death he's turned his body into a machine and his life into a protocol; that's not health, it's pathology dressed as optimization" },
-      { id: "C", text: "Irrelevant — what one millionaire does with his body tells us nothing about whether longevity science is good for humanity; celebrity N-of-1 isn't science" },
-      { id: "D", text: "Revealing — he's the logical endpoint of treating death as an engineering problem, and the question is whether you find that inspiring or horrifying" },
-      f("None of these / I see it differently"),
-    ],
-  },
-  {
-    id: "q6",
     topic: TOPIC,
     text: "Global fertility rates are already falling — South Korea's hit 0.72 births per woman in 2023, the lowest ever recorded anywhere. Japan's population is shrinking by several hundred thousand per year. Elon Musk has called population collapse \"the biggest danger civilization faces.\" If radical life extension arrives in a world that's already aging and shrinking, does overpopulation even apply — or does longevity become the solution to demographic collapse?",
     options: [
@@ -106,7 +84,7 @@ const main: AnyQuestion[] = [
     ],
   },
   {
-    id: "q7",
+    id: "q5",
     topic: TOPIC,
     text: "Thought experiment: a pill exists that stops aging at 30. It's free and universally available. But to prevent ecological collapse, the global birth rate must drop to near zero. Essentially, the species stops reproducing in exchange for its current members living indefinitely. Take the deal?",
     options: [
@@ -120,11 +98,11 @@ const main: AnyQuestion[] = [
       B: {
         type: "freeform",
         prompt: "If meaning requires renewal — new people, new generations — what does that imply about the value of any individual life, including your own?",
-      },
+      }
     },
   },
   {
-    id: "q8",
+    id: "q6",
     topic: TOPIC,
     text: "Philosopher Bernard Williams argued in \"The Makropulos Case\" that immortality would inevitably lead to unbearable boredom — that a finite human character would exhaust all the experiences that could matter to it. Transhumanist Nick Bostrom counters that we'd simply grow and change over time. After 500 years, would you still be you?",
     options: [
@@ -136,9 +114,9 @@ const main: AnyQuestion[] = [
     ],
   },
   {
-    id: "q9",
+    id: "q7",
     topic: TOPIC,
-    text: "What's the longevity question nobody is asking loudly enough?",
+    text: "If a longevity treatment existed today that was proven, safe, and free — but you had to decide for the whole world, not just yourself — would you make it available? What’s the strongest argument against your own answer?",
     freeformOnly: true,
   },
 ];

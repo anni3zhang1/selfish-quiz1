@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { getRelationship } from "@/lib/relationships";
-import type { RelationshipType, ThinkerImpact, ThinkerProfileData } from "@/lib/types";
+import type { RelationshipType, ThinkerProfileData } from "@/lib/types";
 
 type Props = {
   sessionId: string;
@@ -183,6 +183,31 @@ export default function ThinkerProfileView({
             </p>
           </section>
 
+          {/* Who They Impact — horizontal scroll, always visible */}
+          {profile.who_they_impact?.length > 0 && (
+            <section>
+              <div className="text-xs uppercase tracking-wider font-semibold text-neutral-500 mb-3 px-1">
+                Who {thinkerName.split(" ").pop()} Impacts
+              </div>
+              <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
+                {profile.who_they_impact.map((item, i) => (
+                  <div
+                    key={i}
+                    className="shrink-0 w-48 rounded-xl border border-neutral-200 bg-white p-4 flex flex-col"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      {item.emoji && <span className="text-lg leading-none">{item.emoji}</span>}
+                      <span className="text-sm font-semibold text-neutral-900 leading-snug">
+                        {item.group}
+                      </span>
+                    </div>
+                    <p className="text-xs text-neutral-600 leading-relaxed">{item.impact}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           {/* What They Believe */}
           <AccordionSection
             id="what_they_believe"
@@ -304,19 +329,6 @@ export default function ThinkerProfileView({
             </div>
           </AccordionSection>
 
-          {/* Who They Impact */}
-          {profile.who_they_impact?.length > 0 && (
-            <AccordionSection
-              id="who_they_impact"
-              title="Who They Impact"
-              teaser={profile.who_they_impact[0]?.group ?? ""}
-              open={openSections.has("who_they_impact")}
-              onToggle={toggleSection}
-              accentColor={accent}
-            >
-              <ImpactList items={profile.who_they_impact} accentColor={accent} />
-            </AccordionSection>
-          )}
         </div>
       )}
 
@@ -329,37 +341,6 @@ export default function ThinkerProfileView({
         </Link>
       </footer>
     </main>
-  );
-}
-
-function ImpactList({ items, accentColor }: { items: ThinkerImpact[]; accentColor: string }) {
-  return (
-    <ul className="space-y-3">
-      {items.map((item, i) => {
-        const isYou = item.group.toLowerCase() === "you";
-        return (
-          <li
-            key={i}
-            className={`rounded-xl border px-5 py-4 flex items-start gap-3 ${
-              isYou ? "border-neutral-300 bg-neutral-50" : "border-neutral-200 bg-white"
-            }`}
-          >
-            {item.emoji && (
-              <span className="text-2xl shrink-0 mt-0.5">{item.emoji}</span>
-            )}
-            <div className="min-w-0">
-              <div
-                className={`text-xs uppercase tracking-wider font-semibold mb-1 ${isYou ? "" : "text-neutral-500"}`}
-                style={isYou ? { color: accentColor } : undefined}
-              >
-                {item.group}
-              </div>
-              <p className="text-sm text-neutral-800 leading-relaxed">{item.impact}</p>
-            </div>
-          </li>
-        );
-      })}
-    </ul>
   );
 }
 

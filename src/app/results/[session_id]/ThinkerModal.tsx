@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import type { RelationshipType } from "@/lib/types";
 import { getRelationship } from "@/lib/relationships";
@@ -10,6 +11,7 @@ type PreviewCard = {
   name: string;
   tagline: string;
   match_reason?: string;
+  thumbnail_url?: string;
 };
 
 function truncateToSentences(text: string, maxSentences: number): string {
@@ -94,9 +96,22 @@ export default function ThinkerModal({
           </button>
         </div>
 
-        {/* Body — emoji, name, tagline, CTA */}
+        {/* Body — photo/emoji, name, tagline, CTA */}
         <div className="px-6 sm:px-8 pt-4 pb-7 flex-1 flex flex-col">
-          <div className="text-6xl mb-6 opacity-90">{meta.emoji}</div>
+          {card.thumbnail_url ? (
+            <div className="flex items-center gap-4 mb-6">
+              <Image
+                src={card.thumbnail_url}
+                alt={card.name}
+                width={80}
+                height={80}
+                className="rounded-full object-cover w-[80px] h-[80px] ring-2 ring-white/40 shadow-md shrink-0"
+              />
+              <div className="text-4xl opacity-90">{meta.emoji}</div>
+            </div>
+          ) : (
+            <div className="text-6xl mb-6 opacity-90">{meta.emoji}</div>
+          )}
 
           <h2 className="text-2xl sm:text-3xl font-bold leading-tight mb-3">
             {card.name}

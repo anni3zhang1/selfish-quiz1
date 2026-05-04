@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { anthropic, MODEL } from "@/lib/anthropic";
 import { formatAnswers } from "@/lib/constellation";
+import { fetchWikipediaThumbnail } from "@/lib/wikipedia";
 import type { AnswerEntry, RelationshipType } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -65,19 +66,22 @@ Write:
 2. entry_point: a specific starting point for this user to engage with ${name}, given their particular lens.`;
 
   try {
-    const message = await anthropic.messages.create({
-      model: MODEL,
-      max_tokens: 1024,
-      thinking: { type: "adaptive" },
-      output_config: {
-        effort: "medium",
-        format: {
-          type: "json_schema",
-          schema: detailSchema,
+    const [message, thumbnailUrl] = await Promise.all([
+      anthropic.messages.create({
+        model: MODEL,
+        max_tokens: 1024,
+        thinking: { type: "adaptive" },
+        output_config: {
+          effort: "medium",
+          format: {
+            type: "json_schema",
+            schema: detailSchema,
+          },
         },
-      },
-      messages: [{ role: "user", content: userContent }],
-    });
+        messages: [{ role: "user", content: userContent }],
+      }),
+      fetchWikipediaThumbnail(name),
+    ]);
 
     const textBlock = message.content.find((b) => b.type === "text");
     if (!textBlock || textBlock.type !== "text") {
@@ -90,7 +94,10 @@ Write:
       entry_point: string;
     };
 
-    return NextResponse.json(parsed);
+    return NextResponse.json({
+      ...parsed,
+      ...(thumbnailUrl ? { thumbnail_url: thumbnailUrl } : {}),
+    });
   } catch (err) {
     console.error(`Detail generation failed for ${type}:`, err);
     return NextResponse.json(

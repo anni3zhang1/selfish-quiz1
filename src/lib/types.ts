@@ -49,6 +49,7 @@ export type ConstellationCard = {
   tagline: string;
   match_reason: string;
   entry_point?: string;
+  thumbnail_url?: string;
   // kept for backward compat with sessions generated before v5
   what_to_learn?: string;
 };

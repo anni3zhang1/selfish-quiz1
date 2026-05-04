@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { getRelationship } from "@/lib/relationships";
 import type { RelationshipType, ThinkerProfileData } from "@/lib/types";
@@ -11,8 +12,35 @@ type Props = {
   thinkerName: string;
   relationship: RelationshipType;
   tagline: string | null;
+  thumbnailUrl: string | null;
   initialProfile: ThinkerProfileData | null;
 };
+
+function firstSentence(text: string): string {
+  const m = text.match(/[^.!?]*[.!?]/);
+  return m ? m[0].trim() : text.slice(0, 120).trim();
+}
+
+function ChevronIcon({ open }: { open: boolean }) {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 18 18"
+      fill="none"
+      aria-hidden
+      className={`shrink-0 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+    >
+      <path
+        d="M4.5 6.75L9 11.25L13.5 6.75"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
 export default function ThinkerProfileView({
   sessionId,
@@ -20,16 +48,27 @@ export default function ThinkerProfileView({
   thinkerName,
   relationship,
   tagline,
+  thumbnailUrl,
   initialProfile,
 }: Props) {
   const [profile, setProfile] = useState<ThinkerProfileData | null>(initialProfile);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(!initialProfile);
+  const [openSections, setOpenSections] = useState<Set<string>>(new Set());
   const triggeredRef = useRef(false);
 
   const meta = getRelationship(relationship);
   const accent = meta?.hex ?? "#525252";
   const backHref = `/results/${sessionId}`;
+
+  function toggleSection(id: string) {
+    setOpenSections((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   useEffect(() => {
     if (initialProfile || triggeredRef.current) return;
@@ -76,22 +115,35 @@ export default function ThinkerProfileView({
         </Link>
       </div>
 
-      {/* Header */}
+      {/* Header — always visible */}
       <header className="mb-10">
-        {meta && (
-          <div
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold uppercase tracking-wider mb-4"
-            style={{ backgroundColor: `${accent}22`, color: accent }}
-          >
-            <span>{meta.emoji}</span>
-            <span>Your {meta.label}</span>
+        <div className="flex items-center gap-5 mb-5">
+          {thumbnailUrl && (
+            <Image
+              src={thumbnailUrl}
+              alt={thinkerName}
+              width={96}
+              height={96}
+              className="rounded-full object-cover w-24 h-24 ring-2 ring-neutral-300 shadow-md shrink-0"
+            />
+          )}
+          <div className="min-w-0">
+            {meta && (
+              <div
+                className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-3"
+                style={{ backgroundColor: `${accent}22`, color: accent }}
+              >
+                <span>{meta.emoji}</span>
+                <span>Your {meta.label}</span>
+              </div>
+            )}
+            <h1 className="text-3xl sm:text-4xl font-serif tracking-tight leading-tight">
+              {thinkerName}
+            </h1>
           </div>
-        )}
-        <h1 className="text-4xl sm:text-5xl font-serif tracking-tight leading-tight mb-3">
-          {thinkerName}
-        </h1>
+        </div>
         {tagline && (
-          <p className="text-lg italic text-neutral-600">{tagline}</p>
+          <p className="text-lg italic text-neutral-600 leading-relaxed">{tagline}</p>
         )}
       </header>
 
@@ -114,14 +166,11 @@ export default function ThinkerProfileView({
       )}
 
       {profile && (
-        <div className="space-y-8">
-          {/* 1. Why You're Matched — accent-tinted card */}
+        <div className="space-y-4">
+          {/* Why You're Matched — always expanded */}
           <section
             className="rounded-2xl border p-6"
-            style={{
-              borderColor: `${accent}55`,
-              backgroundColor: `${accent}10`,
-            }}
+            style={{ borderColor: `${accent}55`, backgroundColor: `${accent}10` }}
           >
             <div
               className="text-xs uppercase tracking-wider font-semibold mb-3"
@@ -134,91 +183,89 @@ export default function ThinkerProfileView({
             </p>
           </section>
 
-          {/* 2. What They Believe */}
-          <section className="rounded-2xl border border-neutral-200 bg-neutral-50 p-6">
-            <h2 className="text-xs uppercase tracking-wider font-semibold text-neutral-500 mb-3">
-              What They Believe
-            </h2>
-            <p className="text-lg text-neutral-900 leading-relaxed whitespace-pre-line">
+          {/* What They Believe */}
+          <AccordionSection
+            id="what_they_believe"
+            title="What They Believe"
+            teaser={firstSentence(profile.what_they_believe)}
+            open={openSections.has("what_they_believe")}
+            onToggle={toggleSection}
+            accentColor={accent}
+          >
+            <p className="text-base text-neutral-800 leading-relaxed whitespace-pre-line">
               {profile.what_they_believe}
             </p>
-          </section>
+          </AccordionSection>
 
-          {/* 3. Core Arguments */}
-          <section className="rounded-2xl border border-neutral-200 bg-white p-6">
-            <h2
-              className="text-xs uppercase tracking-wider font-semibold mb-5"
-              style={{ color: accent }}
-            >
-              Core Arguments
-            </h2>
+          {/* Core Arguments */}
+          <AccordionSection
+            id="core_arguments"
+            title="Core Arguments"
+            teaser={profile.core_arguments[0]?.claim ?? ""}
+            open={openSections.has("core_arguments")}
+            onToggle={toggleSection}
+            accentColor={accent}
+          >
             <ol className="space-y-7">
               {profile.core_arguments.map((arg, i) => (
-                <li
-                  key={i}
-                  className="border-l-2 pl-5"
-                  style={{ borderColor: `${accent}55` }}
-                >
+                <li key={i} className="border-l-2 pl-5" style={{ borderColor: `${accent}55` }}>
                   <div className="text-base font-semibold text-neutral-900 mb-2 leading-snug">
                     {arg.claim}
                   </div>
                   <p className="text-sm text-neutral-600 leading-relaxed mb-3 pl-3 border-l border-neutral-200">
                     {arg.example}
                   </p>
-                  <p
-                    className="text-sm italic leading-relaxed"
-                    style={{ color: accent }}
-                  >
+                  <p className="text-sm italic leading-relaxed" style={{ color: accent }}>
                     Why it matters to you: {arg.why_it_matters}
                   </p>
                 </li>
               ))}
             </ol>
-          </section>
+          </AccordionSection>
 
-          {/* 4. Where They Come From */}
-          <section className="rounded-2xl border border-neutral-200 bg-white p-6">
-            <h2
-              className="text-xs uppercase tracking-wider font-semibold mb-3"
-              style={{ color: accent }}
-            >
-              Where They Come From
-            </h2>
+          {/* Where They Come From */}
+          <AccordionSection
+            id="where_they_come_from"
+            title="Where They Come From"
+            teaser={firstSentence(profile.where_they_come_from)}
+            open={openSections.has("where_they_come_from")}
+            onToggle={toggleSection}
+            accentColor={accent}
+          >
             <p className="text-base text-neutral-800 leading-relaxed whitespace-pre-line">
               {profile.where_they_come_from}
             </p>
-          </section>
+          </AccordionSection>
 
-          {/* 5. How They Think */}
-          <section className="rounded-2xl border border-neutral-200 bg-white p-6">
-            <h2
-              className="text-xs uppercase tracking-wider font-semibold mb-3"
-              style={{ color: accent }}
-            >
-              How They Think
-            </h2>
+          {/* How They Think */}
+          <AccordionSection
+            id="how_they_think"
+            title="How They Think"
+            teaser={firstSentence(profile.how_they_think)}
+            open={openSections.has("how_they_think")}
+            onToggle={toggleSection}
+            accentColor={accent}
+          >
             <p className="text-base text-neutral-800 leading-relaxed whitespace-pre-line">
               {profile.how_they_think}
             </p>
-          </section>
+          </AccordionSection>
 
-          {/* 6. The Tension — opposing-statements layout */}
-          <section className="rounded-2xl border border-neutral-200 bg-white p-6">
-            <h2
-              className="text-xs uppercase tracking-wider font-semibold mb-5"
-              style={{ color: accent }}
-            >
-              The Tension
-            </h2>
+          {/* The Tension — amber/warning accent on header */}
+          <AccordionSection
+            id="tension"
+            title="The Tension"
+            teaser={profile.tension.belief_a}
+            open={openSections.has("tension")}
+            onToggle={toggleSection}
+            accentColor="#d97706"
+            headerVariant="tension"
+          >
             <div className="flex flex-col items-center text-center gap-4">
               <p className="text-base font-medium text-neutral-900 leading-relaxed max-w-prose">
                 {profile.tension.belief_a}
               </p>
-              <div
-                className="text-3xl leading-none"
-                style={{ color: accent }}
-                aria-hidden
-              >
+              <div className="text-3xl leading-none text-amber-600" aria-hidden>
                 ↔
               </div>
               <p className="text-base font-medium text-neutral-900 leading-relaxed max-w-prose">
@@ -228,22 +275,20 @@ export default function ThinkerProfileView({
             <p className="mt-6 text-sm text-neutral-500 leading-relaxed text-center italic">
               {profile.tension.explanation}
             </p>
-          </section>
+          </AccordionSection>
 
-          {/* 7. Questions Worth Sitting With */}
-          <section className="rounded-2xl border border-neutral-200 bg-white p-6">
-            <h2
-              className="text-xs uppercase tracking-wider font-semibold mb-5"
-              style={{ color: accent }}
-            >
-              Questions Worth Sitting With
-            </h2>
+          {/* Questions Worth Sitting With */}
+          <AccordionSection
+            id="questions"
+            title="Questions Worth Sitting With"
+            teaser={profile.questions_worth_sitting_with[0]?.question ?? ""}
+            open={openSections.has("questions")}
+            onToggle={toggleSection}
+            accentColor={accent}
+          >
             <div className="space-y-5">
               {profile.questions_worth_sitting_with.map((q, i) => (
-                <div
-                  key={i}
-                  className="rounded-xl border border-neutral-200 bg-neutral-50 p-5"
-                >
+                <div key={i} className="rounded-xl border border-neutral-200 bg-neutral-50 p-5">
                   <div className="text-lg font-bold text-neutral-900 leading-snug mb-3">
                     {q.question}
                   </div>
@@ -257,7 +302,7 @@ export default function ThinkerProfileView({
                 </div>
               ))}
             </div>
-          </section>
+          </AccordionSection>
         </div>
       )}
 
@@ -270,5 +315,65 @@ export default function ThinkerProfileView({
         </Link>
       </footer>
     </main>
+  );
+}
+
+type AccordionSectionProps = {
+  id: string;
+  title: string;
+  teaser: string;
+  open: boolean;
+  onToggle: (id: string) => void;
+  accentColor: string;
+  headerVariant?: "default" | "tension";
+  children: React.ReactNode;
+};
+
+function AccordionSection({
+  id,
+  title,
+  teaser,
+  open,
+  onToggle,
+  accentColor,
+  headerVariant = "default",
+  children,
+}: AccordionSectionProps) {
+  const isTension = headerVariant === "tension";
+  const headerBg = isTension ? "#fef3c7" : `${accentColor}0d`;
+  const headerBorder = isTension ? "#fde68a" : `${accentColor}33`;
+  const titleColor = isTension ? "#92400e" : accentColor;
+
+  return (
+    <section className="rounded-2xl border overflow-hidden" style={{ borderColor: headerBorder }}>
+      <button
+        type="button"
+        onClick={() => onToggle(id)}
+        aria-expanded={open}
+        className="w-full text-left px-6 py-4 flex items-start gap-3 transition-colors"
+        style={{ backgroundColor: headerBg }}
+      >
+        <div className="flex-1 min-w-0">
+          <div
+            className="text-xs uppercase tracking-wider font-semibold mb-1"
+            style={{ color: titleColor }}
+          >
+            {title}
+          </div>
+          {!open && teaser && (
+            <p className="text-sm text-neutral-600 leading-snug line-clamp-2">{teaser}</p>
+          )}
+        </div>
+        <div style={{ color: titleColor }} className="mt-0.5">
+          <ChevronIcon open={open} />
+        </div>
+      </button>
+
+      {open && (
+        <div className="px-6 py-5 bg-white border-t" style={{ borderColor: headerBorder }}>
+          {children}
+        </div>
+      )}
+    </section>
   );
 }

@@ -100,6 +100,7 @@ export default async function ThinkerPage({
       thinkerName={thinkerName}
       relationship={relationship}
       tagline={card?.tagline ?? null}
+      thumbnailUrl={card?.thumbnail_url ?? null}
       initialProfile={initialProfile}
     />
   );

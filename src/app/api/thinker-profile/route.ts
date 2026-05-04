@@ -84,8 +84,7 @@ const profileSchema = {
     who_they_impact: {
       type: "array",
       items: impactSchema,
-      minItems: 3,
-      maxItems: 5,
+      minItems: 1,
     },
   },
   required: [

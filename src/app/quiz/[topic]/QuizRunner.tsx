@@ -36,12 +36,14 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
   // Shuffle options once per question; stable across re-renders for the same question
   const shuffledOptions = useMemo(() => {
     if (!current || isFreeformOnly(current)) return [];
-    const opts = [...(current as Question).options];
-    for (let i = opts.length - 1; i > 0; i--) {
+    const all = (current as Question).options;
+    const pinned = all.filter((o) => o.freeform);
+    const substantive = all.filter((o) => !o.freeform);
+    for (let i = substantive.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [opts[i], opts[j]] = [opts[j], opts[i]];
+      [substantive[i], substantive[j]] = [substantive[j], substantive[i]];
     }
-    return opts;
+    return [...substantive, ...pinned];
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current?.id]);
 

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { anthropic, MODEL } from "@/lib/anthropic";
 import { formatAnswers } from "@/lib/constellation";
+import { thinkerPools } from "@/lib/thinker-pools";
 import type { AnswerEntry, RelationshipType } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -47,7 +48,7 @@ const previewSchema = {
   additionalProperties: false,
 } as const;
 
-const SYSTEM_PROMPT = `You are assigning thinkers to 7 relationship types based on a user's quiz answers.
+const BASE_SYSTEM_PROMPT = `You are assigning thinkers to 7 relationship types based on a user's quiz answers.
 
 Relationship types:
 - mirror: Same epistemic moves, different domain
@@ -59,6 +60,7 @@ Relationship types:
 - integrated_self: Who they're becoming at their best
 
 Rules:
+- Pick exactly 7 thinkers from the provided pool
 - Match on epistemic structure, not surface topic
 - Each thinker must be different — no repeats
 - Tagline is a one-line claim about who the thinker is
@@ -81,6 +83,18 @@ export async function POST(req: Request) {
   }
 
   const userContent = formatAnswers(topic, answers);
+
+  const pool = thinkerPools[topic];
+  const poolSection = pool
+    ? "\n\nAvailable thinker pool for this topic:\n" +
+      JSON.stringify(
+        pool.map((t) => ({ name: t.name, domain: t.domain, corePosition: t.corePosition })),
+        null,
+        2
+      )
+    : "";
+
+  const SYSTEM_PROMPT = BASE_SYSTEM_PROMPT + poolSection;
 
   try {
     const message = await anthropic.messages.create({

@@ -37,11 +37,8 @@ export default async function StartPage({
       <h1 className="text-5xl sm:text-6xl font-serif tracking-tight leading-none mb-6">
         Self<em>ish</em>
       </h1>
-      <p className="text-xl sm:text-2xl font-serif text-neutral-800 leading-snug mb-4">
+      <p className="text-xl sm:text-2xl font-serif text-neutral-800 leading-snug mb-10">
         Find out who you are by encountering what you are not.
-      </p>
-      <p className="text-base text-neutral-600 leading-relaxed mb-10">
-        Tell us how you think and we&rsquo;ll show you who thinks like you&hellip;and who doesn&rsquo;t.
       </p>
 
       <form action={submitIdentity} className="space-y-5">

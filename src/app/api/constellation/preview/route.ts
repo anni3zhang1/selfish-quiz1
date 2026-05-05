@@ -65,6 +65,11 @@ Rules:
 - profile_summary is 2–3 sentences on the user's core epistemic lens, written directly to the user in second person ("You...", "Your...")
 - When the user wrote their own words on a question, weight those words MORE heavily than the selected letter. Their own language reveals position; the letter is just a starting point.
 
+Selection precision:
+For each relationship type, select the single most precise match for this specific user's answers — not the most commonly associated thinker with this topic. Avoid defaulting to well-known or frequently-cited names unless they are genuinely the most accurate match. Prioritize surprising accuracy over obvious choices. The goal is that two users with meaningfully different answers should receive different thinkers, even for the same relationship type. If a thinker is an obvious, predictable choice, ask yourself: is there a more specific, more surprising match that fits this user's particular position even better?
+
+Do not repeat thinkers that commonly appear in AI-generated intellectual maps. Thinkers like Elinor Ostrom, Helen Nissenbaum, and Hannah Arendt are valid choices but should only appear when they are genuinely the most precise match — not as defaults. Treat their frequent appearance as a signal to look harder for a more specific match.
+
 Return exactly 7 thinkers (one per type) plus a profile_summary.`;
 
 export async function POST(req: Request) {

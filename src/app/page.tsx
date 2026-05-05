@@ -21,14 +21,6 @@ export default async function Home() {
         <p className="mt-6 text-lg text-neutral-600">
           Take a quiz on any topic. Discover the 7 thinkers who map your mind.
         </p>
-        <div className="mt-5">
-          <Link
-            href={`/profile?email=${encodeURIComponent(user.email)}`}
-            className="text-sm text-neutral-600 underline underline-offset-4 hover:text-neutral-900"
-          >
-            View your profile →
-          </Link>
-        </div>
       </header>
 
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

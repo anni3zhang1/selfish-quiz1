@@ -28,6 +28,7 @@ function truncateToSentences(text: string, maxSentences: number): string {
 type Props = {
   type: RelationshipType;
   card: PreviewCard;
+  isDetailLoading: boolean;
   sessionId: string;
   hasPrev: boolean;
   hasNext: boolean;
@@ -39,6 +40,7 @@ type Props = {
 export default function ThinkerModal({
   type,
   card,
+  isDetailLoading,
   sessionId,
   hasPrev,
   hasNext,
@@ -98,7 +100,12 @@ export default function ThinkerModal({
 
         {/* Body — photo/emoji, name, tagline, CTA */}
         <div className="px-6 sm:px-8 pt-4 pb-7 flex-1 flex flex-col">
-          {card.thumbnail_url ? (
+          {isDetailLoading ? (
+            <div className="flex items-center gap-5 mb-6">
+              <div className="w-[120px] h-[120px] rounded-full bg-white/20 animate-pulse shrink-0" />
+              <div className="text-4xl opacity-50">{meta.emoji}</div>
+            </div>
+          ) : card.thumbnail_url ? (
             <div className="flex items-center gap-5 mb-6">
               <Image
                 src={card.thumbnail_url}
@@ -120,7 +127,18 @@ export default function ThinkerModal({
             {card.tagline}
           </p>
 
-          {card.match_reason && (
+          {isDetailLoading ? (
+            <div className="mb-8 rounded-xl bg-white/10 px-5 py-4 sm:px-6 sm:py-5">
+              <div className="text-[10px] uppercase tracking-widest font-semibold opacity-70 mb-3">
+                Why you&rsquo;re matched
+              </div>
+              <div className="space-y-2">
+                <div className="h-3.5 rounded-full bg-white/20 animate-pulse w-full" />
+                <div className="h-3.5 rounded-full bg-white/20 animate-pulse w-[90%]" />
+                <div className="h-3.5 rounded-full bg-white/20 animate-pulse w-[75%]" />
+              </div>
+            </div>
+          ) : card.match_reason ? (
             <div className="mb-8 rounded-xl bg-white/10 px-5 py-4 sm:px-6 sm:py-5">
               <div className="text-[10px] uppercase tracking-widest font-semibold opacity-70 mb-2">
                 Why you&rsquo;re matched
@@ -132,7 +150,7 @@ export default function ThinkerModal({
                 {truncateToSentences(card.match_reason, 3)}
               </p>
             </div>
-          )}
+          ) : null}
 
           <div className="mt-auto">
             {profileHref && (

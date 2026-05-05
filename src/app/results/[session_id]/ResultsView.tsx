@@ -364,6 +364,7 @@ export default function ResultsView({
         <ThinkerModal
           type={modalType}
           card={cards[modalType] ?? { name: "", tagline: "" }}
+          isDetailLoading={detailLoading.has(modalType)}
           sessionId={sessionId}
           hasPrev={modalIndex > 0}
           hasNext={modalIndex < orderedKeys.length - 1}

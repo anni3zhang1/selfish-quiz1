@@ -380,11 +380,10 @@ Generate all 8 sections as a single JSON object conforming to the schema.`;
 
   try {
     const stream = anthropic.messages.stream({
-      model: MODEL,
+      model: "claude-sonnet-4-6",
       max_tokens: 8000,
-      thinking: { type: "adaptive" },
       output_config: {
-        effort: "high",
+        effort: "low",
         format: { type: "json_schema", schema: profileSchema },
       },
       system: SYSTEM_PROMPT,

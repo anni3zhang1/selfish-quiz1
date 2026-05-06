@@ -7,6 +7,10 @@ import type {
   Constellation,
   RelationshipType,
   ThinkerProfileData,
+  ThinkerArgument,
+  ThinkerTension,
+  ThinkerImpact,
+  ThinkerQuestion,
 } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -18,6 +22,8 @@ type Body = {
   thinker_name?: string;
   relationship_type?: RelationshipType;
 };
+
+// ─── Shared sub-schemas ───────────────────────────────────────────────────────
 
 const argumentSchema = {
   type: "object",
@@ -63,6 +69,8 @@ const impactSchema = {
   additionalProperties: false,
 } as const;
 
+// ─── Full profile schema (cache miss path) ────────────────────────────────────
+
 const profileSchema = {
   type: "object",
   properties: {
@@ -99,6 +107,25 @@ const profileSchema = {
   ],
   additionalProperties: false,
 } as const;
+
+// ─── Dynamic-only schema (cache hit path) ─────────────────────────────────────
+
+const dynamicOnlySchema = {
+  type: "object",
+  properties: {
+    why_matched: { type: "string" },
+    questions_worth_sitting_with: {
+      type: "array",
+      items: questionSchema,
+      minItems: 1,
+    },
+    you_impact: { type: "string" },
+  },
+  required: ["why_matched", "questions_worth_sitting_with", "you_impact"],
+  additionalProperties: false,
+} as const;
+
+// ─── Prompts ──────────────────────────────────────────────────────────────────
 
 const RELATIONSHIP_LABEL: Record<RelationshipType, string> = {
   mirror: "Mirror — same epistemic structure across distance",
@@ -159,6 +186,77 @@ The user should be able to engage immediately — no off-platform research requi
 - impact: one sentence describing how this thinker's specific thesis affects or implicates them — concrete, not abstract
 The LAST entry must always have group: "You" with a one-sentence statement of how this thinker's position lands personally for someone who answered the quiz the way this user did. Use the user's actual answers to make it specific.`;
 
+const DYNAMIC_SYSTEM_PROMPT = `You are writing three personalized sections of a thinker profile for a specific user.
+
+Tone: brief a smart, curious person who has 15 minutes before a conversation. These sections must feel like they were written for THIS user specifically, not a general audience.
+
+SECTION GUIDANCE:
+
+1. why_matched
+Translate what the user's answers reveal into a pattern — what do they seem to care about, how do they seem to think? Then connect that pattern to this thinker's cognitive moves.
+IMPORTANT: Do NOT cite answer codes (Q3-D, Q7: B, etc.) — the user has forgotten what they selected. Describe the pattern in plain language.
+When the user wrote their own words on a question, weight those words much more heavily than the option letter. Their language is the strongest signal of position; lean on it directly.
+If this could apply to a different user with different answers, rewrite it.
+
+2. questions_worth_sitting_with
+3 questions. Each structured as:
+- question: a genuine intellectual provocation (not rhetorical, not easy)
+- what_you_said: one sentence connecting to a specific thing the user revealed (in plain language, no answer codes)
+- how_thinker_sees_it: their actual position in 1-2 sentences — something to push against, not just context
+The user should be able to engage immediately — no off-platform research required.
+
+3. you_impact
+A single sentence describing how this thinker's position lands personally for someone who answered the quiz the way this user did. Use the user's actual answers to make it specific. This will appear as the final entry in the "who they impact" section under the group label "You".`;
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function saveToSessionCache(
+  sessionId: string,
+  thinkerSlug: string,
+  thinkerName: string,
+  relationshipType: RelationshipType,
+  profile: ThinkerProfileData
+): void {
+  void supabase
+    .from("thinker_profiles")
+    .upsert(
+      { session_id: sessionId, thinker_slug: thinkerSlug, thinker_name: thinkerName, relationship_type: relationshipType, profile },
+      { onConflict: "session_id,thinker_slug" }
+    )
+    .then(({ error }) => {
+      if (error) console.error("thinker_profiles upsert failed:", error);
+    });
+}
+
+function saveToSharedCache(
+  slug: string,
+  name: string,
+  profile: ThinkerProfileData
+): void {
+  const whoWithoutYou = profile.who_they_impact.filter((e) => e.group !== "You");
+  void supabase
+    .from("thinker_cache")
+    .upsert(
+      {
+        thinker_slug: slug,
+        thinker_name: name,
+        what_they_believe: profile.what_they_believe,
+        core_arguments: profile.core_arguments,
+        where_they_come_from: profile.where_they_come_from,
+        how_they_think: profile.how_they_think,
+        tension: profile.tension,
+        who_they_impact: whoWithoutYou,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "thinker_slug" }
+    )
+    .then(({ error }) => {
+      if (error) console.error("thinker_cache upsert failed:", error);
+    });
+}
+
+// ─── Handler ──────────────────────────────────────────────────────────────────
+
 export async function POST(req: Request) {
   let body: Body;
   try {
@@ -175,22 +273,19 @@ export async function POST(req: Request) {
     );
   }
 
-  // Cache hit?
-  const { data: cached } = await supabase
+  // 1. Per-session cache hit (exact match — already personalized)
+  const { data: sessionCached } = await supabase
     .from("thinker_profiles")
     .select("profile")
     .eq("session_id", session_id)
     .eq("thinker_slug", thinker_slug)
     .maybeSingle();
 
-  if (cached?.profile) {
-    return NextResponse.json({
-      profile: cached.profile as ThinkerProfileData,
-      cached: true,
-    });
+  if (sessionCached?.profile) {
+    return NextResponse.json({ profile: sessionCached.profile as ThinkerProfileData, cached: true });
   }
 
-  // Pull session context
+  // 2. Fetch session context (needed for both paths)
   const { data: session, error: sessionErr } = await supabase
     .from("quiz_sessions")
     .select("topic, answers, constellation")
@@ -205,13 +300,76 @@ export async function POST(req: Request) {
   const constellation = (session.constellation ?? {}) as Partial<Constellation>;
   const card = constellation[relationship_type];
   const matchReason = card?.match_reason ?? "(not yet generated)";
+  const answersText = formatAnswers(session.topic, answers);
 
-  const userContent = `Generate a thinker profile for ${thinker_name} as this user's ${relationship_type.toUpperCase()} (${RELATIONSHIP_LABEL[relationship_type] ?? relationship_type}).
+  // 3. Shared thinker cache hit (static sections already generated)
+  const { data: sharedCache } = await supabase
+    .from("thinker_cache")
+    .select("what_they_believe,core_arguments,where_they_come_from,how_they_think,tension,who_they_impact")
+    .eq("thinker_slug", thinker_slug)
+    .maybeSingle();
+
+  if (sharedCache) {
+    const dynamicContent = `Generate the three personalized sections for ${thinker_name} as this user's ${relationship_type.toUpperCase()} (${RELATIONSHIP_LABEL[relationship_type] ?? relationship_type}).
+
+User's existing match reason: "${matchReason}"
+
+${answersText}`;
+
+    try {
+      const message = await anthropic.messages.create({
+        model: MODEL,
+        max_tokens: 2048,
+        thinking: { type: "adaptive" },
+        output_config: {
+          effort: "medium",
+          format: { type: "json_schema", schema: dynamicOnlySchema },
+        },
+        system: DYNAMIC_SYSTEM_PROMPT,
+        messages: [{ role: "user", content: dynamicContent }],
+      });
+
+      const textBlock = message.content.find((b) => b.type === "text");
+      if (!textBlock || textBlock.type !== "text") throw new Error("Model returned no text content");
+
+      const dynamic = JSON.parse(textBlock.text) as {
+        why_matched: string;
+        questions_worth_sitting_with: ThinkerQuestion[];
+        you_impact: string;
+      };
+
+      const profile: ThinkerProfileData = {
+        why_matched: dynamic.why_matched,
+        what_they_believe: sharedCache.what_they_believe as string,
+        core_arguments: sharedCache.core_arguments as ThinkerArgument[],
+        where_they_come_from: sharedCache.where_they_come_from as string,
+        how_they_think: sharedCache.how_they_think as string,
+        tension: sharedCache.tension as ThinkerTension,
+        questions_worth_sitting_with: dynamic.questions_worth_sitting_with,
+        who_they_impact: [
+          ...(sharedCache.who_they_impact as ThinkerImpact[]),
+          { group: "You", impact: dynamic.you_impact },
+        ],
+      };
+
+      saveToSessionCache(session_id, thinker_slug, thinker_name, relationship_type, profile);
+      return NextResponse.json({ profile, cached: false });
+    } catch (err) {
+      console.error("Dynamic section generation failed:", err);
+      return NextResponse.json(
+        { error: err instanceof Error ? err.message : "Profile generation failed" },
+        { status: 500 }
+      );
+    }
+  }
+
+  // 4. Cache miss — generate full profile
+  const fullContent = `Generate a thinker profile for ${thinker_name} as this user's ${relationship_type.toUpperCase()} (${RELATIONSHIP_LABEL[relationship_type] ?? relationship_type}).
 
 User's existing match reason for this thinker:
 "${matchReason}"
 
-${formatAnswers(session.topic, answers)}
+${answersText}
 
 Generate all 8 sections as a single JSON object conforming to the schema.`;
 
@@ -222,47 +380,26 @@ Generate all 8 sections as a single JSON object conforming to the schema.`;
       thinking: { type: "adaptive" },
       output_config: {
         effort: "high",
-        format: {
-          type: "json_schema",
-          schema: profileSchema,
-        },
+        format: { type: "json_schema", schema: profileSchema },
       },
       system: SYSTEM_PROMPT,
-      messages: [{ role: "user", content: userContent }],
+      messages: [{ role: "user", content: fullContent }],
     });
 
     const message = await stream.finalMessage();
     const textBlock = message.content.find((b) => b.type === "text");
-    if (!textBlock || textBlock.type !== "text") {
-      throw new Error("Model returned no text content");
-    }
+    if (!textBlock || textBlock.type !== "text") throw new Error("Model returned no text content");
 
     const profile = JSON.parse(textBlock.text) as ThinkerProfileData;
 
-    // Cache it
-    const { error: upsertErr } = await supabase
-      .from("thinker_profiles")
-      .upsert(
-        {
-          session_id,
-          thinker_slug,
-          thinker_name,
-          relationship_type,
-          profile,
-        },
-        { onConflict: "session_id,thinker_slug" }
-      );
-    if (upsertErr) {
-      console.error("thinker_profiles upsert failed:", upsertErr);
-    }
+    saveToSessionCache(session_id, thinker_slug, thinker_name, relationship_type, profile);
+    saveToSharedCache(thinker_slug, thinker_name, profile);
 
     return NextResponse.json({ profile, cached: false });
   } catch (err) {
     console.error("Thinker profile generation failed:", err);
     return NextResponse.json(
-      {
-        error: err instanceof Error ? err.message : "Profile generation failed",
-      },
+      { error: err instanceof Error ? err.message : "Profile generation failed" },
       { status: 500 }
     );
   }

@@ -137,7 +137,7 @@ Do NOT include a "You" entry. That entry is generated dynamically per user.`;
 
 // Dynamic import after env is loaded
 async function loadPools(): Promise<{ slug: string; name: string; domain: string; corePosition: string }[]> {
-  const { thinkerPools } = await import("../src/lib/thinker-pools/index.js");
+  const { thinkerPools } = await import("../src/lib/thinker-pools/index.ts");
   const seen = new Set<string>();
   const thinkers: { slug: string; name: string; domain: string; corePosition: string }[] = [];
   for (const pool of Object.values(thinkerPools)) {

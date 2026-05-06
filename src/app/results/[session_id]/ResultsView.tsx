@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { AnswerEntry, Constellation, ConstellationCard, RelationshipType } from "@/lib/types";
 import { RELATIONSHIPS } from "@/lib/relationships";
+import { slugify } from "@/lib/thinkers";
 import ThinkerModal from "./ThinkerModal";
 
 type PartialCard = {
@@ -74,6 +75,7 @@ export default function ResultsView({
   );
   const emailTriggeredRef = useRef(false);
   const generationStartedRef = useRef(false);
+  const preGenTriggeredRef = useRef(false);
 
   // Progressive loading — only fires for new (in_progress) sessions
   useEffect(() => {
@@ -234,6 +236,39 @@ export default function ResultsView({
         setEmailStatus("failed");
       });
   }, [isPreloaded, sessionId, userEmail, emailAlreadySent]);
+
+  // Speculative pre-generation: once all 7 cards are ready, silently pre-fetch
+  // thinker profiles so the session cache is warm before the user clicks.
+  useEffect(() => {
+    if (phase !== "complete") return;
+    if (preGenTriggeredRef.current) return;
+    preGenTriggeredRef.current = true;
+
+    const controller = new AbortController();
+
+    const thinkers = RELATIONSHIPS.flatMap((r) => {
+      const card = cards[r.key];
+      return card?.name ? [{ type: r.key, name: card.name }] : [];
+    });
+
+    void Promise.allSettled(
+      thinkers.map(({ type, name }) =>
+        fetch("/api/thinker-profile", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            session_id: sessionId,
+            thinker_slug: slugify(name),
+            thinker_name: name,
+            relationship_type: type,
+          }),
+          signal: controller.signal,
+        }).catch(() => {})
+      )
+    );
+
+    return () => controller.abort();
+  }, [phase]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Modal keyboard close
   useEffect(() => {

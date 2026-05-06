@@ -34,6 +34,7 @@ type StreamChunk =
       how_they_think: string;
       tension: ThinkerTension;
       who_they_impact: ThinkerImpact[];
+      wikipedia_image_url: string;
     }
   | {
       section: "dynamic";
@@ -97,6 +98,7 @@ export default function ThinkerProfileView({
   initialProfile,
 }: Props) {
   const [profile, setProfile] = useState<PartialProfile | null>(initialProfile);
+  const [imageUrl, setImageUrl] = useState<string | null>(thumbnailUrl);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(!initialProfile);
   const [isStreaming, setIsStreaming] = useState<boolean>(false);
@@ -178,6 +180,7 @@ export default function ThinkerProfileView({
                   tension: chunk.tension,
                   who_they_impact: chunk.who_they_impact,
                 }));
+                if (chunk.wikipedia_image_url) setImageUrl(chunk.wikipedia_image_url);
                 setIsLoading(false);
                 setIsStreaming(true);
               } else if (chunk.section === "dynamic") {
@@ -232,9 +235,9 @@ export default function ThinkerProfileView({
       {/* Header — always visible */}
       <header className="mb-10">
         <div className="flex items-center gap-5 mb-5">
-          {thumbnailUrl && (
+          {imageUrl && (
             <Image
-              src={thumbnailUrl}
+              src={imageUrl}
               alt={thinkerName}
               width={96}
               height={96}

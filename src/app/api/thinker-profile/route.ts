@@ -307,7 +307,7 @@ export async function POST(req: Request) {
   // 3. Shared thinker cache hit (static sections already generated)
   const { data: sharedCache, error: sharedCacheErr } = await supabase
     .from("thinker_cache")
-    .select("what_they_believe,core_arguments,where_they_come_from,how_they_think,tension,who_they_impact")
+    .select("what_they_believe,core_arguments,where_they_come_from,how_they_think,tension,who_they_impact,wikipedia_image_url")
     .eq("thinker_slug", thinker_slug)
     .maybeSingle();
   console.log(`[thinker-profile] thinker_cache lookup slug=${thinker_slug} hit=${!!sharedCache} err=${sharedCacheErr?.message ?? "none"}`);
@@ -335,6 +335,7 @@ ${answersText}`;
                 how_they_think: sharedCache.how_they_think as string,
                 tension: sharedCache.tension as ThinkerTension,
                 who_they_impact: sharedCache.who_they_impact as ThinkerImpact[],
+                wikipedia_image_url: (sharedCache.wikipedia_image_url as string | null) ?? "",
               }) + "\n"
             )
           );

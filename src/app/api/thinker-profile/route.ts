@@ -210,22 +210,20 @@ A single sentence describing how this thinker's position lands personally for so
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function saveToSessionCache(
+async function saveToSessionCache(
   sessionId: string,
   thinkerSlug: string,
   thinkerName: string,
   relationshipType: RelationshipType,
   profile: ThinkerProfileData
-): void {
-  void supabase
+): Promise<void> {
+  const { error } = await supabase
     .from("thinker_profiles")
     .upsert(
       { session_id: sessionId, thinker_slug: thinkerSlug, thinker_name: thinkerName, relationship_type: relationshipType, profile },
       { onConflict: "session_id,thinker_slug" }
-    )
-    .then(({ error }) => {
-      if (error) console.error("thinker_profiles upsert failed:", error);
-    });
+    );
+  if (error) console.error("thinker_profiles upsert failed:", error);
 }
 
 function saveToSharedCache(
@@ -323,10 +321,9 @@ ${answersText}`;
 
     try {
       const message = await anthropic.messages.create({
-        model: "claude-sonnet-4-6",
+        model: "claude-haiku-4-5-20251001",
         max_tokens: 2048,
         output_config: {
-          effort: "low",
           format: { type: "json_schema", schema: dynamicOnlySchema },
         },
         system: DYNAMIC_SYSTEM_PROMPT,
@@ -356,7 +353,7 @@ ${answersText}`;
         ],
       };
 
-      saveToSessionCache(session_id, thinker_slug, thinker_name, relationship_type, profile);
+      await saveToSessionCache(session_id, thinker_slug, thinker_name, relationship_type, profile);
       return NextResponse.json({ profile, cached: false });
     } catch (err) {
       console.error("Dynamic section generation failed:", err);
@@ -379,24 +376,22 @@ ${answersText}
 Generate all 8 sections as a single JSON object conforming to the schema.`;
 
   try {
-    const stream = anthropic.messages.stream({
-      model: "claude-sonnet-4-6",
+    const message = await anthropic.messages.create({
+      model: "claude-haiku-4-5-20251001",
       max_tokens: 8000,
       output_config: {
-        effort: "low",
         format: { type: "json_schema", schema: profileSchema },
       },
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content: fullContent }],
     });
 
-    const message = await stream.finalMessage();
     const textBlock = message.content.find((b) => b.type === "text");
     if (!textBlock || textBlock.type !== "text") throw new Error("Model returned no text content");
 
     const profile = JSON.parse(textBlock.text) as ThinkerProfileData;
 
-    saveToSessionCache(session_id, thinker_slug, thinker_name, relationship_type, profile);
+    await saveToSessionCache(session_id, thinker_slug, thinker_name, relationship_type, profile);
     saveToSharedCache(thinker_slug, thinker_name, profile);
 
     return NextResponse.json({ profile, cached: false });

@@ -265,13 +265,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const { session_id, thinker_slug, thinker_name, relationship_type } = body;
-  if (!session_id || !thinker_slug || !thinker_name || !relationship_type) {
+  const { session_id, thinker_slug: rawSlug, thinker_name, relationship_type } = body;
+  if (!session_id || !rawSlug || !thinker_name || !relationship_type) {
     return NextResponse.json(
       { error: "session_id, thinker_slug, thinker_name, relationship_type required" },
       { status: 400 }
     );
   }
+  // Normalize to hyphens — URL slugs use underscores, pool/cache slugs use hyphens.
+  const thinker_slug = rawSlug.replace(/_/g, "-");
 
   // 1. Per-session cache hit (exact match — already personalized)
   const { data: sessionCached } = await supabase

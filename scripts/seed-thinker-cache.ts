@@ -82,11 +82,11 @@ const staticSchema = {
   type: "object",
   properties: {
     what_they_believe: { type: "string" },
-    core_arguments: { type: "array", items: argumentSchema, minItems: 3, maxItems: 4 },
+    core_arguments: { type: "array", items: argumentSchema, minItems: 1 },
     where_they_come_from: { type: "string" },
     how_they_think: { type: "string" },
     tension: tensionSchema,
-    who_they_impact: { type: "array", items: impactSchema, minItems: 3, maxItems: 5 },
+    who_they_impact: { type: "array", items: impactSchema, minItems: 1 },
   },
   required: [
     "what_they_believe",

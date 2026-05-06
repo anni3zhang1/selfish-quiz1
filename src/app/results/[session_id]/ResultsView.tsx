@@ -13,6 +13,7 @@ type PartialCard = {
   match_reason?: string;
   entry_point?: string;
   thumbnail_url?: string;
+  what_they_believe?: string;
 };
 
 type Cards = Partial<Record<RelationshipType, PartialCard>>;
@@ -252,19 +253,57 @@ export default function ResultsView({
     });
 
     void Promise.allSettled(
-      thinkers.map(({ type, name }) =>
-        fetch("/api/thinker-profile", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            session_id: sessionId,
-            thinker_slug: slugify(name),
-            thinker_name: name,
-            relationship_type: type,
-          }),
-          signal: controller.signal,
-        }).catch(() => {})
-      )
+      thinkers.map(async ({ type, name }) => {
+        try {
+          const res = await fetch("/api/thinker-profile", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              session_id: sessionId,
+              thinker_slug: slugify(name),
+              thinker_name: name,
+              relationship_type: type,
+            }),
+            signal: controller.signal,
+          });
+          if (!res.ok || !res.body) return;
+
+          const contentType = res.headers.get("content-type") ?? "";
+
+          if (contentType.includes("x-ndjson")) {
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = "";
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              buffer += decoder.decode(value, { stream: true });
+              const lines = buffer.split("\n");
+              buffer = lines.pop() ?? "";
+              for (const line of lines) {
+                if (!line.trim()) continue;
+                try {
+                  const chunk = JSON.parse(line) as { section: string; what_they_believe?: string };
+                  if (chunk.section === "static" && chunk.what_they_believe) {
+                    setCards((prev) => ({
+                      ...prev,
+                      [type]: { ...prev[type]!, what_they_believe: chunk.what_they_believe },
+                    }));
+                  }
+                } catch { /* skip malformed lines */ }
+              }
+            }
+          } else {
+            const data = await res.json().catch(() => ({})) as { profile?: { what_they_believe?: string } };
+            if (data.profile?.what_they_believe) {
+              setCards((prev) => ({
+                ...prev,
+                [type]: { ...prev[type]!, what_they_believe: data.profile!.what_they_believe },
+              }));
+            }
+          }
+        } catch { /* silent — pre-gen failure is non-critical */ }
+      })
     );
 
     return () => controller.abort();

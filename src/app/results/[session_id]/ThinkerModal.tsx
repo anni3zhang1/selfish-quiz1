@@ -12,7 +12,16 @@ type PreviewCard = {
   tagline: string;
   match_reason?: string;
   thumbnail_url?: string;
+  what_they_believe?: string;
 };
+
+function beliefSnippet(whatTheyBelieve: string | undefined, tagline: string, maxChars = 180): string {
+  const source = whatTheyBelieve ?? tagline;
+  const m = source.match(/[^.!?]*[.!?]/);
+  const sentence = m ? m[0].trim() : source.trim();
+  if (sentence.length <= maxChars) return sentence;
+  return sentence.slice(0, maxChars).trimEnd() + "…";
+}
 
 function truncateToSentences(text: string, maxSentences: number): string {
   const trimmed = text.trim();
@@ -116,23 +125,9 @@ export default function ThinkerModal({
           <h2 className="text-2xl sm:text-3xl font-bold leading-tight mb-3">
             {card.name}
           </h2>
-          <p className="text-base sm:text-lg italic opacity-75 mb-6 leading-relaxed">
-            {card.tagline}
+          <p className="text-sm sm:text-base opacity-95 mb-8 leading-relaxed">
+            {beliefSnippet(card.what_they_believe, card.tagline)}
           </p>
-
-          {card.match_reason && (
-            <div className="mb-8 rounded-xl bg-white/10 px-5 py-4 sm:px-6 sm:py-5">
-              <div className="text-[10px] uppercase tracking-widest font-semibold opacity-70 mb-2">
-                Why you&rsquo;re matched
-              </div>
-              <p
-                className="text-sm sm:text-base opacity-95"
-                style={{ lineHeight: 1.6 }}
-              >
-                {truncateToSentences(card.match_reason, 3)}
-              </p>
-            </div>
-          )}
 
           <div className="mt-auto">
             {profileHref && (

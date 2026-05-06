@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { anthropic, MODEL } from "@/lib/anthropic";
 import { formatAnswers } from "@/lib/constellation";
+import { thinkerPools } from "@/lib/thinker-pools";
 import type { AnswerEntry, RelationshipType } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -47,7 +48,7 @@ const previewSchema = {
   additionalProperties: false,
 } as const;
 
-const SYSTEM_PROMPT = `You are assigning thinkers to 7 relationship types based on a user's quiz answers.
+const BASE_SYSTEM_PROMPT = `You are assigning thinkers to 7 relationship types based on a user's quiz answers.
 
 Relationship types:
 - mirror: Same epistemic moves, different domain
@@ -59,16 +60,12 @@ Relationship types:
 - integrated_self: Who they're becoming at their best
 
 Rules:
+- Pick exactly 7 thinkers from the provided pool
 - Match on epistemic structure, not surface topic
 - Each thinker must be different — no repeats
 - Tagline is a one-line claim about who the thinker is
 - profile_summary is 2–3 sentences on the user's core epistemic lens, written directly to the user in second person ("You...", "Your...")
 - When the user wrote their own words on a question, weight those words MORE heavily than the selected letter. Their own language reveals position; the letter is just a starting point.
-
-Selection precision:
-For each relationship type, select the single most precise match for this specific user's answers — not the most commonly associated thinker with this topic. Avoid defaulting to well-known or frequently-cited names unless they are genuinely the most accurate match. Prioritize surprising accuracy over obvious choices. The goal is that two users with meaningfully different answers should receive different thinkers, even for the same relationship type. If a thinker is an obvious, predictable choice, ask yourself: is there a more specific, more surprising match that fits this user's particular position even better?
-
-Do not repeat thinkers that commonly appear in AI-generated intellectual maps. Thinkers like Elinor Ostrom, Helen Nissenbaum, and Hannah Arendt are valid choices but should only appear when they are genuinely the most precise match — not as defaults. Treat their frequent appearance as a signal to look harder for a more specific match.
 
 Return exactly 7 thinkers (one per type) plus a profile_summary.`;
 
@@ -86,6 +83,18 @@ export async function POST(req: Request) {
   }
 
   const userContent = formatAnswers(topic, answers);
+
+  const pool = thinkerPools[topic];
+  const poolSection = pool
+    ? "\n\nAvailable thinker pool for this topic:\n" +
+      JSON.stringify(
+        pool.map((t) => ({ name: t.name, domain: t.domain, corePosition: t.corePosition })),
+        null,
+        2
+      )
+    : "";
+
+  const SYSTEM_PROMPT = BASE_SYSTEM_PROMPT + poolSection;
 
   try {
     const message = await anthropic.messages.create({

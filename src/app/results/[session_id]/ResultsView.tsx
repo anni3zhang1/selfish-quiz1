@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import type { AnswerEntry, Constellation, ConstellationCard, RelationshipType } from "@/lib/types";
 import { RELATIONSHIPS } from "@/lib/relationships";
@@ -368,30 +369,67 @@ export default function ResultsView({
       </div>
 
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {RELATIONSHIPS.map((r) => (
-          <button
-            key={r.key}
-            type="button"
-            onClick={() => setModalType(r.key)}
-            aria-label={r.label}
-            className={`card-fade-in aspect-[3/4] w-full rounded-2xl relative overflow-hidden text-left cursor-pointer hover:shadow-lg transition-shadow ${r.faceGradient} ${r.textOnFace}`}
-          >
-            {/* Type label */}
-            <div className="absolute top-5 left-5 right-5">
-              <div className="text-3xl font-semibold tracking-tight opacity-90 mb-1">
-                {r.label}
-              </div>
-            </div>
+        {RELATIONSHIPS.map((r) => {
+          const card = cards[r.key];
+          const isRevealed = !!card && !detailLoading.has(r.key);
 
-            {/* Center content — emoji + one-liner, always */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center px-5 text-center">
-              <div className="text-6xl mb-5 opacity-80">{r.emoji}</div>
-              <div className="text-lg opacity-80 max-w-[18ch] leading-relaxed">
-                {r.oneLine}
+          return (
+            <button
+              key={r.key}
+              type="button"
+              onClick={() => setModalType(r.key)}
+              aria-label={isRevealed && card?.name ? card.name : r.label}
+              className={`flip-card card-fade-in ${isRevealed ? "flipped" : ""} aspect-[3/4] w-full rounded-2xl text-left cursor-pointer hover:shadow-lg transition-shadow`}
+            >
+              <div className="flip-card-inner w-full h-full">
+
+                {/* Front face — face-down placeholder */}
+                <div className={`flip-face ${r.faceGradient} ${r.textOnFace}`}>
+                  <div className="absolute top-5 left-5 right-5">
+                    <div className="text-3xl font-semibold tracking-tight opacity-90">
+                      {r.label}
+                    </div>
+                  </div>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center px-5 text-center">
+                    <div className="text-6xl mb-5 opacity-80">{r.emoji}</div>
+                    <div className="text-lg opacity-80 max-w-[18ch] leading-relaxed">
+                      {r.oneLine}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Back face — revealed thinker */}
+                <div className={`flip-face flip-face-back ${r.faceGradient} ${r.textOnFace}`}>
+                  <div className="absolute top-5 left-5 right-5">
+                    <div className="text-base font-semibold tracking-tight opacity-70">
+                      {r.label}
+                    </div>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 p-5 pb-6">
+                    {card?.thumbnail_url ? (
+                      <Image
+                        src={card.thumbnail_url}
+                        alt={card.name}
+                        width={64}
+                        height={64}
+                        className="rounded-full w-16 h-16 object-cover ring-2 ring-white/40 shadow mb-3 shrink-0"
+                      />
+                    ) : (
+                      <div className="text-4xl mb-3 opacity-80">{r.emoji}</div>
+                    )}
+                    <div className="text-xl sm:text-2xl font-bold leading-tight mb-1.5">
+                      {card?.name}
+                    </div>
+                    <div className="text-sm opacity-75 leading-snug line-clamp-3">
+                      {card?.tagline}
+                    </div>
+                  </div>
+                </div>
+
               </div>
-            </div>
-          </button>
-        ))}
+            </button>
+          );
+        })}
       </section>
 
       {userEmail && emailStatus !== "idle" && (

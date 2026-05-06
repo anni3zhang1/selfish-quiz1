@@ -274,6 +274,7 @@ export async function POST(req: Request) {
   }
   // Normalize to hyphens — URL slugs use underscores, pool/cache slugs use hyphens.
   const thinker_slug = rawSlug.replace(/_/g, "-");
+  console.log(`[thinker-profile] slug: raw=${rawSlug} normalized=${thinker_slug} name=${thinker_name}`);
 
   // 1. Per-session cache hit (exact match — already personalized)
   const { data: sessionCached } = await supabase
@@ -284,6 +285,7 @@ export async function POST(req: Request) {
     .maybeSingle();
 
   if (sessionCached?.profile) {
+    console.log(`[thinker-profile] session-cache HIT for ${thinker_slug}`);
     return NextResponse.json({ profile: sessionCached.profile as ThinkerProfileData, cached: true });
   }
 
@@ -305,11 +307,12 @@ export async function POST(req: Request) {
   const answersText = formatAnswers(session.topic, answers);
 
   // 3. Shared thinker cache hit (static sections already generated)
-  const { data: sharedCache } = await supabase
+  const { data: sharedCache, error: sharedCacheErr } = await supabase
     .from("thinker_cache")
     .select("what_they_believe,core_arguments,where_they_come_from,how_they_think,tension,who_they_impact")
     .eq("thinker_slug", thinker_slug)
     .maybeSingle();
+  console.log(`[thinker-profile] thinker_cache lookup slug=${thinker_slug} hit=${!!sharedCache} err=${sharedCacheErr?.message ?? "none"}`);
 
   if (sharedCache) {
     const dynamicContent = `Generate the three personalized sections for ${thinker_name} as this user's ${relationship_type.toUpperCase()} (${RELATIONSHIP_LABEL[relationship_type] ?? relationship_type}).
@@ -366,6 +369,7 @@ ${answersText}`;
   }
 
   // 4. Cache miss — generate full profile
+  console.log(`[thinker-profile] FULL GENERATE (cache miss) for ${thinker_slug}`);
   const fullContent = `Generate a thinker profile for ${thinker_name} as this user's ${relationship_type.toUpperCase()} (${RELATIONSHIP_LABEL[relationship_type] ?? relationship_type}).
 
 User's existing match reason for this thinker:

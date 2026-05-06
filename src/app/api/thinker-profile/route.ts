@@ -323,11 +323,10 @@ ${answersText}`;
 
     try {
       const message = await anthropic.messages.create({
-        model: MODEL,
+        model: "claude-sonnet-4-6",
         max_tokens: 2048,
-        thinking: { type: "adaptive" },
         output_config: {
-          effort: "medium",
+          effort: "low",
           format: { type: "json_schema", schema: dynamicOnlySchema },
         },
         system: DYNAMIC_SYSTEM_PROMPT,

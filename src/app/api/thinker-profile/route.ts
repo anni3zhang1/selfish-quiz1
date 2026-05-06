@@ -319,49 +319,92 @@ User's existing match reason: "${matchReason}"
 
 ${answersText}`;
 
-    try {
-      const message = await anthropic.messages.create({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 2048,
-        output_config: {
-          format: { type: "json_schema", schema: dynamicOnlySchema },
-        },
-        system: DYNAMIC_SYSTEM_PROMPT,
-        messages: [{ role: "user", content: dynamicContent }],
-      });
+    const encoder = new TextEncoder();
 
-      const textBlock = message.content.find((b) => b.type === "text");
-      if (!textBlock || textBlock.type !== "text") throw new Error("Model returned no text content");
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          // Chunk 1: static sections from cache — sent immediately
+          controller.enqueue(
+            encoder.encode(
+              JSON.stringify({
+                section: "static",
+                what_they_believe: sharedCache.what_they_believe as string,
+                core_arguments: sharedCache.core_arguments as ThinkerArgument[],
+                where_they_come_from: sharedCache.where_they_come_from as string,
+                how_they_think: sharedCache.how_they_think as string,
+                tension: sharedCache.tension as ThinkerTension,
+                who_they_impact: sharedCache.who_they_impact as ThinkerImpact[],
+              }) + "\n"
+            )
+          );
 
-      const dynamic = JSON.parse(textBlock.text) as {
-        why_matched: string;
-        questions_worth_sitting_with: ThinkerQuestion[];
-        you_impact: string;
-      };
+          // Chunk 2: dynamic sections — sent after Haiku responds
+          let dynamic: { why_matched: string; questions_worth_sitting_with: ThinkerQuestion[]; you_impact: string };
+          try {
+            const message = await anthropic.messages.create({
+              model: "claude-haiku-4-5-20251001",
+              max_tokens: 2048,
+              output_config: {
+                format: { type: "json_schema", schema: dynamicOnlySchema },
+              },
+              system: DYNAMIC_SYSTEM_PROMPT,
+              messages: [{ role: "user", content: dynamicContent }],
+            });
+            const textBlock = message.content.find((b) => b.type === "text");
+            if (!textBlock || textBlock.type !== "text") throw new Error("Model returned no text content");
+            dynamic = JSON.parse(textBlock.text) as typeof dynamic;
+          } catch (err) {
+            controller.enqueue(
+              encoder.encode(
+                JSON.stringify({ section: "error", error: err instanceof Error ? err.message : "Generation failed" }) + "\n"
+              )
+            );
+            controller.close();
+            return;
+          }
 
-      const profile: ThinkerProfileData = {
-        why_matched: dynamic.why_matched,
-        what_they_believe: sharedCache.what_they_believe as string,
-        core_arguments: sharedCache.core_arguments as ThinkerArgument[],
-        where_they_come_from: sharedCache.where_they_come_from as string,
-        how_they_think: sharedCache.how_they_think as string,
-        tension: sharedCache.tension as ThinkerTension,
-        questions_worth_sitting_with: dynamic.questions_worth_sitting_with,
-        who_they_impact: [
-          ...(sharedCache.who_they_impact as ThinkerImpact[]),
-          { group: "You", impact: dynamic.you_impact },
-        ],
-      };
+          controller.enqueue(
+            encoder.encode(
+              JSON.stringify({
+                section: "dynamic",
+                why_matched: dynamic.why_matched,
+                questions_worth_sitting_with: dynamic.questions_worth_sitting_with,
+                you_impact: dynamic.you_impact,
+              }) + "\n"
+            )
+          );
 
-      await saveToSessionCache(session_id, thinker_slug, thinker_name, relationship_type, profile);
-      return NextResponse.json({ profile, cached: false });
-    } catch (err) {
-      console.error("Dynamic section generation failed:", err);
-      return NextResponse.json(
-        { error: err instanceof Error ? err.message : "Profile generation failed" },
-        { status: 500 }
-      );
-    }
+          // Save full profile to session cache
+          const profile: ThinkerProfileData = {
+            why_matched: dynamic.why_matched,
+            what_they_believe: sharedCache.what_they_believe as string,
+            core_arguments: sharedCache.core_arguments as ThinkerArgument[],
+            where_they_come_from: sharedCache.where_they_come_from as string,
+            how_they_think: sharedCache.how_they_think as string,
+            tension: sharedCache.tension as ThinkerTension,
+            questions_worth_sitting_with: dynamic.questions_worth_sitting_with,
+            who_they_impact: [
+              ...(sharedCache.who_they_impact as ThinkerImpact[]),
+              { group: "You", impact: dynamic.you_impact },
+            ],
+          };
+          await saveToSessionCache(session_id, thinker_slug, thinker_name, relationship_type, profile);
+          controller.close();
+        } catch (err) {
+          console.error("Thinker profile stream error:", err);
+          controller.error(err);
+        }
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "application/x-ndjson",
+        "Cache-Control": "no-cache",
+        "X-Content-Type-Options": "nosniff",
+      },
+    });
   }
 
   // 4. Cache miss — generate full profile

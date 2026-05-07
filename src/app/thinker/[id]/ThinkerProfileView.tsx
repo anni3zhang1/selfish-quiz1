@@ -444,18 +444,38 @@ export default function ThinkerProfileView({
                 accentColor="#d97706"
                 headerVariant="tension"
               >
-                <div className="flex flex-col items-center text-center gap-4">
-                  <p className="text-base font-medium text-neutral-900 leading-relaxed max-w-prose">
-                    {profile!.tension!.belief_a}
-                  </p>
-                  <div className="text-3xl leading-none text-amber-600" aria-hidden>
-                    ↔
+                {/* Two opposing claims, side by side */}
+                <div className="flex items-stretch gap-0 min-h-[7rem]">
+                  {/* Left claim — warm tint, left-aligned */}
+                  <div
+                    className="flex-1 flex items-center px-4 py-4 rounded-l-xl"
+                    style={{ backgroundColor: "rgba(251,191,36,0.10)" }}
+                  >
+                    <p className="text-sm sm:text-base font-medium text-neutral-900 leading-relaxed text-left">
+                      {profile!.tension!.belief_a}
+                    </p>
                   </div>
-                  <p className="text-base font-medium text-neutral-900 leading-relaxed max-w-prose">
-                    {profile!.tension!.belief_b}
-                  </p>
+
+                  {/* Center divider with ⚡ */}
+                  <div className="flex flex-col items-center justify-center px-3 shrink-0 gap-1.5">
+                    <div className="w-px flex-1 bg-amber-300" />
+                    <span className="text-base leading-none text-amber-500 select-none" aria-hidden>⚡</span>
+                    <div className="w-px flex-1 bg-amber-300" />
+                  </div>
+
+                  {/* Right claim — cool tint, right-aligned */}
+                  <div
+                    className="flex-1 flex items-center px-4 py-4 rounded-r-xl"
+                    style={{ backgroundColor: "rgba(99,102,241,0.07)" }}
+                  >
+                    <p className="text-sm sm:text-base font-medium text-neutral-900 leading-relaxed text-right w-full">
+                      {profile!.tension!.belief_b}
+                    </p>
+                  </div>
                 </div>
-                <p className="mt-6 text-sm text-neutral-500 leading-relaxed text-center italic">
+
+                {/* Explanation — full width below */}
+                <p className="mt-5 text-sm text-neutral-500 leading-relaxed italic">
                   {profile!.tension!.explanation}
                 </p>
               </AccordionSection>

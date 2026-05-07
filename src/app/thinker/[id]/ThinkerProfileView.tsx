@@ -44,6 +44,52 @@ type StreamChunk =
     }
   | { section: "error"; error: string };
 
+// Derive 1-2 initials from a thinker's name (e.g. "Hannah Arendt" → "HA")
+function nameToInitials(name: string): string {
+  return name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0].toUpperCase())
+    .join("");
+}
+
+// Consistent color for a name — same name always gets the same hue
+function nameToColor(name: string): string {
+  const palette = [
+    "#7C3AED", "#0D9488", "#B45309", "#B91C1C",
+    "#1D4ED8", "#047857", "#9D174D", "#C2410C",
+    "#5B21B6", "#0369A1",
+  ];
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (Math.imul(h, 31) + name.charCodeAt(i)) | 0;
+  return palette[Math.abs(h) % palette.length];
+}
+
+function ThinkerAvatar({ name, imageUrl }: { name: string; imageUrl: string | null }) {
+  if (imageUrl) {
+    return (
+      <Image
+        src={imageUrl}
+        alt={name}
+        width={96}
+        height={96}
+        className="rounded-full object-cover w-24 h-24 ring-2 ring-neutral-300 shadow-md shrink-0"
+      />
+    );
+  }
+  return (
+    <div
+      className="rounded-full w-24 h-24 ring-2 ring-neutral-200 shadow-md shrink-0 flex items-center justify-center text-white font-semibold text-2xl select-none"
+      style={{ backgroundColor: nameToColor(name) }}
+      aria-hidden
+    >
+      {nameToInitials(name)}
+    </div>
+  );
+}
+
 function firstSentence(text: string): string {
   const m = text.match(/[^.!?]*[.!?]/);
   return m ? m[0].trim() : text.slice(0, 120).trim();
@@ -235,15 +281,7 @@ export default function ThinkerProfileView({
       {/* Header — always visible */}
       <header className="mb-10">
         <div className="flex items-center gap-5 mb-5">
-          {imageUrl && (
-            <Image
-              src={imageUrl}
-              alt={thinkerName}
-              width={96}
-              height={96}
-              className="rounded-full object-cover w-24 h-24 ring-2 ring-neutral-300 shadow-md shrink-0"
-            />
-          )}
+          <ThinkerAvatar name={thinkerName} imageUrl={imageUrl} />
           <div className="min-w-0">
             {meta && (
               <div

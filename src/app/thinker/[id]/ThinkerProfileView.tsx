@@ -456,10 +456,24 @@ export default function ThinkerProfileView({
                     </p>
                   </div>
 
-                  {/* Center divider with ⚡ */}
+                  {/* Center divider with double-headed arrow */}
                   <div className="flex flex-col items-center justify-center px-3 shrink-0 gap-1.5">
                     <div className="w-px flex-1 bg-amber-300" />
-                    <span className="text-base leading-none text-amber-500 select-none" aria-hidden>⚡</span>
+                    <svg
+                      width="36"
+                      height="20"
+                      viewBox="0 0 36 20"
+                      fill="none"
+                      aria-hidden
+                      className="shrink-0"
+                    >
+                      {/* Shaft */}
+                      <line x1="6" y1="10" x2="30" y2="10" stroke="#d97706" strokeWidth="2" strokeLinecap="round" />
+                      {/* Left arrowhead */}
+                      <polyline points="12,4 6,10 12,16" stroke="#d97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                      {/* Right arrowhead */}
+                      <polyline points="24,4 30,10 24,16" stroke="#d97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                    </svg>
                     <div className="w-px flex-1 bg-amber-300" />
                   </div>
 

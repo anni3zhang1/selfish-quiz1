@@ -56,10 +56,24 @@ export type ConstellationCard = {
   what_to_learn?: string;
 };
 
-export type Constellation = Record<RelationshipType, ConstellationCard>;
+export type UserInsight = {
+  archetype_label: string;
+  archetype_description: string;
+  position: string;
+  reasons: { claim: string; what_it_means: string }[];
+  tension: string;
+  real_world_example: string;
+};
+
+// user_insight is stored alongside the 7 thinker cards inside the constellation JSONB.
+// Old sessions won't have it (fall back to profile_summary column).
+export type Constellation = Record<RelationshipType, ConstellationCard> & {
+  user_insight?: UserInsight;
+};
 
 export type ConstellationResponse = {
   profile_summary: string;
+  user_insight?: UserInsight;
   constellation: Constellation;
 };
 

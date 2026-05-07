@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import type { AnswerEntry, Constellation, ConstellationCard, RelationshipType } from "@/lib/types";
+import type { AnswerEntry, Constellation, ConstellationCard, RelationshipType, UserInsight } from "@/lib/types";
 import { RELATIONSHIPS } from "@/lib/relationships";
 import { slugify } from "@/lib/thinkers";
 import ThinkerModal from "./ThinkerModal";
@@ -57,7 +57,10 @@ export default function ResultsView({
   const isPreloaded = !!constellation;
 
   const [phase, setPhase] = useState<LoadPhase>(isPreloaded ? "complete" : "preview");
-  const [profileSummary, setProfileSummary] = useState<string>(initialProfileSummary ?? "");
+  // userInsight: populated from preview API (new sessions) or constellation.user_insight (returning sessions)
+  const [userInsight, setUserInsight] = useState<UserInsight | null>(
+    isPreloaded ? (constellation.user_insight ?? null) : null
+  );
   const [cards, setCards] = useState<Cards>(() =>
     isPreloaded ? buildInitialCards(constellation) : {}
   );
@@ -111,11 +114,11 @@ export default function ResultsView({
           throw new Error(d.error ?? `Preview failed (${res.status})`);
         }
         const data = await res.json() as {
-          profile_summary: string;
+          user_insight: UserInsight;
           thinkers: { type: RelationshipType; name: string; tagline: string }[];
         };
 
-        setProfileSummary(data.profile_summary);
+        setUserInsight(data.user_insight);
         const initial: Cards = {};
         for (const t of data.thinkers) {
           initial[t.type] = { name: t.name, tagline: t.tagline };
@@ -191,14 +194,13 @@ export default function ResultsView({
           };
         }
 
-        // Save to DB
+        // Save to DB — embed user_insight inside the constellation JSONB
         await fetch("/api/constellation/save", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             session_id: sessionId,
-            profile_summary: data.profile_summary,
-            constellation: fullConstellation,
+            constellation: { ...fullConstellation, user_insight: data.user_insight },
           }),
         }).catch((err) => console.error("Save failed:", err));
 
@@ -361,15 +363,56 @@ export default function ResultsView({
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-12 sm:py-16">
       <header className="mb-16 max-w-3xl">
-        <h1 className="text-4xl sm:text-5xl font-serif tracking-tight leading-tight mb-6">
+        <h1 className="text-4xl sm:text-5xl font-serif tracking-tight leading-tight mb-8">
           Your Position On {topicLabel}
         </h1>
 
-        {profileSummary && (
-          <p className="text-base text-neutral-700 leading-relaxed">
-            {profileSummary}
-          </p>
-        )}
+        {userInsight ? (
+          <div className="space-y-6">
+            {/* Archetype */}
+            <div>
+              <div className="text-xs uppercase tracking-widest text-neutral-400 mb-1">
+                Your archetype
+              </div>
+              <div className="text-lg font-semibold tracking-tight text-neutral-900 mb-1">
+                {userInsight.archetype_label}
+              </div>
+              <p className="text-sm text-neutral-500 italic">{userInsight.archetype_description}</p>
+            </div>
+
+            {/* Position */}
+            <p className="text-base text-neutral-700 leading-relaxed">{userInsight.position}</p>
+
+            {/* Reasons */}
+            <div className="space-y-3">
+              {userInsight.reasons.map((r, i) => (
+                <div key={i} className="pl-4 border-l-2 border-neutral-200">
+                  <p className="text-sm font-medium text-neutral-800 leading-snug">{r.claim}</p>
+                  <p className="text-sm text-neutral-500 mt-0.5 leading-snug">{r.what_it_means}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Tension */}
+            <div className="rounded-xl bg-neutral-50 border border-neutral-200 px-5 py-4">
+              <div className="text-xs uppercase tracking-widest text-neutral-400 mb-2">
+                Internal tension
+              </div>
+              <p className="text-sm text-neutral-700 leading-relaxed">{userInsight.tension}</p>
+            </div>
+
+            {/* Real-world example */}
+            <div className="rounded-xl bg-neutral-50 border border-neutral-200 px-5 py-4">
+              <div className="text-xs uppercase tracking-widest text-neutral-400 mb-2">
+                In the real world
+              </div>
+              <p className="text-sm text-neutral-700 leading-relaxed">{userInsight.real_world_example}</p>
+            </div>
+          </div>
+        ) : initialProfileSummary ? (
+          /* Fallback for sessions generated before the insight update */
+          <p className="text-base text-neutral-700 leading-relaxed">{initialProfileSummary}</p>
+        ) : null}
       </header>
 
       {phase === "error" && (

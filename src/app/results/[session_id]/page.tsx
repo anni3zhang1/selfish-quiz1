@@ -1,13 +1,15 @@
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import type { AnswerEntry, Constellation, RelationshipType } from "@/lib/types";
+import type { AnswerEntry, Constellation, ConstellationCard, RelationshipType } from "@/lib/types";
 import { getQuiz } from "@/lib/quizzes";
 import { fetchWikipediaThumbnail } from "@/lib/wikipedia";
 import { slugify } from "@/lib/thinkers";
 import ResultsView from "./ResultsView";
 
 async function hydrateThumbnails(constellation: Constellation): Promise<Constellation> {
-  const entries = Object.entries(constellation) as [RelationshipType, Constellation[RelationshipType]][];
+  // Exclude user_insight — it's not a thinker card
+  const entries = (Object.entries(constellation) as [string, unknown][])
+    .filter(([key]) => key !== "user_insight") as [RelationshipType, ConstellationCard][];
   const missing = entries.filter(([, card]) => !card.thumbnail_url && card.name);
   if (missing.length === 0) return constellation;
 
@@ -26,7 +28,9 @@ async function hydrateThumbnails(constellation: Constellation): Promise<Constell
 }
 
 async function hydrateWhatTheyBelieve(constellation: Constellation): Promise<Constellation> {
-  const entries = Object.entries(constellation) as [RelationshipType, Constellation[RelationshipType]][];
+  // Exclude user_insight — it's not a thinker card
+  const entries = (Object.entries(constellation) as [string, unknown][])
+    .filter(([key]) => key !== "user_insight") as [RelationshipType, ConstellationCard][];
   const slugs = entries.map(([, card]) => slugify(card.name).replace(/_/g, "-"));
 
   const { data: rows } = await supabase
@@ -78,7 +82,7 @@ export default async function ResultsPage({
       ]).then(([withThumbs, withWtb]) => {
         // Merge both hydration passes
         const merged = { ...withThumbs } as Constellation;
-        for (const key of Object.keys(withWtb) as RelationshipType[]) {
+        for (const key of Object.keys(withWtb).filter((k) => k !== "user_insight") as RelationshipType[]) {
           if (withWtb[key].what_they_believe) {
             merged[key] = { ...merged[key], what_they_believe: withWtb[key].what_they_believe };
           }

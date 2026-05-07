@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { anthropic, MODEL } from "@/lib/anthropic";
 import { formatAnswers } from "@/lib/constellation";
 import { thinkerPools } from "@/lib/thinker-pools";
-import type { AnswerEntry, RelationshipType } from "@/lib/types";
+import type { AnswerEntry, RelationshipType, UserInsight } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -25,9 +25,27 @@ const RELATIONSHIP_TYPES: RelationshipType[] = [
 const previewSchema = {
   type: "object",
   properties: {
-    profile_summary: { type: "string" },
+    archetype_label: { type: "string" },
+    archetype_description: { type: "string" },
+    position: { type: "string" },
+    reasons: {
+      type: "array",
+      minItems: 1,
+      items: {
+        type: "object",
+        properties: {
+          claim: { type: "string" },
+          what_it_means: { type: "string" },
+        },
+        required: ["claim", "what_it_means"],
+        additionalProperties: false,
+      },
+    },
+    tension: { type: "string" },
+    real_world_example: { type: "string" },
     thinkers: {
       type: "array",
+      minItems: 1,
       items: {
         type: "object",
         properties: {
@@ -41,10 +59,17 @@ const previewSchema = {
         required: ["type", "name", "tagline"],
         additionalProperties: false,
       },
-      minItems: 1,
     },
   },
-  required: ["profile_summary", "thinkers"],
+  required: [
+    "archetype_label",
+    "archetype_description",
+    "position",
+    "reasons",
+    "tension",
+    "real_world_example",
+    "thinkers",
+  ],
   additionalProperties: false,
 } as const;
 
@@ -64,10 +89,17 @@ Rules:
 - Match on epistemic structure, not surface topic
 - Each thinker must be different — no repeats
 - Tagline is a one-line claim about who the thinker is
-- profile_summary is 2–3 sentences on the user's core epistemic lens, written directly to the user in second person ("You...", "Your...")
 - When the user wrote their own words on a question, weight those words MORE heavily than the selected letter. Their own language reveals position; the letter is just a starting point.
 
-Return exactly 7 thinkers (one per type) plus a profile_summary.`;
+For the user insight section, generate these fields:
+- archetype_label: a punchy 2-4 word title for this user's intellectual archetype, specific to the quiz topic (e.g. "The Structural Skeptic", "The Reluctant Accelerationist"). A title, not a description.
+- archetype_description: one sentence defining what this archetype means in the context of this topic.
+- position: 2-3 sentences on where the user actually stands, written in second person ("You believe...", "Your instinct is...").
+- reasons: exactly 3 items. Each has a "claim" (one sentence on a specific implication of the user's position) and "what_it_means" (one sentence on what this reveals about how the user thinks).
+- tension: one paragraph of 3-4 sentences honestly naming the internal contradiction in the user's position. The sharpest possible challenge to their own view.
+- real_world_example: 2-3 sentences showing exactly where this framing plays out in a specific current or historical debate — concrete, high-stakes.
+
+Return exactly 7 thinkers (one per type) plus the full user insight section.`;
 
 export async function POST(req: Request) {
   let body: Body;
@@ -117,11 +149,25 @@ export async function POST(req: Request) {
     }
 
     const parsed = JSON.parse(textBlock.text) as {
-      profile_summary: string;
+      archetype_label: string;
+      archetype_description: string;
+      position: string;
+      reasons: { claim: string; what_it_means: string }[];
+      tension: string;
+      real_world_example: string;
       thinkers: { type: RelationshipType; name: string; tagline: string }[];
     };
 
-    return NextResponse.json(parsed);
+    const user_insight: UserInsight = {
+      archetype_label: parsed.archetype_label,
+      archetype_description: parsed.archetype_description,
+      position: parsed.position,
+      reasons: parsed.reasons,
+      tension: parsed.tension,
+      real_world_example: parsed.real_world_example,
+    };
+
+    return NextResponse.json({ user_insight, thinkers: parsed.thinkers });
   } catch (err) {
     console.error("Preview generation failed:", err);
     return NextResponse.json(

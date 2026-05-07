@@ -138,7 +138,7 @@ export default async function Home() {
 
           return (
             <section key={cat.label}>
-              <h2 className="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-6">
+              <h2 className="text-2xl font-serif tracking-tight text-neutral-800 mb-6">
                 {cat.label}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

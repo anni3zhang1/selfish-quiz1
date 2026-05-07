@@ -8,7 +8,7 @@ import type { aiGovernanceQuiz } from "@/lib/quizzes/ai-governance";
 type Quiz = typeof aiGovernanceQuiz;
 type User = { email: string; name: string };
 
-type Phase = "questions" | "submitting" | "error";
+type Phase = "questions" | "error";
 
 function isFreeformOnly(q: AnyQuestion): q is Extract<AnyQuestion, { freeformOnly: true }> {
   return "freeformOnly" in q && q.freeformOnly === true;
@@ -61,7 +61,6 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
   }
 
   async function submitConstellation(finalAnswers: AnswerEntry[]) {
-    setPhase("submitting");
     setError(null);
     try {
       const res = await fetch("/api/constellation", {
@@ -154,20 +153,6 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
   }
 
   // === Render ===
-
-  if (phase === "submitting") {
-    return (
-      <div className="text-center py-32 flex flex-col items-center">
-        <div className="w-10 h-10 border-2 border-neutral-300 border-t-neutral-700 rounded-full animate-spin mb-6" />
-        <div className="text-2xl font-serif mb-3">
-          Generating your intellectual map...
-        </div>
-        <p className="text-neutral-500 text-sm">
-          This takes a few seconds.
-        </p>
-      </div>
-    );
-  }
 
   if (phase === "error") {
     return (

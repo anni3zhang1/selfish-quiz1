@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import type { AnswerEntry, Constellation, ConstellationCard, RelationshipType } from "@/lib/types";
 import { RELATIONSHIPS } from "@/lib/relationships";
@@ -14,7 +13,6 @@ type PartialCard = {
   match_reason?: string;
   entry_point?: string;
   thumbnail_url?: string;
-  what_they_believe?: string;
 };
 
 type Cards = Partial<Record<RelationshipType, PartialCard>>;
@@ -254,57 +252,19 @@ export default function ResultsView({
     });
 
     void Promise.allSettled(
-      thinkers.map(async ({ type, name }) => {
-        try {
-          const res = await fetch("/api/thinker-profile", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              session_id: sessionId,
-              thinker_slug: slugify(name),
-              thinker_name: name,
-              relationship_type: type,
-            }),
-            signal: controller.signal,
-          });
-          if (!res.ok || !res.body) return;
-
-          const contentType = res.headers.get("content-type") ?? "";
-
-          if (contentType.includes("x-ndjson")) {
-            const reader = res.body.getReader();
-            const decoder = new TextDecoder();
-            let buffer = "";
-            while (true) {
-              const { done, value } = await reader.read();
-              if (done) break;
-              buffer += decoder.decode(value, { stream: true });
-              const lines = buffer.split("\n");
-              buffer = lines.pop() ?? "";
-              for (const line of lines) {
-                if (!line.trim()) continue;
-                try {
-                  const chunk = JSON.parse(line) as { section: string; what_they_believe?: string };
-                  if (chunk.section === "static" && chunk.what_they_believe) {
-                    setCards((prev) => ({
-                      ...prev,
-                      [type]: { ...prev[type]!, what_they_believe: chunk.what_they_believe },
-                    }));
-                  }
-                } catch { /* skip malformed lines */ }
-              }
-            }
-          } else {
-            const data = await res.json().catch(() => ({})) as { profile?: { what_they_believe?: string } };
-            if (data.profile?.what_they_believe) {
-              setCards((prev) => ({
-                ...prev,
-                [type]: { ...prev[type]!, what_they_believe: data.profile!.what_they_believe },
-              }));
-            }
-          }
-        } catch { /* silent — pre-gen failure is non-critical */ }
-      })
+      thinkers.map(({ type, name }) =>
+        fetch("/api/thinker-profile", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            session_id: sessionId,
+            thinker_slug: slugify(name),
+            thinker_name: name,
+            relationship_type: type,
+          }),
+          signal: controller.signal,
+        }).catch(() => {})
+      )
     );
 
     return () => controller.abort();
@@ -369,58 +329,30 @@ export default function ResultsView({
       </div>
 
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {RELATIONSHIPS.map((r) => {
-          const card = cards[r.key];
-          const isRevealed = !!card && !detailLoading.has(r.key);
-
-          return (
-            <button
-              key={r.key}
-              type="button"
-              onClick={() => setModalType(r.key)}
-              aria-label={isRevealed && card?.name ? card.name : r.label}
-              className={`card-fade-in aspect-[3/4] w-full rounded-2xl relative overflow-hidden text-left cursor-pointer hover:shadow-lg transition-shadow ${r.faceGradient} ${r.textOnFace}`}
-            >
-              {/* Type label — always visible */}
-              <div className="absolute top-5 left-5 right-5">
-                <div className={`font-semibold tracking-tight opacity-90 ${isRevealed ? "text-base opacity-70" : "text-3xl"}`}>
-                  {r.label}
-                </div>
+        {RELATIONSHIPS.map((r) => (
+          <button
+            key={r.key}
+            type="button"
+            onClick={() => setModalType(r.key)}
+            aria-label={r.label}
+            className={`card-fade-in aspect-[3/4] w-full rounded-2xl relative overflow-hidden text-left cursor-pointer hover:shadow-lg transition-shadow ${r.faceGradient} ${r.textOnFace}`}
+          >
+            {/* Type label */}
+            <div className="absolute top-5 left-5 right-5">
+              <div className="text-3xl font-semibold tracking-tight opacity-90 mb-1">
+                {r.label}
               </div>
+            </div>
 
-              {isRevealed ? (
-                /* Revealed — thinker name, photo, tagline */
-                <div className="absolute bottom-0 left-0 right-0 p-5 pb-6 fade-in">
-                  {card.thumbnail_url ? (
-                    <Image
-                      src={card.thumbnail_url}
-                      alt={card.name}
-                      width={64}
-                      height={64}
-                      className="rounded-full w-16 h-16 object-cover ring-2 ring-white/40 shadow mb-3"
-                    />
-                  ) : (
-                    <div className="text-4xl mb-3 opacity-80">{r.emoji}</div>
-                  )}
-                  <div className="text-xl sm:text-2xl font-bold leading-tight mb-1.5">
-                    {card.name}
-                  </div>
-                  <div className="text-sm opacity-75 leading-snug line-clamp-3">
-                    {card.tagline}
-                  </div>
-                </div>
-              ) : (
-                /* Face-down — emoji + one-liner */
-                <div className="absolute inset-0 flex flex-col items-center justify-center px-5 text-center">
-                  <div className="text-6xl mb-5 opacity-80">{r.emoji}</div>
-                  <div className="text-lg opacity-80 max-w-[18ch] leading-relaxed">
-                    {r.oneLine}
-                  </div>
-                </div>
-              )}
-            </button>
-          );
-        })}
+            {/* Center content — emoji + one-liner, always */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center px-5 text-center">
+              <div className="text-6xl mb-5 opacity-80">{r.emoji}</div>
+              <div className="text-lg opacity-80 max-w-[18ch] leading-relaxed">
+                {r.oneLine}
+              </div>
+            </div>
+          </button>
+        ))}
       </section>
 
       {userEmail && emailStatus !== "idle" && (

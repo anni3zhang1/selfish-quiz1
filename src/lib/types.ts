@@ -50,6 +50,8 @@ export type ConstellationCard = {
   match_reason: string;
   entry_point?: string;
   thumbnail_url?: string;
+  // hydrated at read-time from thinker_cache — not stored in DB
+  what_they_believe?: string;
   // kept for backward compat with sessions generated before v5
   what_to_learn?: string;
 };

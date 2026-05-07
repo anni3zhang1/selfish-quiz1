@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { anthropic, MODEL } from "@/lib/anthropic";
 import { formatAnswers } from "@/lib/constellation";
 import { fetchWikipediaThumbnail } from "@/lib/wikipedia";
+import { supabase } from "@/lib/supabase";
+import { slugify } from "@/lib/thinkers";
 import type { AnswerEntry, RelationshipType } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -63,8 +65,10 @@ ${answersText}
 Write:
 match_reason: 1–2 sentences in plain narrative language explaining why this match is right for THIS user. Translate what the user's answers reveal into a pattern (in plain words — what they care about, how they think) and connect that pattern to ${name}'s cognitive moves. Do NOT cite answer codes like "Q1: D" or "Q3-E" — the user has forgotten what they selected. Describe the pattern, not the codes. When the user wrote their own words on a question, weight those words much more heavily than the option letter — quote or paraphrase from their language directly.`;
 
+  const thinkerSlug = slugify(name).replace(/_/g, "-");
+
   try {
-    const [message, thumbnailUrl] = await Promise.all([
+    const [message, thumbnailUrl, cacheResult] = await Promise.all([
       anthropic.messages.create({
         model: MODEL,
         max_tokens: 1024,
@@ -79,6 +83,11 @@ match_reason: 1–2 sentences in plain narrative language explaining why this ma
         messages: [{ role: "user", content: userContent }],
       }),
       fetchWikipediaThumbnail(name),
+      supabase
+        .from("thinker_cache")
+        .select("what_they_believe")
+        .eq("thinker_slug", thinkerSlug)
+        .maybeSingle(),
     ]);
 
     const textBlock = message.content.find((b) => b.type === "text");
@@ -91,9 +100,12 @@ match_reason: 1–2 sentences in plain narrative language explaining why this ma
       match_reason: string;
     };
 
+    const whatTheyBelieve = cacheResult.data?.what_they_believe ?? null;
+
     return NextResponse.json({
       ...parsed,
       ...(thumbnailUrl ? { thumbnail_url: thumbnailUrl } : {}),
+      ...(whatTheyBelieve ? { what_they_believe: whatTheyBelieve } : {}),
     });
   } catch (err) {
     console.error(`Detail generation failed for ${type}:`, err);

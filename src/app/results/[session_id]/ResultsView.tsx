@@ -11,6 +11,7 @@ type PartialCard = {
   name: string;
   tagline: string;
   match_reason?: string;
+  what_they_believe?: string;
   thumbnail_url?: string;
 };
 
@@ -26,6 +27,7 @@ function buildInitialCards(constellation: Constellation): Cards {
         name: c.name,
         tagline: c.tagline,
         match_reason: c.match_reason,
+        what_they_believe: c.what_they_believe,
         thumbnail_url: c.thumbnail_url,
       };
     }
@@ -125,7 +127,7 @@ export default function ResultsView({
         const loadingSet = new Set(data.thinkers.map((t) => t.type));
         setDetailLoading(loadingSet);
 
-        const detailResults: Partial<Record<RelationshipType, { match_reason: string; thumbnail_url?: string }>> = {};
+        const detailResults: Partial<Record<RelationshipType, { match_reason: string; what_they_believe?: string; thumbnail_url?: string }>> = {};
         let completed = 0;
 
         await Promise.allSettled(
@@ -142,9 +144,10 @@ export default function ResultsView({
                   answers,
                 }),
               });
-              const detail = await dres.json() as { type: RelationshipType; match_reason: string; thumbnail_url?: string };
+              const detail = await dres.json() as { type: RelationshipType; match_reason: string; what_they_believe?: string; thumbnail_url?: string };
               detailResults[t.type] = {
                 match_reason: detail.match_reason,
+                what_they_believe: detail.what_they_believe,
                 thumbnail_url: detail.thumbnail_url,
               };
               setCards((prev) => ({
@@ -152,6 +155,7 @@ export default function ResultsView({
                 [t.type]: {
                   ...prev[t.type]!,
                   match_reason: detail.match_reason,
+                  ...(detail.what_they_believe ? { what_they_believe: detail.what_they_believe } : {}),
                   ...(detail.thumbnail_url ? { thumbnail_url: detail.thumbnail_url } : {}),
                 },
               }));

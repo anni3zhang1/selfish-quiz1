@@ -11,6 +11,7 @@ type PreviewCard = {
   name: string;
   tagline: string;
   match_reason?: string;
+  what_they_believe?: string;
   thumbnail_url?: string;
 };
 
@@ -120,16 +121,16 @@ export default function ThinkerModal({
             {card.tagline}
           </p>
 
-          {card.match_reason && (
+          {(card.what_they_believe || card.match_reason) && (
             <div className="mb-8 rounded-xl bg-white/10 px-5 py-4 sm:px-6 sm:py-5">
               <div className="text-[10px] uppercase tracking-widest font-semibold opacity-70 mb-2">
-                Why you&rsquo;re matched
+                {card.what_they_believe ? "What they believe" : "Why you’re matched"}
               </div>
               <p
                 className="text-sm sm:text-base opacity-95"
                 style={{ lineHeight: 1.6 }}
               >
-                {truncateToSentences(card.match_reason, 3)}
+                {card.what_they_believe ?? truncateToSentences(card.match_reason!, 3)}
               </p>
             </div>
           )}

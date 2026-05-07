@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabase";
 import type { AnswerEntry, Constellation, RelationshipType } from "@/lib/types";
 import { getQuiz } from "@/lib/quizzes";
 import { fetchWikipediaThumbnail } from "@/lib/wikipedia";
+import { slugify } from "@/lib/thinkers";
 import ResultsView from "./ResultsView";
 
 async function hydrateThumbnails(constellation: Constellation): Promise<Constellation> {
@@ -20,6 +21,30 @@ async function hydrateThumbnails(constellation: Constellation): Promise<Constell
   const updated = { ...constellation };
   for (const [key, url] of fetched) {
     if (url) updated[key] = { ...updated[key], thumbnail_url: url };
+  }
+  return updated;
+}
+
+async function hydrateWhatTheyBelieve(constellation: Constellation): Promise<Constellation> {
+  const entries = Object.entries(constellation) as [RelationshipType, Constellation[RelationshipType]][];
+  const slugs = entries.map(([, card]) => slugify(card.name).replace(/_/g, "-"));
+
+  const { data: rows } = await supabase
+    .from("thinker_cache")
+    .select("thinker_slug, what_they_believe")
+    .in("thinker_slug", slugs);
+
+  if (!rows || rows.length === 0) return constellation;
+
+  const bySlug = Object.fromEntries(
+    rows.map((r: { thinker_slug: string; what_they_believe: string | null }) => [r.thinker_slug, r.what_they_believe])
+  );
+
+  const updated = { ...constellation };
+  for (const [key, card] of entries) {
+    const slug = slugify(card.name).replace(/_/g, "-");
+    const wtb = bySlug[slug];
+    if (wtb) updated[key] = { ...updated[key], what_they_believe: wtb };
   }
   return updated;
 }
@@ -47,7 +72,19 @@ export default async function ResultsPage({
   const isComplete = data.status === "complete" && !!data.constellation;
   const rawConstellation = isComplete ? (data.constellation as Constellation) : null;
   const constellation = rawConstellation
-    ? await hydrateThumbnails(rawConstellation)
+    ? await Promise.all([
+        hydrateThumbnails(rawConstellation),
+        hydrateWhatTheyBelieve(rawConstellation),
+      ]).then(([withThumbs, withWtb]) => {
+        // Merge both hydration passes
+        const merged = { ...withThumbs } as Constellation;
+        for (const key of Object.keys(withWtb) as RelationshipType[]) {
+          if (withWtb[key].what_they_believe) {
+            merged[key] = { ...merged[key], what_they_believe: withWtb[key].what_they_believe };
+          }
+        }
+        return merged;
+      })
     : null;
 
   return (

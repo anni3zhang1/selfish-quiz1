@@ -72,7 +72,7 @@ export default async function ThinkerPage({
   let thinkerName = card && slugify(card.name) === id ? card.name : undefined;
   if (!thinkerName && constellation) {
     for (const c of Object.values(constellation)) {
-      if (c?.name && slugify(c.name) === id) {
+      if (c && "name" in c && c.name && slugify(c.name) === id) {
         thinkerName = c.name;
         break;
       }

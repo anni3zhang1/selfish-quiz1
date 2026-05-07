@@ -63,6 +63,8 @@ export default function ResultsView({
   const [previewError, setPreviewError] = useState<string | null>(null);
 
   const [modalType, setModalType] = useState<RelationshipType | null>(null);
+  // Card clicked while its detail was still in-flight — open modal once detail arrives
+  const [pendingModal, setPendingModal] = useState<RelationshipType | null>(null);
 
   const STATUS_MESSAGES = [
     "Analyzing your positions...",
@@ -280,15 +282,23 @@ export default function ResultsView({
     return () => controller.abort();
   }, [phase]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Modal keyboard close
+  // When detail finishes loading for a pending card, open the modal fully populated
   useEffect(() => {
-    if (!modalType) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setModalType(null);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [modalType]);
+    if (!pendingModal) return;
+    if (!detailLoading.has(pendingModal)) {
+      setModalType(pendingModal);
+      setPendingModal(null);
+    }
+  }, [pendingModal, detailLoading]);
+
+  function handleCardClick(key: RelationshipType) {
+    if (detailLoading.has(key)) {
+      // Detail still in-flight — show spinner on card, open modal when ready
+      setPendingModal(key);
+    } else {
+      setModalType(key);
+    }
+  }
 
   const orderedKeys = RELATIONSHIPS.map((r) => r.key);
   const modalIndex = modalType ? orderedKeys.indexOf(modalType) : -1;
@@ -375,30 +385,40 @@ export default function ResultsView({
       </div>
 
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {RELATIONSHIPS.map((r) => (
-          <button
-            key={r.key}
-            type="button"
-            onClick={() => setModalType(r.key)}
-            aria-label={r.label}
-            className={`card-fade-in aspect-[3/4] w-full rounded-2xl relative overflow-hidden text-left cursor-pointer hover:shadow-lg transition-shadow ${r.faceGradient} ${r.textOnFace}`}
-          >
-            {/* Type label */}
-            <div className="absolute top-5 left-5 right-5">
-              <div className="text-3xl font-semibold tracking-tight opacity-90 mb-1">
-                {r.label}
+        {RELATIONSHIPS.map((r) => {
+          const isPending = pendingModal === r.key;
+          return (
+            <button
+              key={r.key}
+              type="button"
+              onClick={() => handleCardClick(r.key)}
+              aria-label={r.label}
+              className={`card-fade-in aspect-[3/4] w-full rounded-2xl relative overflow-hidden text-left cursor-pointer hover:shadow-lg transition-shadow ${r.faceGradient} ${r.textOnFace}`}
+            >
+              {/* Type label */}
+              <div className="absolute top-5 left-5 right-5">
+                <div className="text-3xl font-semibold tracking-tight opacity-90 mb-1">
+                  {r.label}
+                </div>
               </div>
-            </div>
 
-            {/* Center content — emoji + one-liner, always */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center px-5 text-center">
-              <div className="text-6xl mb-5 opacity-80">{r.emoji}</div>
-              <div className="text-lg opacity-80 max-w-[18ch] leading-relaxed">
-                {r.oneLine}
+              {/* Center content — emoji + one-liner, always */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center px-5 text-center">
+                <div className="text-6xl mb-5 opacity-80">{r.emoji}</div>
+                <div className="text-lg opacity-80 max-w-[18ch] leading-relaxed">
+                  {r.oneLine}
+                </div>
               </div>
-            </div>
-          </button>
-        ))}
+
+              {/* Loading overlay — shown while waiting for detail data */}
+              {isPending && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/25 backdrop-blur-[2px] rounded-2xl">
+                  <div className="w-8 h-8 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                </div>
+              )}
+            </button>
+          );
+        })}
       </section>
 
       {userEmail && emailStatus !== "idle" && (

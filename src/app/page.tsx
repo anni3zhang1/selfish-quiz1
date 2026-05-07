@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { topicCards } from "@/lib/quizzes";
 import { getServerUser } from "@/lib/user";
+import { supabase } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
@@ -57,13 +58,13 @@ const CATEGORIES: { label: string; slugs: Set<string> }[] = [
 
 type TopicCard = (typeof topicCards)[number];
 
-function QuizCard({ card }: { card: TopicCard }) {
+function QuizCard({ card, isComplete }: { card: TopicCard; isComplete: boolean }) {
   const inner = (
     <div
-      className={`group relative h-full overflow-hidden rounded-2xl border border-neutral-200 bg-white transition ${
-        card.available
-          ? "hover:-translate-y-1 hover:shadow-xl cursor-pointer"
-          : "opacity-60"
+      className={`group relative h-full overflow-hidden rounded-2xl border bg-white transition ${
+        isComplete
+          ? "border-neutral-200 opacity-55"
+          : "border-neutral-200 hover:-translate-y-1 hover:shadow-xl cursor-pointer"
       }`}
     >
       <div
@@ -73,43 +74,52 @@ function QuizCard({ card }: { card: TopicCard }) {
       <div className="p-6">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-xl font-semibold tracking-tight">{card.name}</h2>
-          <span
-            className={`text-xs uppercase tracking-wider px-2 py-0.5 rounded ${
-              card.available
-                ? "bg-neutral-900 text-white"
-                : "bg-neutral-200 text-neutral-600"
-            }`}
-          >
-            {card.available ? "Available" : "Soon"}
-          </span>
+          {isComplete ? (
+            <span className="text-xs uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-100 text-emerald-700">
+              Complete
+            </span>
+          ) : (
+            <span className="text-xs uppercase tracking-wider px-2 py-0.5 rounded bg-neutral-100 text-neutral-500">
+              New
+            </span>
+          )}
         </div>
         <p className="text-sm text-neutral-700 mb-3">{card.description}</p>
         <p className="text-xs text-neutral-500 mb-5 italic">{card.intention}</p>
         <div
           className={`text-sm font-medium ${
-            card.available
-              ? "text-neutral-900 group-hover:underline"
-              : "text-neutral-400"
+            isComplete
+              ? "text-neutral-400"
+              : "text-neutral-900 group-hover:underline"
           }`}
         >
-          {card.available ? "Take the quiz →" : "Coming soon"}
+          {isComplete ? "Retake the quiz →" : "Take the quiz →"}
         </div>
       </div>
     </div>
   );
 
-  return card.available ? (
+  return (
     <Link href={`/quiz/${card.slug}`} className="block h-full">
       {inner}
     </Link>
-  ) : (
-    <div className="block h-full">{inner}</div>
   );
 }
 
 export default async function Home() {
   const user = await getServerUser();
   if (!user) redirect("/start");
+
+  // Fetch completed topics for this user
+  const { data: completedRows } = await supabase
+    .from("quiz_sessions")
+    .select("topic")
+    .eq("email", user.email)
+    .eq("status", "complete");
+
+  const completedTopics = new Set<string>(
+    (completedRows ?? []).map((r: { topic: string }) => r.topic)
+  );
 
   // Build a lookup from slug → card for O(1) access
   const cardBySlug = new Map<string, TopicCard>(topicCards.map((c) => [c.slug, c]));
@@ -132,7 +142,11 @@ export default async function Home() {
         {CATEGORIES.map((cat) => {
           const catCards = [...cat.slugs]
             .map((slug) => cardBySlug.get(slug))
-            .filter((c): c is TopicCard => c !== undefined);
+            .filter((c): c is TopicCard => c !== undefined)
+            // Incomplete first, complete last
+            .sort((a, b) =>
+              (completedTopics.has(a.slug) ? 1 : 0) - (completedTopics.has(b.slug) ? 1 : 0)
+            );
 
           if (catCards.length === 0) return null;
 
@@ -143,7 +157,11 @@ export default async function Home() {
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {catCards.map((card) => (
-                  <QuizCard key={card.slug} card={card} />
+                  <QuizCard
+                    key={card.slug}
+                    card={card}
+                    isComplete={completedTopics.has(card.slug)}
+                  />
                 ))}
               </div>
             </section>

@@ -130,7 +130,7 @@ export default async function Home() {
         <div className="text-xs uppercase tracking-wider text-neutral-500 mb-4">
           Hello, {user.name.split(" ")[0]}
         </div>
-        <h1 className="text-4xl sm:text-5xl font-serif tracking-tight leading-tight">
+        <h1 className="text-2xl sm:text-3xl font-serif tracking-tight leading-snug">
           Take a quiz on the ideas that matter. Discover where you stand, who thinks like you, who challenges you, and who you dismiss.
         </h1>
       </header>
@@ -149,7 +149,7 @@ export default async function Home() {
 
           return (
             <section key={cat.label}>
-              <h2 className="text-4xl sm:text-5xl font-serif tracking-tight leading-tight text-neutral-800 mb-6">
+              <h2 className="text-xs uppercase tracking-widest font-normal text-neutral-400 mb-6">
                 {cat.label}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

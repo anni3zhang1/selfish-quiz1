@@ -240,7 +240,6 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
         <div className="annotation-slide-in mb-6">
           <textarea
             key={textareaKey}
-            autoFocus
             value={freeformText}
             onChange={(e) => setFreeformText(e.target.value)}
             rows={freeformOnly ? 4 : 3}

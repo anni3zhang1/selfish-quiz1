@@ -6,7 +6,6 @@ import type { AnswerEntry, Constellation, ConstellationCard, RelationshipType } 
 import { RELATIONSHIPS } from "@/lib/relationships";
 import { slugify } from "@/lib/thinkers";
 import ThinkerModal from "./ThinkerModal";
-import MobileCardView from "./MobileCardView";
 
 type PartialCard = {
   name: string;
@@ -360,30 +359,7 @@ export default function ResultsView({
   }
 
   return (
-    <>
-    {/* ── Mobile experience (hidden on sm+) ─────────────────────────────── */}
-    <div className="sm:hidden">
-      {phase === "complete" ? (
-        <MobileCardView
-          topicLabel={topicLabel}
-          profileSummary={profileSummary}
-          cards={cards}
-          sessionId={sessionId}
-        />
-      ) : (
-        /* detail phase: keep showing a loading state until all cards ready */
-        <div
-          className="min-h-[100dvh] flex flex-col items-center justify-center text-center px-6"
-          style={{ background: "linear-gradient(160deg, #0f172a 0%, #1e1b4b 60%, #0f172a 100%)" }}
-        >
-          <div className="w-8 h-8 border-2 border-white/20 border-t-white/60 rounded-full animate-spin mb-4" />
-          <p className="text-white/40 text-sm">Almost ready…</p>
-        </div>
-      )}
-    </div>
-
-    {/* ── Desktop experience (hidden below sm) ──────────────────────────── */}
-    <main className="hidden sm:block mx-auto w-full max-w-6xl px-6 py-12 sm:py-16">
+    <main className="mx-auto w-full max-w-6xl px-6 py-12 sm:py-16">
       <header className="mb-16 max-w-3xl">
         <h1 className="text-4xl sm:text-5xl font-serif tracking-tight leading-tight mb-6">
           Your Position On {topicLabel}
@@ -506,6 +482,5 @@ export default function ResultsView({
         />
       )}
     </main>
-    </>
   );
 }

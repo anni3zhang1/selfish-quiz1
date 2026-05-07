@@ -7,9 +7,8 @@ const cardSchema = {
     name: { type: "string" },
     tagline: { type: "string" },
     match_reason: { type: "string" },
-    entry_point: { type: "string" },
   },
-  required: ["name", "tagline", "match_reason", "entry_point"],
+  required: ["name", "tagline", "match_reason"],
   additionalProperties: false,
 } as const;
 
@@ -66,7 +65,6 @@ MATCHING RULES:
 - Do not make the constellation generic — it should only fit this user.
 - Tagline: a one-line claim about who the thinker is — not a description.
 - match_reason: 1–2 sentences citing specific answers.
-- entry_point: where the user should start reading this thinker, given their lens.
 - profile_summary: 2–3 sentences describing the user's core epistemic lens based on their answers.`;
 
 function formatAnswers(topic: string, answers: AnswerEntry[]): string {

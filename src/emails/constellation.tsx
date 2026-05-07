@@ -71,12 +71,6 @@ export default function ConstellationEmail({
                   <strong style={bold}>Why you: </strong>
                   {card.match_reason}
                 </Text>
-                {(card.entry_point ?? card.what_to_learn) && (
-                  <Text style={para}>
-                    <strong style={bold}>Start here: </strong>
-                    {card.entry_point ?? card.what_to_learn}
-                  </Text>
-                )}
               </Section>
             );
           })}

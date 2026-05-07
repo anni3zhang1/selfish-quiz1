@@ -11,7 +11,6 @@ type PartialCard = {
   name: string;
   tagline: string;
   match_reason?: string;
-  entry_point?: string;
   thumbnail_url?: string;
 };
 
@@ -27,7 +26,6 @@ function buildInitialCards(constellation: Constellation): Cards {
         name: c.name,
         tagline: c.tagline,
         match_reason: c.match_reason,
-        entry_point: c.entry_point ?? c.what_to_learn,
         thumbnail_url: c.thumbnail_url,
       };
     }
@@ -125,7 +123,7 @@ export default function ResultsView({
         const loadingSet = new Set(data.thinkers.map((t) => t.type));
         setDetailLoading(loadingSet);
 
-        const detailResults: Partial<Record<RelationshipType, { match_reason: string; entry_point: string; thumbnail_url?: string }>> = {};
+        const detailResults: Partial<Record<RelationshipType, { match_reason: string; thumbnail_url?: string }>> = {};
         let completed = 0;
 
         await Promise.allSettled(
@@ -142,10 +140,9 @@ export default function ResultsView({
                   answers,
                 }),
               });
-              const detail = await dres.json() as { type: RelationshipType; match_reason: string; entry_point: string; thumbnail_url?: string };
+              const detail = await dres.json() as { type: RelationshipType; match_reason: string; thumbnail_url?: string };
               detailResults[t.type] = {
                 match_reason: detail.match_reason,
-                entry_point: detail.entry_point,
                 thumbnail_url: detail.thumbnail_url,
               };
               setCards((prev) => ({
@@ -153,7 +150,6 @@ export default function ResultsView({
                 [t.type]: {
                   ...prev[t.type]!,
                   match_reason: detail.match_reason,
-                  entry_point: detail.entry_point,
                   ...(detail.thumbnail_url ? { thumbnail_url: detail.thumbnail_url } : {}),
                 },
               }));
@@ -185,7 +181,6 @@ export default function ResultsView({
             name: t.name,
             tagline: t.tagline,
             match_reason: detail?.match_reason ?? "",
-            entry_point: detail?.entry_point,
             ...(detail?.thumbnail_url ? { thumbnail_url: detail.thumbnail_url } : {}),
           };
         }

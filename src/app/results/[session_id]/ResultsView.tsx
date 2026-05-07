@@ -66,6 +66,21 @@ export default function ResultsView({
 
   const [modalType, setModalType] = useState<RelationshipType | null>(null);
 
+  const STATUS_MESSAGES = [
+    "Analyzing your positions...",
+    "Mapping your intellectual landscape...",
+    "Finding your thinkers...",
+    "Your map is almost ready...",
+  ];
+  const [statusMsgIdx, setStatusMsgIdx] = useState(0);
+  useEffect(() => {
+    if (phase !== "preview") return;
+    const id = setInterval(() => {
+      setStatusMsgIdx((i) => (i + 1) % STATUS_MESSAGES.length);
+    }, 4000);
+    return () => clearInterval(id);
+  }, [phase]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const [emailStatus, setEmailStatus] = useState<"idle" | "sending" | "sent" | "skipped" | "failed">(
     () => {
       if (emailAlreadySent) return "sent";
@@ -285,14 +300,50 @@ export default function ResultsView({
 
   // Full-screen loading state — Phase 1 in progress
   if (phase === "preview") {
+    const NODE_COUNT = 7;
+    const RADIUS = 52;
+    const CENTER = 68;
+    const nodes = Array.from({ length: NODE_COUNT }, (_, i) => {
+      const angle = (i * 360) / NODE_COUNT - 90;
+      const rad = (angle * Math.PI) / 180;
+      return {
+        x: CENTER + RADIUS * Math.cos(rad),
+        y: CENTER + RADIUS * Math.sin(rad),
+        delay: (i * 1.8) / NODE_COUNT,
+      };
+    });
+
     return (
       <main className="mx-auto w-full max-w-6xl px-6 py-12 sm:py-16 min-h-[70vh] flex flex-col items-center justify-center text-center">
-        <div className="w-10 h-10 border-2 border-neutral-300 border-t-neutral-700 rounded-full animate-spin mb-6" />
-        <h1 className="text-2xl sm:text-3xl font-serif mb-3">
-          Generating your intellectual map...
+        <h1 className="text-2xl sm:text-3xl font-serif tracking-tight mb-10">
+          Building Your {topicLabel} Intellectual Map
         </h1>
-        <p className="text-sm text-neutral-500">
-          This takes a few seconds.
+
+        {/* 7-node circle */}
+        <div
+          className="relative mb-10"
+          style={{ width: CENTER * 2, height: CENTER * 2 }}
+        >
+          {nodes.map((n, i) => (
+            <div
+              key={i}
+              className="absolute rounded-full bg-neutral-400"
+              style={{
+                width: 10,
+                height: 10,
+                left: n.x - 5,
+                top: n.y - 5,
+                animation: `node-pulse 1.8s ease-in-out ${n.delay.toFixed(2)}s infinite`,
+              }}
+            />
+          ))}
+        </div>
+
+        <p
+          key={statusMsgIdx}
+          className="text-sm text-neutral-500 fade-in"
+        >
+          {STATUS_MESSAGES[statusMsgIdx]}
         </p>
       </main>
     );

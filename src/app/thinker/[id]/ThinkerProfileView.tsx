@@ -228,7 +228,7 @@ export default function ThinkerProfileView({
           href={backHref}
           className="text-sm text-neutral-600 hover:text-neutral-900 underline underline-offset-4"
         >
-          ← Back to your constellation
+          ← Back to your intellectual map
         </Link>
       </div>
 
@@ -469,7 +469,7 @@ export default function ThinkerProfileView({
           href={backHref}
           className="text-sm text-neutral-600 hover:text-neutral-900 underline underline-offset-4"
         >
-          ← Back to your constellation
+          ← Back to your intellectual map
         </Link>
       </footer>
     </main>

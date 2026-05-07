@@ -47,7 +47,7 @@ export default async function ThinkerPage({
       <main className="mx-auto max-w-2xl px-6 py-32 text-center">
         <h1 className="text-2xl font-serif mb-4">Thinker profile</h1>
         <p className="text-neutral-600 mb-6">
-          Open a thinker from your constellation to see a personalized profile.
+          Open a thinker from your intellectual map to see a personalized profile.
         </p>
         <Link
           href="/"

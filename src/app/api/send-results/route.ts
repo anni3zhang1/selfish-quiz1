@@ -80,7 +80,7 @@ export async function POST(req: Request) {
     const { error: sendErr } = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL,
       to: session.email,
-      subject: `Your ${topicLabel} constellation`,
+      subject: `Your ${topicLabel} intellectual map`,
       react: ConstellationEmail({
         name: session.name ?? "there",
         topicLabel,

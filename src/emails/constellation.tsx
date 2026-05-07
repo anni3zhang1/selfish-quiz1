@@ -39,7 +39,7 @@ export default function ConstellationEmail({
   resultsUrl,
   profileUrl,
 }: Props) {
-  const previewText = `${name}, here's your ${topicLabel} constellation`;
+  const previewText = `${name}, here's your ${topicLabel} intellectual map`;
 
   return (
     <Html>
@@ -48,7 +48,7 @@ export default function ConstellationEmail({
       <Body style={body}>
         <Container style={container}>
           <Section style={header}>
-            <Text style={overline}>Your {topicLabel} Constellation</Text>
+            <Text style={overline}>Your {topicLabel} Intellectual Map</Text>
             <Heading style={h1}>{name}&rsquo;s intellectual map</Heading>
             {profileSummary && <Text style={lede}>{profileSummary}</Text>}
           </Section>
@@ -86,12 +86,12 @@ export default function ConstellationEmail({
           <Section style={footer}>
             <Text style={footerText}>
               <Link href={resultsUrl} style={link}>
-                View your constellation online →
+                View your intellectual map online →
               </Link>
             </Text>
             <Text style={footerText}>
               <Link href={profileUrl} style={link}>
-                See all your constellations
+                See all your intellectual maps
               </Link>
             </Text>
             <Text style={footerSmall}>

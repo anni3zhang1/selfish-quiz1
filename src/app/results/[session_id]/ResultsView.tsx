@@ -96,6 +96,7 @@ export default function ResultsView({
   const emailTriggeredRef = useRef(false);
   const generationStartedRef = useRef(false);
   const preGenTriggeredRef = useRef(false);
+  const cardsRef = useRef<HTMLDivElement>(null);
 
   // Progressive loading — only fires for new (in_progress) sessions
   useEffect(() => {
@@ -309,7 +310,7 @@ export default function ResultsView({
   const orderedKeys = RELATIONSHIPS.map((r) => r.key);
   const modalIndex = modalType ? orderedKeys.indexOf(modalType) : -1;
 
-  // Full-screen loading state — Phase 1 in progress
+  // Phase 1 — preview API in flight
   if (phase === "preview") {
     const NODE_COUNT = 7;
     const RADIUS = 52;
@@ -329,8 +330,6 @@ export default function ResultsView({
         <h1 className="text-2xl sm:text-3xl font-serif tracking-tight mb-10">
           Building Your {topicLabel} Intellectual Map
         </h1>
-
-        {/* 7-node circle */}
         <div
           className="relative mb-10"
           style={{ width: CENTER * 2, height: CENTER * 2 }}
@@ -349,124 +348,158 @@ export default function ResultsView({
             />
           ))}
         </div>
-
-        <p
-          key={statusMsgIdx}
-          className="text-sm text-neutral-500 fade-in"
-        >
+        <p key={statusMsgIdx} className="text-sm text-neutral-500 fade-in">
           {STATUS_MESSAGES[statusMsgIdx]}
         </p>
       </main>
     );
   }
 
+  // Phase 1 failed — preview call errored out
+  if (phase === "error") {
+    return (
+      <main className="mx-auto w-full max-w-6xl px-6 py-12 sm:py-16 min-h-[70vh] flex flex-col items-center justify-center text-center">
+        <h2 className="text-2xl font-serif mb-3">Something went wrong.</h2>
+        <p className="text-sm text-red-600 mb-6 max-w-sm">{previewError ?? "Please try again."}</p>
+        <Link href="/" className="text-sm text-neutral-600 underline underline-offset-4">
+          ← Back to topics
+        </Link>
+      </main>
+    );
+  }
+
+  // Phase 2+ — insight section visible, thinker cards below
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-12 sm:py-16">
-      <header className="mb-16 max-w-3xl">
+
+      {/* ── Insight section ─────────────────────────────────────────── */}
+      <section className="max-w-3xl mb-20 sm:mb-28">
         <h1 className="text-4xl sm:text-5xl font-serif tracking-tight leading-tight mb-8">
           Your Position On {topicLabel}
         </h1>
 
         {userInsight ? (
-          <div className="space-y-6">
+          <div className="space-y-8">
             {/* Archetype */}
             <div>
-              <div className="text-xs uppercase tracking-widest text-neutral-400 mb-1">
-                Your archetype
-              </div>
-              <div className="text-lg font-semibold tracking-tight text-neutral-900 mb-1">
+              <h2 className="text-2xl sm:text-3xl font-serif tracking-tight leading-tight mb-2">
                 {userInsight.archetype_label}
-              </div>
-              <p className="text-sm text-neutral-500 italic">{userInsight.archetype_description}</p>
+              </h2>
+              <p className="text-base italic text-neutral-500">
+                {userInsight.archetype_description}
+              </p>
             </div>
 
             {/* Position */}
-            <p className="text-base text-neutral-700 leading-relaxed">{userInsight.position}</p>
+            <p className="text-base text-neutral-700 leading-relaxed">
+              {userInsight.position}
+            </p>
 
-            {/* Reasons */}
-            <div className="space-y-3">
-              {userInsight.reasons.map((r, i) => (
-                <div key={i} className="pl-4 border-l-2 border-neutral-200">
-                  <p className="text-sm font-medium text-neutral-800 leading-snug">{r.claim}</p>
-                  <p className="text-sm text-neutral-500 mt-0.5 leading-snug">{r.what_it_means}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Tension */}
-            <div className="rounded-xl bg-neutral-50 border border-neutral-200 px-5 py-4">
-              <div className="text-xs uppercase tracking-widest text-neutral-400 mb-2">
-                Internal tension
+            {/* Why this matters */}
+            <div>
+              <div className="text-xs uppercase tracking-widest text-neutral-400 mb-4">
+                Why this matters
               </div>
-              <p className="text-sm text-neutral-700 leading-relaxed">{userInsight.tension}</p>
+              <ul className="space-y-4">
+                {userInsight.reasons.map((r, i) => (
+                  <li key={i} className="flex gap-3">
+                    <span className="text-neutral-300 select-none shrink-0 mt-0.5">—</span>
+                    <div>
+                      <p className="text-sm font-medium text-neutral-800 leading-snug">
+                        {r.claim}
+                      </p>
+                      <p className="text-sm text-neutral-500 mt-1 leading-snug">
+                        {r.what_it_means}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
 
-            {/* Real-world example */}
-            <div className="rounded-xl bg-neutral-50 border border-neutral-200 px-5 py-4">
-              <div className="text-xs uppercase tracking-widest text-neutral-400 mb-2">
-                In the real world
+            {/* Tension — amber left border */}
+            <div className="border-l-4 border-amber-400 pl-5 py-1">
+              <div className="text-xs uppercase tracking-widest text-amber-600/70 mb-2">
+                Tension
               </div>
-              <p className="text-sm text-neutral-700 leading-relaxed">{userInsight.real_world_example}</p>
+              <p className="text-sm text-neutral-700 leading-relaxed">
+                {userInsight.tension}
+              </p>
             </div>
+
+            {/* Real-world grounding */}
+            <p className="text-sm text-neutral-700 leading-relaxed">
+              <span className="text-xs uppercase tracking-widest text-neutral-400 mr-2">
+                In practice —
+              </span>
+              {userInsight.real_world_example}
+            </p>
           </div>
         ) : initialProfileSummary ? (
-          /* Fallback for sessions generated before the insight update */
+          /* Fallback for sessions predating the insight update */
           <p className="text-base text-neutral-700 leading-relaxed">{initialProfileSummary}</p>
         ) : null}
-      </header>
 
-      {phase === "error" && (
-        <div className="mb-8 p-5 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
-          <strong>Could not generate your intellectual map.</strong>{" "}
-          {previewError ?? "Please try again."}
+        {/* CTA — active once all 7 detail calls resolve */}
+        <div className="mt-10">
+          <button
+            type="button"
+            onClick={() => cardsRef.current?.scrollIntoView({ behavior: "smooth" })}
+            disabled={phase !== "complete"}
+            className={`w-full sm:w-auto px-8 py-4 rounded-xl text-base font-medium transition ${
+              phase === "complete"
+                ? "bg-neutral-900 text-white hover:bg-neutral-800 cursor-pointer"
+                : "bg-neutral-200 text-neutral-400 cursor-not-allowed"
+            }`}
+          >
+            {phase === "complete" ? "See Your Intellectual Map →" : "Preparing your map…"}
+          </button>
         </div>
-      )}
-
-      <div className="mb-8 max-w-3xl">
-        <h2 className="text-2xl sm:text-3xl font-serif tracking-tight leading-tight mb-2">
-          Your Intellectual Map
-        </h2>
-        <p className="text-base text-neutral-600 leading-relaxed">
-          The thinkers who share your logic, challenge your assumptions, and push where you&rsquo;re headed.
-        </p>
-      </div>
-
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {RELATIONSHIPS.map((r) => {
-          const isPending = pendingModal === r.key;
-          return (
-            <button
-              key={r.key}
-              type="button"
-              onClick={() => handleCardClick(r.key)}
-              aria-label={r.label}
-              className={`card-fade-in aspect-[3/4] w-full rounded-2xl relative overflow-hidden text-left cursor-pointer hover:shadow-lg transition-shadow ${r.faceGradient} ${r.textOnFace}`}
-            >
-              {/* Type label */}
-              <div className="absolute top-5 left-5 right-5">
-                <div className="text-3xl font-semibold tracking-tight opacity-90 mb-1">
-                  {r.label}
-                </div>
-              </div>
-
-              {/* Center content — emoji + one-liner, always */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center px-5 text-center">
-                <div className="text-6xl mb-5 opacity-80">{r.emoji}</div>
-                <div className="text-lg opacity-80 max-w-[18ch] leading-relaxed">
-                  {r.oneLine}
-                </div>
-              </div>
-
-              {/* Loading overlay — shown while waiting for detail data */}
-              {isPending && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/25 backdrop-blur-[2px] rounded-2xl">
-                  <div className="w-8 h-8 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                </div>
-              )}
-            </button>
-          );
-        })}
       </section>
+
+      {/* ── Thinker cards ────────────────────────────────────────────── */}
+      <div ref={cardsRef}>
+        <div className="mb-8 max-w-3xl">
+          <h2 className="text-2xl sm:text-3xl font-serif tracking-tight leading-tight mb-2">
+            Your Intellectual Map
+          </h2>
+          <p className="text-base text-neutral-600 leading-relaxed">
+            The thinkers who share your logic, challenge your assumptions, and push where you&rsquo;re headed.
+          </p>
+        </div>
+
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {RELATIONSHIPS.map((r) => {
+            const isPending = pendingModal === r.key;
+            return (
+              <button
+                key={r.key}
+                type="button"
+                onClick={() => handleCardClick(r.key)}
+                aria-label={r.label}
+                className={`card-fade-in aspect-[3/4] w-full rounded-2xl relative overflow-hidden text-left cursor-pointer hover:shadow-lg transition-shadow ${r.faceGradient} ${r.textOnFace}`}
+              >
+                <div className="absolute top-5 left-5 right-5">
+                  <div className="text-3xl font-semibold tracking-tight opacity-90 mb-1">
+                    {r.label}
+                  </div>
+                </div>
+                <div className="absolute inset-0 flex flex-col items-center justify-center px-5 text-center">
+                  <div className="text-6xl mb-5 opacity-80">{r.emoji}</div>
+                  <div className="text-lg opacity-80 max-w-[18ch] leading-relaxed">
+                    {r.oneLine}
+                  </div>
+                </div>
+                {isPending && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/25 backdrop-blur-[2px] rounded-2xl">
+                    <div className="w-8 h-8 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </section>
+      </div>
 
       {userEmail && emailStatus !== "idle" && (
         <div className="mt-12 text-center text-sm text-neutral-500">
@@ -507,7 +540,6 @@ export default function ResultsView({
         </div>
       </footer>
 
-      {/* Thinker modal */}
       {modalType && (
         <ThinkerModal
           type={modalType}

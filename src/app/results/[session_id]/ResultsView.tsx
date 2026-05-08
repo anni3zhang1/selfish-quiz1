@@ -506,25 +506,15 @@ export default function ResultsView({
           <p className="text-base text-neutral-700 leading-relaxed">{initialProfileSummary}</p>
         ) : null}
 
-        {/* CTA — active once all 7 detail calls resolve */}
-        <div className="mt-10 pb-12">
-          <button
-            type="button"
-            onClick={() => cardsRef.current?.scrollIntoView({ behavior: "smooth" })}
-            disabled={phase !== "complete"}
-            className={`w-full sm:w-auto px-8 py-4 rounded-xl text-base font-medium transition ${
-              phase === "complete"
-                ? "bg-neutral-900 text-white hover:bg-neutral-800 cursor-pointer"
-                : "bg-neutral-200 text-neutral-400 cursor-not-allowed"
-            }`}
-          >
-            {phase === "complete" ? "See Your Intellectual Map →" : "Preparing your map…"}
-          </button>
-        </div>
         </div>{/* end max-w-3xl flex-1 */}
 
-        {/* Bounce chevron — scroll cue, fades away as user scrolls */}
-        <div className="flex justify-center py-6 opacity-40 pointer-events-none" aria-hidden>
+        {/* Bounce chevron — clickable scroll cue */}
+        <button
+          type="button"
+          aria-label="Scroll to your intellectual map"
+          onClick={() => cardsRef.current?.scrollIntoView({ behavior: "smooth" })}
+          className="flex justify-center items-center w-full pt-4 pb-3 opacity-40 hover:opacity-70 cursor-pointer transition-opacity"
+        >
           <svg
             width="28"
             height="28"
@@ -540,7 +530,7 @@ export default function ResultsView({
               strokeLinejoin="round"
             />
           </svg>
-        </div>
+        </button>
       </section>
 
       {/* ── Snap section 2: Thinker cards ───────────────────────────── */}

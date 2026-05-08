@@ -7,6 +7,11 @@ import { RELATIONSHIPS } from "@/lib/relationships";
 import { slugify } from "@/lib/thinkers";
 import ThinkerModal from "./ThinkerModal";
 
+function firstSentence(text: string): string {
+  const m = text.match(/[^.!?]*[.!?]/);
+  return m ? m[0].trim() : text;
+}
+
 type PartialCard = {
   name: string;
   tagline: string;
@@ -390,50 +395,65 @@ export default function ResultsView({
               </p>
             </div>
 
-            {/* Position */}
+            {/* Position — first sentence only */}
             <p className="text-base text-neutral-700 leading-relaxed">
-              {userInsight.position}
+              {firstSentence(userInsight.position)}
             </p>
 
-            {/* Why this matters */}
+            {/* Why this matters — claim only, no secondary text */}
             <div>
               <div className="text-xs uppercase tracking-widest text-neutral-400 mb-4">
                 Why this matters
               </div>
-              <ul className="space-y-4">
+              <ul className="space-y-3">
                 {userInsight.reasons.map((r, i) => (
                   <li key={i} className="flex gap-3">
                     <span className="text-neutral-300 select-none shrink-0 mt-0.5">—</span>
-                    <div>
-                      <p className="text-sm font-medium text-neutral-800 leading-snug">
-                        {r.claim}
-                      </p>
-                      <p className="text-sm text-neutral-500 mt-1 leading-snug">
-                        {r.what_it_means}
-                      </p>
-                    </div>
+                    <p className="text-sm font-medium text-neutral-800 leading-snug">
+                      {r.claim}
+                    </p>
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* Tension — amber left border */}
-            <div className="border-l-4 border-amber-400 pl-5 py-1">
-              <div className="text-xs uppercase tracking-widest text-amber-600/70 mb-2">
-                Tension
+            {/* Tension — matches thinker profile accordion header style */}
+            <div
+              className="rounded-2xl border overflow-hidden"
+              style={{ borderColor: "#fde68a" }}
+            >
+              <div className="px-5 py-4" style={{ backgroundColor: "#fef3c7" }}>
+                <div
+                  className="text-xs uppercase tracking-wider font-semibold mb-3"
+                  style={{ color: "#92400e" }}
+                >
+                  Tension
+                </div>
+                <p className="text-sm text-neutral-700 leading-relaxed">
+                  {userInsight.tension}
+                </p>
               </div>
-              <p className="text-sm text-neutral-700 leading-relaxed">
-                {userInsight.tension}
-              </p>
             </div>
 
-            {/* Real-world grounding */}
-            <p className="text-sm text-neutral-700 leading-relaxed">
-              <span className="text-xs uppercase tracking-widest text-neutral-400 mr-2">
-                In practice —
-              </span>
-              {userInsight.real_world_example}
-            </p>
+            {/* In practice — horizontal scrollable card row */}
+            <div>
+              <div className="text-xs uppercase tracking-widest text-neutral-400 mb-3">
+                In practice
+              </div>
+              <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
+                {userInsight.real_world_examples.map((ex, i) => (
+                  <div
+                    key={i}
+                    className="shrink-0 w-52 rounded-xl border border-neutral-200 bg-white p-4 flex flex-col"
+                  >
+                    <span className="text-sm font-semibold text-neutral-900 leading-snug mb-2">
+                      {ex.title}
+                    </span>
+                    <p className="text-xs text-neutral-600 leading-relaxed">{ex.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         ) : initialProfileSummary ? (
           /* Fallback for sessions predating the insight update */

@@ -42,7 +42,19 @@ const previewSchema = {
       },
     },
     tension: { type: "string" },
-    real_world_example: { type: "string" },
+    real_world_examples: {
+      type: "array",
+      minItems: 1,
+      items: {
+        type: "object",
+        properties: {
+          title: { type: "string" },
+          description: { type: "string" },
+        },
+        required: ["title", "description"],
+        additionalProperties: false,
+      },
+    },
     thinkers: {
       type: "array",
       minItems: 1,
@@ -67,7 +79,7 @@ const previewSchema = {
     "position",
     "reasons",
     "tension",
-    "real_world_example",
+    "real_world_examples",
     "thinkers",
   ],
   additionalProperties: false,
@@ -97,7 +109,7 @@ For the user insight section, generate these fields:
 - position: 2-3 sentences on where the user actually stands, written in second person ("You believe...", "Your instinct is...").
 - reasons: exactly 3 items. Each has a "claim" (one sentence on a specific implication of the user's position) and "what_it_means" (one sentence on what this reveals about how the user thinks).
 - tension: one paragraph of 3-4 sentences honestly naming the internal contradiction in the user's position. The sharpest possible challenge to their own view.
-- real_world_example: 2-3 sentences showing exactly where this framing plays out in a specific current or historical debate — concrete, high-stakes.
+- real_world_examples: 2-3 items. Each has a "title" (2-5 word bold heading naming a specific debate, policy, event, or moment, e.g. "EU AI Act debate" or "2008 financial crisis") and "description" (1 sentence showing exactly where the user's framing plays out in that case — concrete, high-stakes).
 
 Return exactly 7 thinkers (one per type) plus the full user insight section.`;
 
@@ -154,7 +166,7 @@ export async function POST(req: Request) {
       position: string;
       reasons: { claim: string; what_it_means: string }[];
       tension: string;
-      real_world_example: string;
+      real_world_examples: { title: string; description: string }[];
       thinkers: { type: RelationshipType; name: string; tagline: string }[];
     };
 
@@ -164,7 +176,7 @@ export async function POST(req: Request) {
       position: parsed.position,
       reasons: parsed.reasons,
       tension: parsed.tension,
-      real_world_example: parsed.real_world_example,
+      real_world_examples: parsed.real_world_examples,
     };
 
     return NextResponse.json({ user_insight, thinkers: parsed.thinkers });

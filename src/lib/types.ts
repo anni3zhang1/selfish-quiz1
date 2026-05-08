@@ -56,13 +56,18 @@ export type ConstellationCard = {
   what_to_learn?: string;
 };
 
+export type RealWorldExample = {
+  title: string;
+  description: string;
+};
+
 export type UserInsight = {
   archetype_label: string;
   archetype_description: string;
   position: string;
   reasons: { claim: string; what_it_means: string }[];
   tension: string;
-  real_world_example: string;
+  real_world_examples: RealWorldExample[];
 };
 
 // user_insight is stored alongside the 7 thinker cards inside the constellation JSONB.

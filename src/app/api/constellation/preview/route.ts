@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { anthropic, MODEL } from "@/lib/anthropic";
 import { formatAnswers } from "@/lib/constellation";
 import { thinkerPools } from "@/lib/thinker-pools";
-import type { AnswerEntry, RelationshipType, UserInsight } from "@/lib/types";
+import type { AnswerEntry, InsightTension, RelationshipType, UserInsight } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -41,7 +41,16 @@ const previewSchema = {
         additionalProperties: false,
       },
     },
-    tension: { type: "string" },
+    tension: {
+      type: "object",
+      properties: {
+        claim_a: { type: "string" },
+        claim_b: { type: "string" },
+        explanation: { type: "string" },
+      },
+      required: ["claim_a", "claim_b"],
+      additionalProperties: false,
+    },
     real_world_examples: {
       type: "array",
       minItems: 1,
@@ -108,7 +117,11 @@ For the user insight section, generate these fields:
 - archetype_description: one sentence defining what this archetype means in the context of this topic.
 - position: 2-3 sentences on where the user actually stands, written in second person ("You believe...", "Your instinct is...").
 - reasons: exactly 3 items. Each has a "claim" (one sentence on a specific implication of the user's position) and "what_it_means" (one sentence on what this reveals about how the user thinks).
-- tension: one paragraph of 3-4 sentences honestly naming the internal contradiction in the user's position. The sharpest possible challenge to their own view.
+- tension: an object with:
+  - claim_a: one short punchy statement of one side of the contradiction (10-15 words max)
+  - claim_b: one short punchy statement of the directly opposing side (10-15 words max)
+  - explanation: (optional) 1-2 sentences explaining why these two beliefs are genuinely in tension
+  The two claims should feel contradictory — the sharpest possible challenge to the user's own view.
 - real_world_examples: 2-3 items. Each has a "title" (2-5 word bold heading naming a specific debate, policy, event, or moment, e.g. "EU AI Act debate" or "2008 financial crisis") and "description" (1 sentence showing exactly where the user's framing plays out in that case — concrete, high-stakes).
 
 Return exactly 7 thinkers (one per type) plus the full user insight section.`;
@@ -165,7 +178,7 @@ export async function POST(req: Request) {
       archetype_description: string;
       position: string;
       reasons: { claim: string; what_it_means: string }[];
-      tension: string;
+      tension: { claim_a: string; claim_b: string; explanation?: string };
       real_world_examples: { title: string; description: string }[];
       thinkers: { type: RelationshipType; name: string; tagline: string }[];
     };
@@ -175,7 +188,7 @@ export async function POST(req: Request) {
       archetype_description: parsed.archetype_description,
       position: parsed.position,
       reasons: parsed.reasons,
-      tension: parsed.tension,
+      tension: parsed.tension as InsightTension,
       real_world_examples: parsed.real_world_examples,
     };
 

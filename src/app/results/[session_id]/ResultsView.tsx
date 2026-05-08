@@ -7,10 +7,6 @@ import { RELATIONSHIPS } from "@/lib/relationships";
 import { slugify } from "@/lib/thinkers";
 import ThinkerModal from "./ThinkerModal";
 
-function firstSentence(text: string): string {
-  const m = text.match(/[^.!?]*[.!?]/);
-  return m ? m[0].trim() : text;
-}
 
 type PartialCard = {
   name: string;
@@ -395,9 +391,9 @@ export default function ResultsView({
               </p>
             </div>
 
-            {/* Position — first sentence only */}
+            {/* Position */}
             <p className="text-base text-neutral-700 leading-relaxed">
-              {firstSentence(userInsight.position)}
+              {userInsight.position}
             </p>
 
             {/* Why this matters — claim only, no secondary text */}
@@ -417,21 +413,58 @@ export default function ResultsView({
               </ul>
             </div>
 
-            {/* Tension — matches thinker profile accordion header style */}
+            {/* Tension — two-sided arrow layout matching thinker profile */}
             <div
               className="rounded-2xl border overflow-hidden"
               style={{ borderColor: "#fde68a" }}
             >
-              <div className="px-5 py-4" style={{ backgroundColor: "#fef3c7" }}>
+              <div className="px-5 pt-4 pb-1" style={{ backgroundColor: "#fef3c7" }}>
                 <div
                   className="text-xs uppercase tracking-wider font-semibold mb-3"
                   style={{ color: "#92400e" }}
                 >
                   Tension
                 </div>
-                <p className="text-sm text-neutral-700 leading-relaxed">
-                  {userInsight.tension}
-                </p>
+              </div>
+              <div className="px-5 py-4" style={{ backgroundColor: "#fef3c7" }}>
+                <div className="flex items-stretch gap-0 min-h-[6rem]">
+                  {/* Left claim */}
+                  <div
+                    className="flex-1 flex items-center px-4 py-3 rounded-l-xl"
+                    style={{ backgroundColor: "rgba(251,191,36,0.15)" }}
+                  >
+                    <p className="text-sm font-medium text-neutral-900 leading-snug text-left">
+                      {userInsight.tension.claim_a}
+                    </p>
+                  </div>
+
+                  {/* Center — double-headed arrow */}
+                  <div className="flex flex-col items-center justify-center px-3 shrink-0 gap-1">
+                    <div className="w-px flex-1 bg-amber-300" />
+                    <svg width="36" height="20" viewBox="0 0 36 20" fill="none" aria-hidden className="shrink-0">
+                      <line x1="6" y1="10" x2="30" y2="10" stroke="#d97706" strokeWidth="2" strokeLinecap="round" />
+                      <polyline points="12,4 6,10 12,16" stroke="#d97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                      <polyline points="24,4 30,10 24,16" stroke="#d97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                    </svg>
+                    <div className="w-px flex-1 bg-amber-300" />
+                  </div>
+
+                  {/* Right claim */}
+                  <div
+                    className="flex-1 flex items-center px-4 py-3 rounded-r-xl"
+                    style={{ backgroundColor: "rgba(99,102,241,0.07)" }}
+                  >
+                    <p className="text-sm font-medium text-neutral-900 leading-snug text-right w-full">
+                      {userInsight.tension.claim_b}
+                    </p>
+                  </div>
+                </div>
+
+                {userInsight.tension.explanation && (
+                  <p className="mt-4 text-sm text-neutral-500 leading-relaxed italic">
+                    {userInsight.tension.explanation}
+                  </p>
+                )}
               </div>
             </div>
 

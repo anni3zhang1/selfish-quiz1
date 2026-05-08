@@ -61,12 +61,18 @@ export type RealWorldExample = {
   description: string;
 };
 
+export type InsightTension = {
+  claim_a: string;
+  claim_b: string;
+  explanation?: string;
+};
+
 export type UserInsight = {
   archetype_label: string;
   archetype_description: string;
   position: string;
   reasons: { claim: string; what_it_means: string }[];
-  tension: string;
+  tension: InsightTension;
   real_world_examples: RealWorldExample[];
 };
 

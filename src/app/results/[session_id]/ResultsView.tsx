@@ -308,6 +308,15 @@ export default function ResultsView({
     }
   }
 
+  // Enable full-page scroll-snap while this view is mounted
+  useEffect(() => {
+    const html = document.documentElement;
+    html.style.scrollSnapType = "y mandatory";
+    return () => {
+      html.style.scrollSnapType = "";
+    };
+  }, []);
+
   const orderedKeys = RELATIONSHIPS.map((r) => r.key);
   const modalIndex = modalType ? orderedKeys.indexOf(modalType) : -1;
 
@@ -371,10 +380,14 @@ export default function ResultsView({
 
   // Phase 2+ — insight section visible, thinker cards below
   return (
-    <main className="mx-auto w-full max-w-6xl px-6 py-12 sm:py-16">
+    <main className="w-full">
 
-      {/* ── Insight section ─────────────────────────────────────────── */}
-      <section className="max-w-3xl mb-20 sm:mb-28">
+      {/* ── Snap section 1: Insight ─────────────────────────────────── */}
+      <section
+        className="min-h-screen [scroll-snap-align:start] relative flex flex-col px-6 pt-12 sm:pt-16"
+        style={{ scrollSnapAlign: "start" }}
+      >
+        <div className="mx-auto w-full max-w-3xl flex-1">
         <h1 className="text-4xl sm:text-5xl font-serif tracking-tight leading-tight mb-8">
           Your Position On {topicLabel}
         </h1>
@@ -494,7 +507,7 @@ export default function ResultsView({
         ) : null}
 
         {/* CTA — active once all 7 detail calls resolve */}
-        <div className="mt-10">
+        <div className="mt-10 pb-12">
           <button
             type="button"
             onClick={() => cardsRef.current?.scrollIntoView({ behavior: "smooth" })}
@@ -508,10 +521,35 @@ export default function ResultsView({
             {phase === "complete" ? "See Your Intellectual Map →" : "Preparing your map…"}
           </button>
         </div>
+        </div>{/* end max-w-3xl flex-1 */}
+
+        {/* Bounce chevron — scroll cue, fades away as user scrolls */}
+        <div className="flex justify-center py-6 opacity-40 pointer-events-none" aria-hidden>
+          <svg
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            className="animate-bounce text-neutral-500"
+          >
+            <path
+              d="M6 9l6 6 6-6"
+              stroke="currentColor"
+              strokeWidth="1.75"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
       </section>
 
-      {/* ── Thinker cards ────────────────────────────────────────────── */}
-      <div ref={cardsRef}>
+      {/* ── Snap section 2: Thinker cards ───────────────────────────── */}
+      <div
+        ref={cardsRef}
+        className="min-h-screen [scroll-snap-align:start] px-6 pt-12 sm:pt-16 pb-16"
+        style={{ scrollSnapAlign: "start" }}
+      >
+        <div className="mx-auto w-full max-w-6xl">
         <div className="mb-8 max-w-3xl">
           <h2 className="text-2xl sm:text-3xl font-serif tracking-tight leading-tight mb-2">
             Your Intellectual Map
@@ -552,7 +590,12 @@ export default function ResultsView({
             );
           })}
         </section>
-      </div>
+        </div>{/* end max-w-6xl */}
+      </div>{/* end snap section 2 */}
+
+      {/* ── Non-snap: email status + footer ─────────────────────────── */}
+      <div className="px-6 pb-12">
+      <div className="mx-auto w-full max-w-6xl">
 
       {userEmail && emailStatus !== "idle" && (
         <div className="mt-12 text-center text-sm text-neutral-500">
@@ -592,6 +635,9 @@ export default function ResultsView({
           Bookmark this page — your intellectual map lives at this URL.
         </div>
       </footer>
+
+      </div>{/* end max-w-6xl */}
+      </div>{/* end non-snap wrapper */}
 
       {modalType && (
         <ThinkerModal

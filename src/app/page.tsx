@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { redirect } from "next/navigation";
 import { topicCards } from "@/lib/quizzes";
 import { getServerUser } from "@/lib/user";
@@ -127,17 +126,6 @@ export default async function Home() {
 
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-16 sm:py-24">
-      {/* Canadian flag banner */}
-      <div className="relative w-full h-48 sm:h-56 rounded-2xl overflow-hidden mb-12 [mask-image:linear-gradient(to_bottom,black_60%,transparent_100%)]">
-        <Image
-          src="https://flagcdn.com/w1280/ca.png"
-          alt="Canadian flag"
-          fill
-          className="object-cover"
-          priority
-        />
-      </div>
-
       <header className="mb-16 max-w-3xl">
         <div className="text-xs uppercase tracking-wider text-neutral-500 mb-4">
           Hello, {user.name.split(" ")[0]}

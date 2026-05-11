@@ -109,7 +109,7 @@ export default function ResultsView({
         // Check if QuizRunner cached the preview data in sessionStorage
         let data: {
           user_insight: UserInsight;
-          thinkers: { type: RelationshipType; name: string; tagline: string }[];
+          thinkers: { type: RelationshipType; name: string; tagline: string; match_reason?: string }[];
         } | null = null;
 
         try {
@@ -142,12 +142,16 @@ export default function ResultsView({
         setUserInsight(data.user_insight);
         const initial: Cards = {};
         for (const t of data.thinkers) {
-          initial[t.type] = { name: t.name, tagline: t.tagline };
+          initial[t.type] = {
+            name: t.name,
+            tagline: t.tagline,
+            ...(t.match_reason ? { match_reason: t.match_reason } : {}),
+          };
         }
         setCards(initial);
         setPhase("detail");
 
-        // Fire all 7 detail calls in parallel
+        // Fire all 7 enrichment calls in parallel (pass match_reason to skip AI)
         const loadingSet = new Set(data.thinkers.map((t) => t.type));
         setDetailLoading(loadingSet);
 
@@ -166,6 +170,7 @@ export default function ResultsView({
                   tagline: t.tagline,
                   topic,
                   answers,
+                  ...(t.match_reason ? { match_reason: t.match_reason } : {}),
                 }),
               });
               const detail = await dres.json() as { type: RelationshipType; match_reason: string; what_they_believe?: string; thumbnail_url?: string };

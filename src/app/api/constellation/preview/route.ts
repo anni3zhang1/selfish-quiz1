@@ -76,8 +76,9 @@ const previewSchema = {
           },
           name: { type: "string" },
           tagline: { type: "string" },
+          match_reason: { type: "string" },
         },
-        required: ["type", "name", "tagline"],
+        required: ["type", "name", "tagline", "match_reason"],
         additionalProperties: false,
       },
     },
@@ -110,6 +111,7 @@ Rules:
 - Match on epistemic structure, not surface topic
 - Each thinker must be different — no repeats
 - Tagline is a one-line claim about who the thinker is
+- match_reason: 1–2 sentences explaining why this match is right for THIS user. Translate the user's answers into a pattern (what they care about, how they think) and connect it to the thinker's cognitive moves. Do NOT cite answer codes like "Q1: D". When the user wrote their own words, quote or paraphrase their language directly.
 - When the user wrote their own words on a question, weight those words MORE heavily than the selected letter. Their own language reveals position; the letter is just a starting point.
 
 For the user insight section, generate these fields:
@@ -180,7 +182,7 @@ export async function POST(req: Request) {
       reasons: { claim: string; what_it_means: string }[];
       tension: { claim_a: string; claim_b: string; explanation?: string };
       real_world_examples: { title: string; description: string }[];
-      thinkers: { type: RelationshipType; name: string; tagline: string }[];
+      thinkers: { type: RelationshipType; name: string; tagline: string; match_reason: string }[];
     };
 
     const user_insight: UserInsight = {

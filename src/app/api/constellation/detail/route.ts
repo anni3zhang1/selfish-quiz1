@@ -15,6 +15,7 @@ type Body = {
   tagline?: string;
   topic?: string;
   answers?: AnswerEntry[];
+  match_reason?: string; // If provided, skip AI and just enrich with thumbnail + cache
 };
 
 const detailSchema = {
@@ -45,18 +46,50 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const { type, name, tagline, topic, answers } = body;
-  if (!type || !name || !tagline || !topic || !Array.isArray(answers) || answers.length === 0) {
+  const { type, name, tagline, topic, answers, match_reason } = body;
+  if (!type || !name) {
     return NextResponse.json(
-      { error: "type, name, tagline, topic, and answers required" },
+      { error: "type and name required" },
       { status: 400 }
     );
   }
 
-  const relationshipDesc = RELATIONSHIP_DESCRIPTIONS[type] ?? type;
-  const answersText = formatAnswers(topic, answers);
+  const thinkerSlug = slugify(name).replace(/_/g, "-");
 
-  const userContent = `The user has been matched with ${name} as their ${type.toUpperCase()} (${relationshipDesc}).
+  try {
+    // If match_reason already provided (from preview), skip AI — just enrich
+    if (match_reason) {
+      const [thumbnailUrl, cacheResult] = await Promise.all([
+        fetchWikipediaThumbnail(name),
+        supabase
+          .from("thinker_cache")
+          .select("what_they_believe")
+          .eq("thinker_slug", thinkerSlug)
+          .maybeSingle(),
+      ]);
+
+      const whatTheyBelieve = cacheResult.data?.what_they_believe ?? null;
+
+      return NextResponse.json({
+        type,
+        match_reason,
+        ...(thumbnailUrl ? { thumbnail_url: thumbnailUrl } : {}),
+        ...(whatTheyBelieve ? { what_they_believe: whatTheyBelieve } : {}),
+      });
+    }
+
+    // Fallback: full AI generation (for older clients or edge cases)
+    if (!tagline || !topic || !Array.isArray(answers) || answers.length === 0) {
+      return NextResponse.json(
+        { error: "tagline, topic, and answers required when match_reason not provided" },
+        { status: 400 }
+      );
+    }
+
+    const relationshipDesc = RELATIONSHIP_DESCRIPTIONS[type] ?? type;
+    const answersText = formatAnswers(topic, answers);
+
+    const userContent = `The user has been matched with ${name} as their ${type.toUpperCase()} (${relationshipDesc}).
 
 ${name}'s tagline: "${tagline}"
 
@@ -65,9 +98,6 @@ ${answersText}
 Write:
 match_reason: 1–2 sentences in plain narrative language explaining why this match is right for THIS user. Translate what the user's answers reveal into a pattern (in plain words — what they care about, how they think) and connect that pattern to ${name}'s cognitive moves. Do NOT cite answer codes like "Q1: D" or "Q3-E" — the user has forgotten what they selected. Describe the pattern, not the codes. When the user wrote their own words on a question, weight those words much more heavily than the option letter — quote or paraphrase from their language directly.`;
 
-  const thinkerSlug = slugify(name).replace(/_/g, "-");
-
-  try {
     const [message, thumbnailUrl, cacheResult] = await Promise.all([
       anthropic.messages.create({
         model: "claude-sonnet-4-6",

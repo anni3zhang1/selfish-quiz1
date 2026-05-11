@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { anthropic, MODEL } from "@/lib/anthropic";
+import { anthropic } from "@/lib/anthropic";
 import { formatAnswers } from "@/lib/constellation";
 import { thinkerPools } from "@/lib/thinker-pools";
 import type { AnswerEntry, InsightTension, RelationshipType, UserInsight } from "@/lib/types";
@@ -155,7 +155,7 @@ export async function POST(req: Request) {
 
   try {
     const message = await anthropic.messages.create({
-      model: MODEL,
+      model: "claude-sonnet-4-5-20241022",
       max_tokens: 4096,
       output_config: {
         effort: "low",

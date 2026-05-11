@@ -112,6 +112,51 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
       });
   }
 
+  // Shared: create session + cache preview + navigate to results
+  async function createSessionAndNavigate(finalAnswers: AnswerEntry[], name: string, email: string) {
+    const sessionRes = await fetch("/api/constellation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        topic: quiz.topic,
+        answers: finalAnswers,
+        name,
+        email,
+      }),
+    });
+    if (!sessionRes.ok) {
+      const d = await sessionRes.json().catch(() => ({}));
+      throw new Error(d.error ?? `Session creation failed (${sessionRes.status})`);
+    }
+    const { session_id } = (await sessionRes.json()) as { session_id: string };
+
+    // If preview finished, cache it so ResultsView can pick it up
+    if (previewDataRef.current) {
+      try {
+        sessionStorage.setItem(
+          `selfish_preview_${session_id}`,
+          JSON.stringify(previewDataRef.current)
+        );
+      } catch {
+        // sessionStorage not available — ResultsView will regenerate
+      }
+    }
+
+    router.push(`/results/${session_id}`);
+  }
+
+  // Returning user — skip registration form, go straight to results
+  async function submitForReturningUser(finalAnswers: AnswerEntry[]) {
+    setPhase("submitting");
+    try {
+      await createSessionAndNavigate(finalAnswers, user!.name, user!.email);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+      setPhase("error");
+    }
+  }
+
+  // New user — validate form, register, then create session
   async function submitWithRegistration(finalAnswers: AnswerEntry[]) {
     setFormError(null);
     setPhase("submitting");
@@ -148,37 +193,8 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
         throw new Error(d.error ?? "Registration failed");
       }
 
-      // 2. Create quiz session
-      const sessionRes = await fetch("/api/constellation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          topic: quiz.topic,
-          answers: finalAnswers,
-          name,
-          email,
-        }),
-      });
-      if (!sessionRes.ok) {
-        const d = await sessionRes.json().catch(() => ({}));
-        throw new Error(d.error ?? `Session creation failed (${sessionRes.status})`);
-      }
-      const { session_id } = (await sessionRes.json()) as { session_id: string };
-
-      // 3. If preview finished, cache it so ResultsView can pick it up
-      if (previewDataRef.current) {
-        try {
-          sessionStorage.setItem(
-            `selfish_preview_${session_id}`,
-            JSON.stringify(previewDataRef.current)
-          );
-        } catch {
-          // sessionStorage not available — ResultsView will regenerate
-        }
-      }
-
-      // 4. Navigate to results
-      router.push(`/results/${session_id}`);
+      // 2. Create session + navigate
+      await createSessionAndNavigate(finalAnswers, name, email);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
       setPhase("error");
@@ -250,11 +266,9 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
     // All questions answered
     if (nextPending.length === 0 && nextRemaining.length === 0) {
       if (user) {
-        // Already registered — skip form, submit directly
-        setFormName(user.name);
-        setFormEmail(user.email);
+        // Already registered — skip form, go straight to results
         startPreviewGeneration(nextAnswers);
-        void submitWithRegistration(nextAnswers);
+        void submitForReturningUser(nextAnswers);
       } else {
         // Show registration form, start generation in parallel
         startPreviewGeneration(nextAnswers);

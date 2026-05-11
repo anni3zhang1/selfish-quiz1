@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { anthropic, MODEL } from "@/lib/anthropic";
+import { anthropic } from "@/lib/anthropic";
 import { formatAnswers } from "@/lib/constellation";
 import { fetchWikipediaThumbnail } from "@/lib/wikipedia";
 import { supabase } from "@/lib/supabase";
@@ -70,11 +70,10 @@ match_reason: 1–2 sentences in plain narrative language explaining why this ma
   try {
     const [message, thumbnailUrl, cacheResult] = await Promise.all([
       anthropic.messages.create({
-        model: MODEL,
+        model: "claude-sonnet-4-5-20241022",
         max_tokens: 1024,
-        thinking: { type: "adaptive" },
         output_config: {
-          effort: "medium",
+          effort: "low",
           format: {
             type: "json_schema",
             schema: detailSchema,

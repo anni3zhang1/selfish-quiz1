@@ -89,12 +89,14 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
     setFreeformText("");
   }
 
-  // Start preview generation in background (no user info needed)
+  // Preview generation — returns a promise so callers can await it
+  const previewPromiseRef = useRef<Promise<void> | null>(null);
+
   function startPreviewGeneration(finalAnswers: AnswerEntry[]) {
     if (previewStartedRef.current) return;
     previewStartedRef.current = true;
 
-    fetch("/api/constellation/preview", {
+    previewPromiseRef.current = fetch("/api/constellation/preview", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ topic: quiz.topic, answers: finalAnswers }),
@@ -145,10 +147,14 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
     router.push(`/results/${session_id}`);
   }
 
-  // Returning user — skip registration form, go straight to results
+  // Returning user — wait for preview, then navigate (no form shown)
   async function submitForReturningUser(finalAnswers: AnswerEntry[]) {
     setPhase("submitting");
     try {
+      // Wait for preview to finish so we can cache it for ResultsView
+      if (previewPromiseRef.current) {
+        await previewPromiseRef.current;
+      }
       await createSessionAndNavigate(finalAnswers, user!.name, user!.email);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -325,81 +331,83 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
           ))}
         </div>
 
-        {/* Registration form */}
-        <div className="w-full max-w-sm">
-          <p className="text-sm text-neutral-600 text-center mb-6">
-            While we map your thinkers, tell us where to save your results.
-          </p>
+        {/* Registration form — only for new users */}
+        {!user && (
+          <div className="w-full max-w-sm">
+            <p className="text-sm text-neutral-600 text-center mb-6">
+              While we map your thinkers, tell us where to save your results.
+            </p>
 
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              void submitWithRegistration(answers);
-            }}
-            className="space-y-4"
-          >
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-1">
-                Name
-              </label>
-              <input
-                name="name"
-                type="text"
-                required
-                minLength={2}
-                value={formName}
-                onChange={(e) => setFormName(e.target.value)}
-                disabled={isSubmitting}
-                className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900 disabled:opacity-50"
-                placeholder="Your name"
-                autoFocus
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-1">
-                Email
-              </label>
-              <input
-                name="email"
-                type="email"
-                required
-                value={formEmail}
-                onChange={(e) => setFormEmail(e.target.value)}
-                disabled={isSubmitting}
-                className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900 disabled:opacity-50"
-                placeholder="you@example.com"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-1">
-                Phone
-              </label>
-              <PhoneInput
-                value={formPhone}
-                onChange={(full, valid) => {
-                  setFormPhone(full);
-                  setPhoneValid(valid);
-                }}
-                disabled={isSubmitting}
-              />
-              <p className="text-xs text-neutral-400 mt-1.5">
-                We&rsquo;ll text you personalized reading recommendations.
-              </p>
-            </div>
-
-            {formError && (
-              <div className="text-sm text-red-600">{formError}</div>
-            )}
-
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full px-6 py-3 bg-neutral-900 text-white rounded-lg font-medium hover:bg-neutral-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                void submitWithRegistration(answers);
+              }}
+              className="space-y-4"
             >
-              {isSubmitting ? "Saving..." : "See My Results"}
-            </button>
-          </form>
-        </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                  Name
+                </label>
+                <input
+                  name="name"
+                  type="text"
+                  required
+                  minLength={2}
+                  value={formName}
+                  onChange={(e) => setFormName(e.target.value)}
+                  disabled={isSubmitting}
+                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900 disabled:opacity-50"
+                  placeholder="Your name"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                  Email
+                </label>
+                <input
+                  name="email"
+                  type="email"
+                  required
+                  value={formEmail}
+                  onChange={(e) => setFormEmail(e.target.value)}
+                  disabled={isSubmitting}
+                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900 disabled:opacity-50"
+                  placeholder="you@example.com"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                  Phone
+                </label>
+                <PhoneInput
+                  value={formPhone}
+                  onChange={(full, valid) => {
+                    setFormPhone(full);
+                    setPhoneValid(valid);
+                  }}
+                  disabled={isSubmitting}
+                />
+                <p className="text-xs text-neutral-400 mt-1.5">
+                  We&rsquo;ll text you personalized reading recommendations.
+                </p>
+              </div>
+
+              {formError && (
+                <div className="text-sm text-red-600">{formError}</div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full px-6 py-3 bg-neutral-900 text-white rounded-lg font-medium hover:bg-neutral-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? "Saving..." : "See My Results"}
+              </button>
+            </form>
+          </div>
+        )}
       </div>
     );
   }

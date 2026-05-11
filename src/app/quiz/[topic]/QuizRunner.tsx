@@ -96,12 +96,15 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
     if (previewStartedRef.current) return;
     previewStartedRef.current = true;
 
+    const t0 = Date.now();
+    console.log("[QuizRunner] preview fetch started");
     previewPromiseRef.current = fetch("/api/constellation/preview", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ topic: quiz.topic, answers: finalAnswers }),
     })
       .then(async (res) => {
+        console.log(`[QuizRunner] preview fetch returned in ${Date.now() - t0}ms, status=${res.status}`);
         if (!res.ok) throw new Error(`Preview failed (${res.status})`);
         const data = await res.json();
         previewDataRef.current = data;
@@ -149,12 +152,20 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
 
   // Returning user — wait for preview, then navigate (no form shown)
   async function submitForReturningUser(finalAnswers: AnswerEntry[]) {
+    console.log("[QuizRunner] submitForReturningUser called, user:", user?.email);
+    console.log("[QuizRunner] previewPromiseRef exists:", !!previewPromiseRef.current);
     setPhase("submitting");
     try {
       // Wait for preview to finish so we can cache it for ResultsView
+      const t0 = Date.now();
       if (previewPromiseRef.current) {
+        console.log("[QuizRunner] awaiting preview promise...");
         await previewPromiseRef.current;
+        console.log(`[QuizRunner] preview promise resolved in ${Date.now() - t0}ms, cached data:`, !!previewDataRef.current);
+      } else {
+        console.log("[QuizRunner] no preview promise to await!");
       }
+      console.log("[QuizRunner] creating session...");
       await createSessionAndNavigate(finalAnswers, user!.name, user!.email);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -271,6 +282,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
 
     // All questions answered
     if (nextPending.length === 0 && nextRemaining.length === 0) {
+      console.log("[QuizRunner] all questions done. user:", user ? user.email : "null (new user)");
       if (user) {
         // Already registered — skip form, go straight to results
         startPreviewGeneration(nextAnswers);

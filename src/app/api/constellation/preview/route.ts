@@ -156,11 +156,11 @@ export async function POST(req: Request) {
   const SYSTEM_PROMPT = BASE_SYSTEM_PROMPT + poolSection;
 
   try {
+    const t0 = Date.now();
     const message = await anthropic.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 4096,
       output_config: {
-        effort: "low",
         format: {
           type: "json_schema",
           schema: previewSchema,
@@ -169,6 +169,7 @@ export async function POST(req: Request) {
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content: userContent }],
     });
+    console.log(`[preview] AI call took ${Date.now() - t0}ms`);
 
     const textBlock = message.content.find((b) => b.type === "text");
     if (!textBlock || textBlock.type !== "text") {

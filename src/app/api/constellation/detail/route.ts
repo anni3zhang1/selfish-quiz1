@@ -70,7 +70,7 @@ match_reason: 1–2 sentences in plain narrative language explaining why this ma
   try {
     const [message, thumbnailUrl, cacheResult] = await Promise.all([
       anthropic.messages.create({
-        model: "claude-sonnet-4-5-20241022",
+        model: "claude-sonnet-4-6",
         max_tokens: 1024,
         output_config: {
           effort: "low",

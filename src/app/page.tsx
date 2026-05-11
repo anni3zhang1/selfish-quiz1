@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { topicCards } from "@/lib/quizzes";
 import { getServerUser } from "@/lib/user";
 import { supabase } from "@/lib/supabase";
@@ -108,18 +107,22 @@ function QuizCard({ card, isComplete }: { card: TopicCard; isComplete: boolean }
 
 export default async function Home() {
   const user = await getServerUser();
-  if (!user) redirect("/start");
+  // No redirect — unregistered users can browse and start quizzes.
+  // They'll register after completing their first quiz.
 
-  // Fetch completed topics for this user
-  const { data: completedRows } = await supabase
-    .from("quiz_sessions")
-    .select("topic")
-    .eq("email", user.email)
-    .eq("status", "complete");
+  // Fetch completed topics if user is logged in
+  let completedTopics = new Set<string>();
+  if (user) {
+    const { data: completedRows } = await supabase
+      .from("quiz_sessions")
+      .select("topic")
+      .eq("email", user.email)
+      .eq("status", "complete");
 
-  const completedTopics = new Set<string>(
-    (completedRows ?? []).map((r: { topic: string }) => r.topic)
-  );
+    completedTopics = new Set<string>(
+      (completedRows ?? []).map((r: { topic: string }) => r.topic)
+    );
+  }
 
   // Build a lookup from slug → card for O(1) access
   const cardBySlug = new Map<string, TopicCard>(topicCards.map((c) => [c.slug, c]));
@@ -127,9 +130,11 @@ export default async function Home() {
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-16 sm:py-24">
       <header className="mb-16 max-w-3xl">
-        <div className="text-xs uppercase tracking-wider text-neutral-500 mb-4">
-          Hello, {user.name.split(" ")[0]}
-        </div>
+        {user && (
+          <div className="text-xs uppercase tracking-wider text-neutral-500 mb-4">
+            Hello, {user.name.split(" ")[0]}
+          </div>
+        )}
         <h1 className="text-2xl sm:text-3xl font-serif tracking-tight leading-snug">
           Take a quiz on the ideas that matter. Discover where you stand, who thinks like you, who challenges you, and who you dismiss.
         </h1>
@@ -166,8 +171,16 @@ export default async function Home() {
         })}
       </div>
 
-      <footer className="mt-20 text-xs text-neutral-400">
-        Selfish — an early experiment in self-knowledge through encounter.
+      <footer className="mt-20 flex items-center justify-between text-xs text-neutral-400">
+        <span>Selfish — an early experiment in self-knowledge through encounter.</span>
+        {user && (
+          <Link
+            href="/start"
+            className="underline underline-offset-4 hover:text-neutral-600"
+          >
+            Switch account
+          </Link>
+        )}
       </footer>
     </main>
   );

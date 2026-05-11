@@ -1,14 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import type { AnswerEntry, AnyQuestion, Question } from "@/lib/types";
 import type { aiGovernanceQuiz } from "@/lib/quizzes/ai-governance";
 
 type Quiz = typeof aiGovernanceQuiz;
-type User = { email: string; name: string };
+type User = { email: string; name: string } | null;
 
-type Phase = "questions" | "error";
+type Phase = "questions" | "registering" | "submitting" | "error";
 
 function isFreeformOnly(q: AnyQuestion): q is Extract<AnyQuestion, { freeformOnly: true }> {
   return "freeformOnly" in q && q.freeformOnly === true;
@@ -26,6 +26,33 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
   const [freeformText, setFreeformText] = useState("");
   const [phase, setPhase] = useState<Phase>("questions");
   const [error, setError] = useState<string | null>(null);
+
+  // Registration form fields
+  const [formName, setFormName] = useState(user?.name ?? "");
+  const [formEmail, setFormEmail] = useState(user?.email ?? "");
+  const [formPhone, setFormPhone] = useState("");
+  const [formError, setFormError] = useState<string | null>(null);
+
+  // Preview generation state (runs in parallel with registration form)
+  const previewStartedRef = useRef(false);
+  const [previewDone, setPreviewDone] = useState(false);
+  const previewDataRef = useRef<unknown>(null);
+
+  // Loading animation messages
+  const STATUS_MESSAGES = [
+    "Analyzing your positions...",
+    "Mapping your intellectual landscape...",
+    "Finding your thinkers...",
+    "Your map is almost ready...",
+  ];
+  const [statusMsgIdx, setStatusMsgIdx] = useState(0);
+  useEffect(() => {
+    if (phase !== "registering" && phase !== "submitting") return;
+    const id = setInterval(() => {
+      setStatusMsgIdx((i) => (i + 1) % STATUS_MESSAGES.length);
+    }, 4000);
+    return () => clearInterval(id);
+  }, [phase]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const current: AnyQuestion | null = useMemo(() => {
     if (pendingFollowups.length > 0) return pendingFollowups[0];
@@ -60,25 +87,91 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
     setFreeformText("");
   }
 
-  async function submitConstellation(finalAnswers: AnswerEntry[]) {
-    setError(null);
+  // Start preview generation in background (no user info needed)
+  function startPreviewGeneration(finalAnswers: AnswerEntry[]) {
+    if (previewStartedRef.current) return;
+    previewStartedRef.current = true;
+
+    fetch("/api/constellation/preview", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ topic: quiz.topic, answers: finalAnswers }),
+    })
+      .then(async (res) => {
+        if (!res.ok) throw new Error(`Preview failed (${res.status})`);
+        const data = await res.json();
+        previewDataRef.current = data;
+        setPreviewDone(true);
+      })
+      .catch((err) => {
+        console.error("Background preview failed:", err);
+        // Not fatal — ResultsView will retry if needed
+        setPreviewDone(true);
+      });
+  }
+
+  async function submitWithRegistration(finalAnswers: AnswerEntry[]) {
+    setFormError(null);
+    setPhase("submitting");
+
+    const name = formName.trim();
+    const email = formEmail.trim().toLowerCase();
+    const phone = formPhone.trim();
+
+    if (name.length < 2) {
+      setFormError("Please enter your name (2+ characters).");
+      setPhase("registering");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setFormError("Please enter a valid email address.");
+      setPhase("registering");
+      return;
+    }
+
     try {
-      const res = await fetch("/api/constellation", {
+      // 1. Register user (upsert + set cookies)
+      const regRes = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, phone: phone || undefined }),
+      });
+      if (!regRes.ok) {
+        const d = await regRes.json().catch(() => ({}));
+        throw new Error(d.error ?? "Registration failed");
+      }
+
+      // 2. Create quiz session
+      const sessionRes = await fetch("/api/constellation", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           topic: quiz.topic,
           answers: finalAnswers,
-          name: user.name,
-          email: user.email,
+          name,
+          email,
         }),
       });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? `Request failed (${res.status})`);
+      if (!sessionRes.ok) {
+        const d = await sessionRes.json().catch(() => ({}));
+        throw new Error(d.error ?? `Session creation failed (${sessionRes.status})`);
       }
-      const data = (await res.json()) as { session_id: string };
-      router.push(`/results/${data.session_id}`);
+      const { session_id } = (await sessionRes.json()) as { session_id: string };
+
+      // 3. If preview finished, cache it so ResultsView can pick it up
+      if (previewDataRef.current) {
+        try {
+          sessionStorage.setItem(
+            `selfish_preview_${session_id}`,
+            JSON.stringify(previewDataRef.current)
+          );
+        } catch {
+          // sessionStorage not available — ResultsView will regenerate
+        }
+      }
+
+      // 4. Navigate to results
+      router.push(`/results/${session_id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
       setPhase("error");
@@ -147,12 +240,149 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
     setRemainingMain(nextRemaining);
     resetDraft();
 
+    // All questions answered
     if (nextPending.length === 0 && nextRemaining.length === 0) {
-      void submitConstellation(nextAnswers);
+      if (user) {
+        // Already registered — skip form, submit directly
+        setFormName(user.name);
+        setFormEmail(user.email);
+        startPreviewGeneration(nextAnswers);
+        void submitWithRegistration(nextAnswers);
+      } else {
+        // Show registration form, start generation in parallel
+        startPreviewGeneration(nextAnswers);
+        setPhase("registering");
+      }
     }
   }
 
   // === Render ===
+
+  // Registration phase — form + loading animation
+  if (phase === "registering" || phase === "submitting") {
+    const NODE_COUNT = 7;
+    const RADIUS = 42;
+    const CENTER = 54;
+    const nodes = Array.from({ length: NODE_COUNT }, (_, i) => {
+      const angle = (i * 360) / NODE_COUNT - 90;
+      const rad = (angle * Math.PI) / 180;
+      return {
+        x: CENTER + RADIUS * Math.cos(rad),
+        y: CENTER + RADIUS * Math.sin(rad),
+        delay: (i * 1.8) / NODE_COUNT,
+      };
+    });
+
+    const isSubmitting = phase === "submitting";
+
+    return (
+      <div className="py-12 sm:py-16 min-h-[70vh] flex flex-col items-center">
+        {/* Loading animation */}
+        <h1 className="text-2xl sm:text-3xl font-serif tracking-tight text-center mb-2">
+          Building Your {quiz.topicLabel} Intellectual Map
+        </h1>
+        <p key={statusMsgIdx} className="text-sm text-neutral-500 mb-8 fade-in text-center">
+          {STATUS_MESSAGES[statusMsgIdx]}
+        </p>
+
+        <div
+          className="relative mb-10"
+          style={{ width: CENTER * 2, height: CENTER * 2 }}
+        >
+          {nodes.map((n, i) => (
+            <div
+              key={i}
+              className="absolute rounded-full bg-neutral-400"
+              style={{
+                width: 8,
+                height: 8,
+                left: n.x - 4,
+                top: n.y - 4,
+                animation: `node-pulse 1.8s ease-in-out ${n.delay.toFixed(2)}s infinite`,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Registration form */}
+        <div className="w-full max-w-sm">
+          <p className="text-sm text-neutral-600 text-center mb-6">
+            While we map your thinkers, tell us where to save your results.
+          </p>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              void submitWithRegistration(answers);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-1">
+                Name
+              </label>
+              <input
+                name="name"
+                type="text"
+                required
+                minLength={2}
+                value={formName}
+                onChange={(e) => setFormName(e.target.value)}
+                disabled={isSubmitting}
+                className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900 disabled:opacity-50"
+                placeholder="Your name"
+                autoFocus
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-1">
+                Email
+              </label>
+              <input
+                name="email"
+                type="email"
+                required
+                value={formEmail}
+                onChange={(e) => setFormEmail(e.target.value)}
+                disabled={isSubmitting}
+                className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900 disabled:opacity-50"
+                placeholder="you@example.com"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-1">
+                Phone <span className="text-neutral-400 font-normal">(optional)</span>
+              </label>
+              <input
+                name="phone"
+                type="tel"
+                value={formPhone}
+                onChange={(e) => setFormPhone(e.target.value)}
+                disabled={isSubmitting}
+                className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900 disabled:opacity-50"
+                placeholder="+1 (555) 000-0000"
+              />
+              <p className="text-xs text-neutral-400 mt-1">
+                Get personalized reading recommendations via text.
+              </p>
+            </div>
+
+            {formError && (
+              <div className="text-sm text-red-600">{formError}</div>
+            )}
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full px-6 py-3 bg-neutral-900 text-white rounded-lg font-medium hover:bg-neutral-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? "Saving..." : "See My Results"}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   if (phase === "error") {
     return (
@@ -161,7 +391,10 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
         <p className="text-sm text-red-600 mb-6">{error}</p>
         <button
           type="button"
-          onClick={() => submitConstellation(answers)}
+          onClick={() => {
+            setPhase("registering");
+            setError(null);
+          }}
           className="px-6 py-3 bg-neutral-900 text-white rounded-lg font-medium"
         >
           Try again
@@ -173,14 +406,11 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
   if (!current) return null;
 
   const freeformOnly = isFreeformOnly(current);
-  // The annotation field is shown for freeform-only questions, and for any
-  // multiple-choice question once an option has been selected.
   const showAnnotation = freeformOnly || optionId !== null;
   const canSubmit = freeformOnly
     ? freeformText.trim().length > 0
     : optionId !== null;
 
-  // key forces remount of the textarea on option change → autoFocus fires again
   const textareaKey = freeformOnly
     ? `freeform-${current.id}`
     : `annotation-${current.id}-${optionId ?? "none"}`;
@@ -217,7 +447,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
                 onClick={() => {
                   if (optionId !== opt.id) {
                     setOptionId(opt.id);
-                    setFreeformText(""); // changing selection clears the annotation
+                    setFreeformText("");
                   }
                 }}
                 className={`w-full text-left px-5 py-4 rounded-lg border transition ${

@@ -106,19 +106,38 @@ export default function ResultsView({
 
     async function runPreview() {
       try {
-        const res = await fetch("/api/constellation/preview", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ topic, answers }),
-        });
-        if (!res.ok) {
-          const d = await res.json().catch(() => ({})) as { error?: string };
-          throw new Error(d.error ?? `Preview failed (${res.status})`);
-        }
-        const data = await res.json() as {
+        // Check if QuizRunner cached the preview data in sessionStorage
+        let data: {
           user_insight: UserInsight;
           thinkers: { type: RelationshipType; name: string; tagline: string }[];
-        };
+        } | null = null;
+
+        try {
+          const cached = sessionStorage.getItem(`selfish_preview_${sessionId}`);
+          if (cached) {
+            data = JSON.parse(cached);
+            sessionStorage.removeItem(`selfish_preview_${sessionId}`);
+          }
+        } catch {
+          // sessionStorage not available
+        }
+
+        // If no cached data, fetch from API as before
+        if (!data) {
+          const res = await fetch("/api/constellation/preview", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ topic, answers }),
+          });
+          if (!res.ok) {
+            const d = await res.json().catch(() => ({})) as { error?: string };
+            throw new Error(d.error ?? `Preview failed (${res.status})`);
+          }
+          data = await res.json() as {
+            user_insight: UserInsight;
+            thinkers: { type: RelationshipType; name: string; tagline: string }[];
+          };
+        }
 
         setUserInsight(data.user_insight);
         const initial: Cards = {};

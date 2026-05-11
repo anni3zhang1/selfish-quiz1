@@ -161,6 +161,7 @@ export async function POST(req: Request) {
       model: "claude-sonnet-4-6",
       max_tokens: 4096,
       output_config: {
+        effort: "low",
         format: {
           type: "json_schema",
           schema: previewSchema,

@@ -4,6 +4,7 @@ import { useMemo, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import type { AnswerEntry, AnyQuestion, Question } from "@/lib/types";
 import type { aiGovernanceQuiz } from "@/lib/quizzes/ai-governance";
+import PhoneInput from "@/components/PhoneInput";
 
 type Quiz = typeof aiGovernanceQuiz;
 type User = { email: string; name: string } | null;
@@ -31,6 +32,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
   const [formName, setFormName] = useState(user?.name ?? "");
   const [formEmail, setFormEmail] = useState(user?.email ?? "");
   const [formPhone, setFormPhone] = useState("");
+  const [phoneValid, setPhoneValid] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   // Preview generation state (runs in parallel with registration form)
@@ -116,7 +118,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
 
     const name = formName.trim();
     const email = formEmail.trim().toLowerCase();
-    const phone = formPhone.trim();
+    const phone = formPhone;
 
     if (name.length < 2) {
       setFormError("Please enter your name (2+ characters).");
@@ -128,13 +130,18 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
       setPhase("registering");
       return;
     }
+    if (!phoneValid) {
+      setFormError("Please enter a complete phone number.");
+      setPhase("registering");
+      return;
+    }
 
     try {
       // 1. Register user (upsert + set cookies)
       const regRes = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone: phone || undefined }),
+        body: JSON.stringify({ name, email, phone }),
       });
       if (!regRes.ok) {
         const d = await regRes.json().catch(() => ({}));
@@ -351,19 +358,18 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
             </div>
             <div>
               <label className="block text-sm font-medium text-neutral-700 mb-1">
-                Phone <span className="text-neutral-400 font-normal">(optional)</span>
+                Phone
               </label>
-              <input
-                name="phone"
-                type="tel"
+              <PhoneInput
                 value={formPhone}
-                onChange={(e) => setFormPhone(e.target.value)}
+                onChange={(full, valid) => {
+                  setFormPhone(full);
+                  setPhoneValid(valid);
+                }}
                 disabled={isSubmitting}
-                className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900 disabled:opacity-50"
-                placeholder="+1 (555) 000-0000"
               />
-              <p className="text-xs text-neutral-400 mt-1">
-                Get personalized reading recommendations via text.
+              <p className="text-xs text-neutral-400 mt-1.5">
+                We&rsquo;ll text you personalized reading recommendations.
               </p>
             </div>
 

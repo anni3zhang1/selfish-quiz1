@@ -114,7 +114,7 @@ export async function POST(req: Request) {
             direction: "outbound",
             body: composed.body,
             intensity: composed.intensity,
-            content_id: composed.content_id,
+            content_id: null,
           });
 
           console.log(`Follow-up sent to ${userEmail} after welcome choice (SID: ${sms.sid})`);

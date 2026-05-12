@@ -137,7 +137,7 @@ export async function GET(req: Request) {
         direction: "outbound",
         body: composed.body,
         intensity: composed.intensity,
-        content_id: composed.content_id,
+        content_id: null,
       });
 
       console.log(`Sent ${composed.intensity} message to ${user.email} (SID: ${sms.sid})`);

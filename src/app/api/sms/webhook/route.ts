@@ -123,10 +123,31 @@ export async function POST(req: Request) {
           console.error("Welcome follow-up failed:", err);
         });
     } else {
-      // Regular reply — just update the fingerprint
-      synthesizeMemory(userEmail, "sms_reply").catch((err) => {
-        console.error("Memory patch from SMS reply failed:", err);
-      });
+      // Regular reply — update fingerprint, then respond immediately
+      synthesizeMemory(userEmail, "sms_reply")
+        .then(async () => {
+          const composed = await composeMessage(userEmail);
+          const twilioClient = getTwilioClient();
+          const sms = await twilioClient.messages.create({
+            to: from!,
+            from: getTwilioPhone(),
+            body: composed.body,
+          });
+
+          await supabase.from("messages").insert({
+            user_email: userEmail,
+            phone: from,
+            direction: "outbound",
+            body: composed.body,
+            intensity: composed.intensity,
+            content_id: null,
+          });
+
+          console.log(`Reply sent to ${userEmail} (${composed.intensity}, SID: ${sms.sid})`);
+        })
+        .catch((err) => {
+          console.error("Reply compose/send failed:", err);
+        });
     }
   }
 

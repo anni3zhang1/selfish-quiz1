@@ -35,7 +35,6 @@ async function main() {
     const msg = await composeMessage(email);
     console.timeEnd(`  compose`);
     console.log(`  Intensity: ${msg.intensity}`);
-    console.log(`  Content ID: ${msg.content_id ?? "(none)"}`);
     console.log(`  Body: "${msg.body}"`);
     console.log(`  Reasoning: ${msg.reasoning}`);
     console.log();

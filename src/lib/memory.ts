@@ -78,6 +78,31 @@ const fingerprintSchema = {
       enum: ["new", "warming_up", "active", "deep"],
     },
     rapport_level: { type: "number" },
+    position_drift: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          topic: { type: "string" },
+          from: { type: "string" },
+          to: { type: "string" },
+          signal: { type: "string" },
+        },
+        required: ["topic", "from", "to", "signal"],
+        additionalProperties: false,
+      },
+    },
+    curiosity_trajectory: { type: "string" },
+    engagement_pattern: {
+      type: "object",
+      properties: {
+        responds_to: { type: "string" },
+        goes_quiet_on: { type: "string" },
+        reply_style: { type: "string" },
+      },
+      required: ["responds_to", "goes_quiet_on", "reply_style"],
+      additionalProperties: false,
+    },
   },
   required: [
     "core_identity",
@@ -88,6 +113,9 @@ const fingerprintSchema = {
     "topics_engaged",
     "conversation_stage",
     "rapport_level",
+    "position_drift",
+    "curiosity_trajectory",
+    "engagement_pattern",
   ],
   additionalProperties: false,
 } as const;
@@ -151,7 +179,21 @@ rapport_level: 0-10 integer. Based on:
 - Number of quizzes completed (each adds ~1-2)
 - Whether they provided freeform answers (shows investment)
 - SMS reply depth and frequency (if available)
-- Start at 1-2 for a first quiz, max 3-4 with no SMS history yet.`;
+- Start at 1-2 for a first quiz, max 3-4 with no SMS history yet.
+
+position_drift: Track views that have SHIFTED over time — across quizzes or through conversation. Only populate when there's real evidence of change, not just nuance. If someone said X about markets on quiz 1 and seems softer on regulation by quiz 3, that's drift. The composer uses this to say "you've been more sympathetic to regulation lately — what shifted?" which makes people feel deeply seen.
+- Empty array is fine for first quiz or if no drift detected
+- Each entry needs: topic (what domain), from (old position), to (new direction), signal (what evidence)
+- Don't force drift that isn't there. Real drift is valuable; manufactured drift is annoying.
+
+curiosity_trajectory: A 1-2 sentence narrative of WHERE THEIR INTERESTS ARE MOVING, not just where they are. What direction is the person headed intellectually? If their first quizzes were political but their replies keep gravitating toward philosophy of mind, name that movement. The trajectory often reveals what someone actually wants to think about more than their explicit quiz choices do. If not enough data yet, say so briefly — "Too early to identify a trajectory, only one quiz completed."
+
+engagement_pattern: What MESSAGE FORMATS work for this specific person, learned from their reply behavior. This shapes HOW the composer talks to them.
+- responds_to: what kinds of messages get replies (e.g. "quick questions and surprising facts — anything he can fire back a one-liner to")
+- goes_quiet_on: what kinds of messages get ignored (e.g. "long explanations or messages that feel like they need a thoughtful paragraph in response")
+- reply_style: how they tend to reply (e.g. "short and punchy, usually a counterpoint or a question back")
+- For first quiz with no SMS history: make reasonable guesses based on their quiz engagement style, but flag them as inferred. e.g. "No SMS data yet — inferring from quiz style: likely responds to direct challenges"
+- Update aggressively as real SMS data comes in — observed behavior > inferred behavior.`;
 
 const PATCH_PROMPT = `You are updating an existing intellectual fingerprint based on a new SMS reply from the user. You have the current fingerprint and the recent conversation.
 
@@ -162,8 +204,13 @@ Produce an UPDATED fingerprint — same shape, evolved based on the new signal. 
 - Should conversation_stage or rapport_level change?
 - Did the reply reveal something about engagement_style?
 - Did they mention or react to a thinker in a way that updates thinker_map?
+- POSITION DRIFT: Did this reply show a shift from something they said before? If they used to defend X and now they're softening, add it to position_drift. Don't force it — only real movement.
+- CURIOSITY TRAJECTORY: Does this reply change the direction they're heading? Update the narrative if so.
+- ENGAGEMENT PATTERN: This is where SMS data matters most. Did they reply to a question? Ignore a provocation? Fire back a one-liner or write a paragraph? Update responds_to, goes_quiet_on, and reply_style based on what you're actually seeing. Observed behavior always overrides inferred guesses from the quiz.
 
-Be conservative. A short reply ("haha yeah good point") bumps rapport slightly but doesn't restructure the fingerprint. A substantive reply ("actually I've been thinking about this and I think Singer is wrong because...") might shift curiosity_edges and add nuance to unresolved_questions.
+Be conservative on most fields. A short reply ("haha yeah good point") bumps rapport slightly but doesn't restructure the fingerprint. A substantive reply ("actually I've been thinking about this and I think Singer is wrong because...") might shift curiosity_edges and add nuance to unresolved_questions.
+
+But be AGGRESSIVE on engagement_pattern — every reply is real data about what works for this person.
 
 VOICE: Keep everything in the warm, conversational register — like a friend's notes about another friend, not a clinical assessment. The curiosity_edges and unresolved_questions especially should read like things you'd actually say to someone, not academic observations.`;
 

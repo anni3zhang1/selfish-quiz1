@@ -154,6 +154,19 @@ export type EngagementStyle = {
   notes: string; // any other observations about how they engage
 };
 
+export type PositionShift = {
+  topic: string; // which domain the shift occurred in
+  from: string; // what they used to think/say
+  to: string; // where they seem to be moving
+  signal: string; // what evidence triggered noticing this
+};
+
+export type EngagementPattern = {
+  responds_to: string; // what message types get replies (e.g. "quick questions", "thinker references", "provocations")
+  goes_quiet_on: string; // what message types get ignored
+  reply_style: string; // how they tend to reply (e.g. "short and punchy", "long and thoughtful", "questions back")
+};
+
 export type Fingerprint = {
   core_identity: string; // 2-3 sentence intellectual DNA statement
   thinker_map: ThinkerAppearance[];
@@ -163,6 +176,10 @@ export type Fingerprint = {
   topics_engaged: string[]; // quiz topics completed
   conversation_stage: ConversationStage;
   rapport_level: number; // 0-10, derived from engagement signals
+  // Adaptive learning dimensions — evolve over time
+  position_drift: PositionShift[]; // views that have shifted across quizzes or conversations
+  curiosity_trajectory: string; // narrative of where their interests are *moving* (not just where they are)
+  engagement_pattern: EngagementPattern; // what message formats work for this person
 };
 
 export type SynthesisTrigger = "quiz_completion" | "sms_reply";

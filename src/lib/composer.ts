@@ -197,9 +197,19 @@ function formatHistoryForLLM(messages: MessageRow[]): string {
     .join("\n");
 }
 
+// ─── Types for re-engagement context ────────────────────────────────
+
+export type ComposeOptions = {
+  suggestedIntensity?: MessageIntensity | null;
+  consecutiveUnanswered?: number;
+};
+
 // ─── Core composer function ──────────────────────────────────────────
 
-export async function composeMessage(email: string): Promise<ComposedMessage> {
+export async function composeMessage(
+  email: string,
+  options: ComposeOptions = {},
+): Promise<ComposedMessage> {
   const [fingerprint, messages] = await Promise.all([
     fetchFingerprint(email),
     fetchMessageHistory(email),
@@ -209,11 +219,31 @@ export async function composeMessage(email: string): Promise<ComposedMessage> {
     throw new Error(`No fingerprint found for ${email} — has the user completed a quiz?`);
   }
 
+  // Build re-engagement context if the user has been quiet
+  let reengagementHint = "";
+  const { suggestedIntensity, consecutiveUnanswered = 0 } = options;
+
+  if (consecutiveUnanswered > 0) {
+    reengagementHint = `\n\nRE-ENGAGEMENT CONTEXT:
+This user has not replied to the last ${consecutiveUnanswered} message(s). They've gone quiet.
+${consecutiveUnanswered === 1
+  ? "This is the first re-engagement attempt. Go AMBIENT — light presence, no pressure. Something warm, curious, easy to ignore or reply to. Don't reference their silence."
+  : consecutiveUnanswered === 2
+  ? "Second attempt. CHANGE THE ANGLE — try a completely different topic or approach than the last two messages. Go LIGHT. Make it feel like a fresh thread, not a follow-up to something they ignored."
+  : consecutiveUnanswered === 3
+  ? "Third attempt. Send a GIFT — something genuinely surprising or delightful with zero expectation of reply. A fascinating fact, a beautiful idea, a moment of intellectual wonder. AMBIENT intensity."
+  : consecutiveUnanswered === 4
+  ? "Fourth attempt. Gently check in on whether they still want to hear from you. Keep it warm and no-pressure — something like 'Hey, no worries if life got busy. Want me to keep sending you things to think about, or should I give you space?' Make it easy to say yes or no. AMBIENT intensity."
+  : "This user has been quiet for a long time. MONTHLY ambient check-in. Keep it warm, brief, zero pressure. You're a friend who's always there when they're ready, not one who tracks read receipts."}
+${suggestedIntensity ? `Suggested intensity: ${suggestedIntensity}` : ""}
+CRITICAL: Never guilt them. Never say "haven't heard from you" or "did you see my last message." Never reference their silence directly.`;
+  }
+
   const userContent = `USER FINGERPRINT:
 ${JSON.stringify(fingerprint, null, 2)}
 
 MESSAGE HISTORY:
-${formatHistoryForLLM(messages)}
+${formatHistoryForLLM(messages)}${reengagementHint}
 
 Compose the next SMS for this user.`;
 

@@ -3,11 +3,13 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { setServerUser, isValidEmail } from "@/lib/user";
 import { SubmitButton } from "./SubmitButton";
+import { PhoneField } from "./PhoneField";
 
 async function submitIdentity(formData: FormData) {
   "use server";
   const rawName = (formData.get("name") as string | null)?.trim() ?? "";
   const rawEmail = (formData.get("email") as string | null)?.trim().toLowerCase() ?? "";
+  const rawPhone = (formData.get("phone") as string | null)?.trim() || null;
 
   if (rawName.length < 2 || !isValidEmail(rawEmail)) {
     redirect("/start?error=invalid");
@@ -15,7 +17,10 @@ async function submitIdentity(formData: FormData) {
 
   const { error } = await supabase
     .from("users")
-    .upsert({ email: rawEmail, name: rawName }, { onConflict: "email" });
+    .upsert(
+      { email: rawEmail, name: rawName, ...(rawPhone ? { phone: rawPhone } : {}) },
+      { onConflict: "email" }
+    );
 
   if (error) {
     console.error("upsert user failed:", error);
@@ -67,6 +72,8 @@ export default async function StartPage({
             placeholder="you@example.com"
           />
         </div>
+
+        <PhoneField />
 
         {error === "invalid" && (
           <div className="text-sm text-red-600">

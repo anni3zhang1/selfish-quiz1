@@ -124,3 +124,54 @@ export type ThinkerProfileData = {
   questions_worth_sitting_with: ThinkerQuestion[];
   who_they_impact: ThinkerImpact[];
 };
+
+// === Memory synthesis — intellectual fingerprint ===
+
+export type ThinkerAppearance = {
+  name: string;
+  relationship_types: RelationshipType[];
+  topics: string[];
+  significance: string; // why this recurrence matters
+};
+
+export type CuriosityEdge = {
+  domain: string; // the intellectual territory (e.g. "behavioral economics", "philosophy of mind")
+  signal: string; // what from their quizzes/replies suggests this
+  entry_angle: string; // how to frame it through their identity
+};
+
+export type UnresolvedQuestion = {
+  question: string; // the tension, phrased as a question
+  evidence: string; // what they said that surfaces this
+  why_it_matters: string; // why sitting with this is productive
+};
+
+export type ConversationStage = "new" | "warming_up" | "active" | "deep";
+
+export type EngagementStyle = {
+  reasoning_mode: string; // e.g. "first principles", "example-driven", "emotion-led", "authority-referencing"
+  framing_preference: string; // what kind of framing lands — e.g. "challenge me" vs "show me a case study"
+  notes: string; // any other observations about how they engage
+};
+
+export type Fingerprint = {
+  core_identity: string; // 2-3 sentence intellectual DNA statement
+  thinker_map: ThinkerAppearance[];
+  curiosity_edges: CuriosityEdge[];
+  unresolved_questions: UnresolvedQuestion[];
+  engagement_style: EngagementStyle;
+  topics_engaged: string[]; // quiz topics completed
+  conversation_stage: ConversationStage;
+  rapport_level: number; // 0-10, derived from engagement signals
+};
+
+export type SynthesisTrigger = "quiz_completion" | "sms_reply";
+
+export type UserMemoryRow = {
+  id: string;
+  email: string;
+  fingerprint: Fingerprint;
+  sessions_analyzed: number;
+  created_at: string;
+  updated_at: string;
+};

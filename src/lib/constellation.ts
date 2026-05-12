@@ -4,9 +4,9 @@ import { anthropic, MODEL } from "./anthropic";
 const cardSchema = {
   type: "object",
   properties: {
-    name: { type: "string" },
-    tagline: { type: "string" },
-    match_reason: { type: "string" },
+    name: { type: "string", minLength: 1 },
+    tagline: { type: "string", minLength: 1 },
+    match_reason: { type: "string", minLength: 10 },
   },
   required: ["name", "tagline", "match_reason"],
   additionalProperties: false,
@@ -102,7 +102,7 @@ export async function generateConstellation(
 
   const stream = anthropic.messages.stream({
     model: MODEL,
-    max_tokens: 16000,
+    max_tokens: 32000,
     thinking: { type: "adaptive" },
     output_config: {
       effort: "high",

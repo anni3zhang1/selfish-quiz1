@@ -24,6 +24,7 @@ create table if not exists messages (
   direction text not null check (direction in ('inbound', 'outbound')),
   body text not null,
   content_id uuid,
+  intensity text check (intensity in ('light', 'medium', 'deep')),
   created_at timestamptz default now()
 );
 

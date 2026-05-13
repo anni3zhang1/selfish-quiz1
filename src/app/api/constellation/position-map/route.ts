@@ -18,20 +18,12 @@ const positionMapSchema = {
     axes: {
       type: "object",
       properties: {
-        x: {
-          type: "array",
-          items: { type: "string" },
-          minItems: 2,
-          maxItems: 2,
-        },
-        y: {
-          type: "array",
-          items: { type: "string" },
-          minItems: 2,
-          maxItems: 2,
-        },
+        x_left: { type: "string" },
+        x_right: { type: "string" },
+        y_top: { type: "string" },
+        y_bottom: { type: "string" },
       },
-      required: ["x", "y"],
+      required: ["x_left", "x_right", "y_top", "y_bottom"],
       additionalProperties: false,
     },
     quadrants: {
@@ -45,19 +37,10 @@ const positionMapSchema = {
       required: ["top_left", "top_right", "bottom_left", "bottom_right"],
       additionalProperties: false,
     },
-    user: {
-      type: "object",
-      properties: {
-        x: { type: "number" },
-        y: { type: "number" },
-      },
-      required: ["x", "y"],
-      additionalProperties: false,
-    },
+    user_x: { type: "number" },
+    user_y: { type: "number" },
     thinkers: {
       type: "array",
-      minItems: 7,
-      maxItems: 7,
       items: {
         type: "object",
         properties: {
@@ -70,7 +53,7 @@ const positionMapSchema = {
       },
     },
   },
-  required: ["axes", "quadrants", "user", "thinkers"],
+  required: ["axes", "quadrants", "user_x", "user_y", "thinkers"],
   additionalProperties: false,
 } as const;
 
@@ -82,9 +65,14 @@ Your job:
 3. Place the user at specific x,y coordinates (0-100) based on their quiz answers.
 4. Place each of the 7 provided thinkers at x,y coordinates based on their known intellectual positions.
 
+Output format:
+- axes: x_left and x_right are the two ends of the horizontal axis. y_top and y_bottom are the two ends of the vertical axis.
+- user_x and user_y: the user's position (0-100)
+- thinkers: array of 7 objects with name, x, y
+
 Coordinate system:
-- x: 0 = far left of axis (first label), 100 = far right (second label)
-- y: 0 = top of axis (first label), 100 = bottom (second label)
+- x: 0 = far left (x_left label), 100 = far right (x_right label)
+- y: 0 = top (y_top label), 100 = bottom (y_bottom label)
 - So top-left quadrant = low x, low y; bottom-right = high x, high y
 
 Rules:
@@ -135,9 +123,26 @@ export async function POST(req: Request) {
       throw new Error("Model returned no text content");
     }
 
-    const parsed = JSON.parse(textBlock.text) as PositionMapData;
+    const raw = JSON.parse(textBlock.text) as {
+      axes: { x_left: string; x_right: string; y_top: string; y_bottom: string };
+      quadrants: { top_left: string; top_right: string; bottom_left: string; bottom_right: string };
+      user_x: number;
+      user_y: number;
+      thinkers: { name: string; x: number; y: number }[];
+    };
 
-    return NextResponse.json(parsed);
+    // Reshape to PositionMapData
+    const result: PositionMapData = {
+      axes: {
+        x: [raw.axes.x_left, raw.axes.x_right],
+        y: [raw.axes.y_top, raw.axes.y_bottom],
+      },
+      quadrants: raw.quadrants,
+      user: { x: raw.user_x, y: raw.user_y },
+      thinkers: raw.thinkers,
+    };
+
+    return NextResponse.json(result);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error("[position-map] Generation failed:", msg);

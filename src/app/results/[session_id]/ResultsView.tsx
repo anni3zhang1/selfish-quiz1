@@ -3,10 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import type { AnswerEntry, Constellation, ConstellationCard, RelationshipType, UserInsight } from "@/lib/types";
+import type { AnswerEntry, Constellation, ConstellationCard, PositionMapData, RelationshipType, UserInsight } from "@/lib/types";
 import { RELATIONSHIPS, getRelationship } from "@/lib/relationships";
 import { slugify } from "@/lib/thinkers";
 import ThinkerModal from "./ThinkerModal";
+import PositionMap from "./PositionMap";
 
 
 type PartialCard = {
@@ -75,6 +76,11 @@ export default function ResultsView({
   const [detailLoading, setDetailLoading] = useState<Set<RelationshipType>>(new Set());
   const [previewError, setPreviewError] = useState<string | null>(null);
 
+  const [positionMap, setPositionMap] = useState<PositionMapData | null>(
+    isPreloaded ? (constellation.position_map ?? null) : null
+  );
+  const positionMapStartedRef = useRef(false);
+
   const [modalType, setModalType] = useState<RelationshipType | null>(null);
   const [pendingModal, setPendingModal] = useState<RelationshipType | null>(null);
 
@@ -109,6 +115,7 @@ export default function ResultsView({
   const generationStartedRef = useRef(false);
   const preGenTriggeredRef = useRef(false);
   const cardsRef = useRef<HTMLDivElement>(null);
+  const positionMapRef = useRef<HTMLDivElement>(null);
 
   // Progressive loading — only fires for new (in_progress) sessions
   useEffect(() => {
@@ -155,6 +162,35 @@ export default function ResultsView({
         }
         setCards(initial);
         setPhase("detail");
+
+        // Fire position map generation in parallel (non-blocking)
+        if (!positionMapStartedRef.current) {
+          positionMapStartedRef.current = true;
+          fetch("/api/constellation/position-map", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              topic,
+              answers,
+              thinkers: data.thinkers.map((t) => t.name),
+            }),
+          })
+            .then(async (res) => {
+              if (!res.ok) throw new Error(`Position map failed (${res.status})`);
+              const pmData = (await res.json()) as PositionMapData;
+              setPositionMap(pmData);
+              // Patch position_map into saved constellation
+              fetch("/api/constellation/save", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  session_id: sessionId,
+                  patch: { position_map: pmData },
+                }),
+              }).catch((err) => console.error("Position map save failed:", err));
+            })
+            .catch((err) => console.error("Position map generation failed:", err));
+        }
 
         // Fire all 7 detail calls in parallel
         const loadingSet = new Set(data.thinkers.map((t) => t.type));
@@ -563,12 +599,12 @@ export default function ResultsView({
       </section>
 
       {/* ── Snap section 2: Intellectual Map ────────────────────────── */}
-      <div
+      <section
         ref={cardsRef}
-        className="min-h-screen [scroll-snap-align:start] px-6 pt-12 sm:pt-16 pb-16"
+        className="min-h-screen [scroll-snap-align:start] relative flex flex-col px-6 pt-12 sm:pt-16"
         style={{ scrollSnapAlign: "start" }}
       >
-        <div className="mx-auto w-full max-w-lg">
+        <div className="mx-auto w-full max-w-lg flex-1">
         <div className="mb-8 text-center">
           <h2 className="text-2xl sm:text-3xl font-serif tracking-tight leading-tight mb-2">
             Your Intellectual Map
@@ -659,8 +695,58 @@ export default function ResultsView({
           <div className="mt-6" />
         )}
 
-        </div>{/* end max-w-lg */}
-      </div>{/* end snap section 2 */}
+        </div>{/* end max-w-lg flex-1 */}
+
+        {/* Bounce chevron — scroll to position map */}
+        <button
+          type="button"
+          aria-label="Scroll to your position map"
+          onClick={() => positionMapRef.current?.scrollIntoView({ behavior: "smooth" })}
+          className="flex justify-center items-center w-full pt-4 pb-3 opacity-40 hover:opacity-70 cursor-pointer transition-opacity"
+        >
+          <svg
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            className="animate-bounce"
+          >
+            <path
+              d="M6 9l6 6 6-6"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      </section>{/* end snap section 2 */}
+
+      {/* ── Snap section 3: Position Map ────────────────────────────── */}
+      <section
+        ref={positionMapRef}
+        className="min-h-screen [scroll-snap-align:start] relative flex flex-col items-center justify-center px-6 py-12 sm:py-16"
+        style={{ scrollSnapAlign: "start" }}
+      >
+        {positionMap ? (
+          <PositionMap
+            data={positionMap}
+            topicLabel={topicLabel}
+            thumbnails={
+              Object.fromEntries(
+                Object.values(cards)
+                  .filter((c): c is PartialCard => !!c?.thumbnail_url && !!c?.name)
+                  .map((c) => [c.name, c.thumbnail_url!])
+              )
+            }
+          />
+        ) : (
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-8 h-8 border-2 border-neutral-300 border-t-neutral-600 rounded-full animate-spin" />
+            <p className="text-sm text-neutral-500">Building your position map...</p>
+          </div>
+        )}
+      </section>{/* end snap section 3 */}
 
       {/* ── Non-snap: email status + footer ─────────────────────────── */}
       <div className="px-6 pb-12">

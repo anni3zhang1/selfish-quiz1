@@ -115,3 +115,12 @@ body {
 .annotation-slide-in {
   animation: annotation-slide-in 250ms ease-out;
 }
+
+/* Position map — "You" pulse ring */
+@keyframes position-map-pulse {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+.position-map-pulse-ring {
+  animation: position-map-pulse 2.5s ease-out infinite;
+}

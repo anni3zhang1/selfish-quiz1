@@ -76,10 +76,37 @@ export type UserInsight = {
   real_world_examples: RealWorldExample[];
 };
 
+// === Position Map (cartesian plane visualization) ===
+
+export type PositionMapPoint = {
+  x: number; // 0-100, percentage from left
+  y: number; // 0-100, percentage from top
+};
+
+export type PositionMapThinker = PositionMapPoint & {
+  name: string;
+};
+
+export type PositionMapData = {
+  axes: {
+    x: [string, string]; // [left label, right label]
+    y: [string, string]; // [top label, bottom label]
+  };
+  quadrants: {
+    top_left: string;
+    top_right: string;
+    bottom_left: string;
+    bottom_right: string;
+  };
+  user: PositionMapPoint;
+  thinkers: PositionMapThinker[];
+};
+
 // user_insight is stored alongside the 7 thinker cards inside the constellation JSONB.
 // Old sessions won't have it (fall back to profile_summary column).
 export type Constellation = Record<RelationshipType, ConstellationCard> & {
   user_insight?: UserInsight;
+  position_map?: PositionMapData;
 };
 
 export type ConstellationResponse = {

@@ -47,21 +47,21 @@ export default function PositionMap({
   thumbnails?: Record<string, string>;
 }) {
   return (
-    <div style={{ maxWidth: 480, margin: "0 auto", background: "white", border: "0.5px solid rgba(0,0,0,0.1)", borderRadius: "12px", overflow: "hidden" }}>
+    <div style={{ maxWidth: 560, width: "100%", margin: "0 auto", background: "white", border: "0.5px solid rgba(0,0,0,0.1)", borderRadius: "12px", overflow: "hidden" }}>
 
       {/* Header */}
-      <div style={{ padding: "1.25rem 1.25rem 0.5rem" }}>
-        <p style={{ fontFamily: "var(--font-space-grotesk), 'Space Grotesk', sans-serif", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.12em", color: "#a3a3a3", margin: "0 0 4px", fontWeight: 500 }}>
+      <div style={{ padding: "1.5rem 1.5rem 0.75rem" }}>
+        <p style={{ fontFamily: "var(--font-space-grotesk), 'Space Grotesk', sans-serif", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", color: "#a3a3a3", margin: "0 0 6px", fontWeight: 500 }}>
           Your position map
         </p>
-        <p style={{ fontFamily: "var(--font-dm-serif), 'DM Serif Display', serif", fontSize: 18, color: "#171717", margin: 0, fontWeight: 400 }}>
+        <p style={{ fontFamily: "var(--font-dm-serif), 'DM Serif Display', serif", fontSize: 22, color: "#171717", margin: 0, fontWeight: 400 }}>
           {topicLabel}
         </p>
       </div>
 
       {/* Map */}
-      <div style={{ padding: "0 0.75rem 0.75rem", position: "relative" }}>
-        <div style={{ position: "relative", width: "100%", paddingTop: 28, paddingBottom: 28, paddingLeft: 4, paddingRight: 4 }}>
+      <div style={{ padding: "0 1rem 1rem", position: "relative" }}>
+        <div style={{ position: "relative", width: "100%", paddingTop: 32, paddingBottom: 32, paddingLeft: 4, paddingRight: 4 }}>
 
           {/* Y-axis top label */}
           <div style={{ textAlign: "center", marginBottom: 6 }}>
@@ -75,7 +75,7 @@ export default function PositionMap({
 
             {/* Quadrant backgrounds */}
             <div style={{ position: "absolute", top: 0, left: 0, right: "50%", bottom: "50%", background: QUADRANT_COLORS.top_left.bg, borderRadius: "12px 0 0 0", display: "flex", alignItems: "flex-start", justifyContent: "flex-start", padding: 14 }}>
-              <span style={{ fontFamily: "var(--font-dm-serif), 'DM Serif Display', serif", fontSize: 15, color: QUADRANT_COLORS.top_left.text, lineHeight: 1.2, fontWeight: 400, textTransform: "uppercase", letterSpacing: "0.02em" }}>
+              <span style={{ fontFamily: "var(--font-dm-serif), 'DM Serif Display', serif", fontSize: 17, color: QUADRANT_COLORS.top_left.text, lineHeight: 1.2, fontWeight: 400, textTransform: "uppercase", letterSpacing: "0.02em" }}>
                 {data.quadrants.top_left.split(/\s+/).reduce<string[][]>((acc, word) => {
                   const last = acc[acc.length - 1];
                   if (last && last.join(" ").length + word.length < 14) {
@@ -90,7 +90,7 @@ export default function PositionMap({
               </span>
             </div>
             <div style={{ position: "absolute", top: 0, left: "50%", right: 0, bottom: "50%", background: QUADRANT_COLORS.top_right.bg, borderRadius: "0 12px 0 0", display: "flex", alignItems: "flex-start", justifyContent: "flex-end", padding: 14 }}>
-              <span style={{ fontFamily: "var(--font-dm-serif), 'DM Serif Display', serif", fontSize: 15, color: QUADRANT_COLORS.top_right.text, textAlign: "right", lineHeight: 1.2, fontWeight: 400, textTransform: "uppercase", letterSpacing: "0.02em" }}>
+              <span style={{ fontFamily: "var(--font-dm-serif), 'DM Serif Display', serif", fontSize: 17, color: QUADRANT_COLORS.top_right.text, textAlign: "right", lineHeight: 1.2, fontWeight: 400, textTransform: "uppercase", letterSpacing: "0.02em" }}>
                 {data.quadrants.top_right.split(/\s+/).reduce<string[][]>((acc, word) => {
                   const last = acc[acc.length - 1];
                   if (last && last.join(" ").length + word.length < 14) {
@@ -105,7 +105,7 @@ export default function PositionMap({
               </span>
             </div>
             <div style={{ position: "absolute", top: "50%", left: 0, right: "50%", bottom: 0, background: QUADRANT_COLORS.bottom_left.bg, borderRadius: "0 0 0 12px", display: "flex", alignItems: "flex-end", justifyContent: "flex-start", padding: 14 }}>
-              <span style={{ fontFamily: "var(--font-dm-serif), 'DM Serif Display', serif", fontSize: 15, color: QUADRANT_COLORS.bottom_left.text, lineHeight: 1.2, fontWeight: 400, textTransform: "uppercase", letterSpacing: "0.02em" }}>
+              <span style={{ fontFamily: "var(--font-dm-serif), 'DM Serif Display', serif", fontSize: 17, color: QUADRANT_COLORS.bottom_left.text, lineHeight: 1.2, fontWeight: 400, textTransform: "uppercase", letterSpacing: "0.02em" }}>
                 {data.quadrants.bottom_left.split(/\s+/).reduce<string[][]>((acc, word) => {
                   const last = acc[acc.length - 1];
                   if (last && last.join(" ").length + word.length < 14) {
@@ -120,7 +120,7 @@ export default function PositionMap({
               </span>
             </div>
             <div style={{ position: "absolute", top: "50%", left: "50%", right: 0, bottom: 0, background: QUADRANT_COLORS.bottom_right.bg, borderRadius: "0 0 12px 0", display: "flex", alignItems: "flex-end", justifyContent: "flex-end", padding: 14 }}>
-              <span style={{ fontFamily: "var(--font-dm-serif), 'DM Serif Display', serif", fontSize: 15, color: QUADRANT_COLORS.bottom_right.text, textAlign: "right", lineHeight: 1.2, fontWeight: 400, textTransform: "uppercase", letterSpacing: "0.02em" }}>
+              <span style={{ fontFamily: "var(--font-dm-serif), 'DM Serif Display', serif", fontSize: 17, color: QUADRANT_COLORS.bottom_right.text, textAlign: "right", lineHeight: 1.2, fontWeight: 400, textTransform: "uppercase", letterSpacing: "0.02em" }}>
                 {data.quadrants.bottom_right.split(/\s+/).reduce<string[][]>((acc, word) => {
                   const last = acc[acc.length - 1];
                   if (last && last.join(" ").length + word.length < 14) {
@@ -175,8 +175,8 @@ export default function PositionMap({
                   }}
                 >
                   <div style={{
-                    width: 40,
-                    height: 40,
+                    width: 46,
+                    height: 46,
                     borderRadius: "50%",
                     background: thumb ? undefined : circleColor,
                     border: "2.5px solid white",
@@ -191,10 +191,10 @@ export default function PositionMap({
                       <Image
                         src={thumb}
                         alt={t.name}
-                        width={40}
-                        height={40}
+                        width={46}
+                        height={46}
                         className="object-cover"
-                        style={{ width: 40, height: 40 }}
+                        style={{ width: 46, height: 46 }}
                       />
                     ) : (
                       <span style={{ fontFamily: "var(--font-space-grotesk), 'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, color: "white" }}>
@@ -202,7 +202,7 @@ export default function PositionMap({
                       </span>
                     )}
                   </div>
-                  <span style={{ fontFamily: "var(--font-space-grotesk), 'Space Grotesk', sans-serif", fontSize: 9.5, fontWeight: 600, color: textColor, whiteSpace: "nowrap" }}>
+                  <span style={{ fontFamily: "var(--font-space-grotesk), 'Space Grotesk', sans-serif", fontSize: 11, fontWeight: 600, color: textColor, whiteSpace: "nowrap" }}>
                     {t.name}
                   </span>
                 </div>
@@ -218,7 +218,7 @@ export default function PositionMap({
               zIndex: 10,
               textAlign: "center",
             }}>
-              <div style={{ position: "relative", width: 54, height: 54, margin: "0 auto" }}>
+              <div style={{ position: "relative", width: 60, height: 60, margin: "0 auto" }}>
                 <div
                   className="position-map-pulse-ring"
                   style={{

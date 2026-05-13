@@ -576,6 +576,9 @@ export default function ResultsView({
           <p className="text-base text-neutral-600 leading-relaxed">
             The thinkers who share your logic, challenge your assumptions, and push where you&rsquo;re headed.
           </p>
+          <p className="text-xs text-neutral-400 mt-2">
+            Tap any thinker to explore the match.
+          </p>
         </div>
 
         {/* 3-3-1 grid */}
@@ -653,9 +656,7 @@ export default function ResultsView({
 
         {/* All flipped summary */}
         {flippedCards.size === GRID_ORDER.length && phase === "complete" && (
-          <p className="text-center text-sm text-neutral-500 mt-6 fade-in">
-            Tap any thinker to explore the match.
-          </p>
+          <div className="mt-6" />
         )}
 
         </div>{/* end max-w-lg */}

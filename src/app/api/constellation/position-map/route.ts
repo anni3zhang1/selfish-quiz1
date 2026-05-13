@@ -119,6 +119,7 @@ export async function POST(req: Request) {
       model: "claude-sonnet-4-6",
       max_tokens: 2048,
       output_config: {
+        effort: "low",
         format: {
           type: "json_schema",
           schema: positionMapSchema,
@@ -138,9 +139,13 @@ export async function POST(req: Request) {
 
     return NextResponse.json(parsed);
   } catch (err) {
-    console.error("Position map generation failed:", err);
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[position-map] Generation failed:", msg);
+    if (err instanceof Error && err.stack) {
+      console.error("[position-map] Stack:", err.stack);
+    }
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Position map generation failed" },
+      { error: msg },
       { status: 500 }
     );
   }

@@ -13,7 +13,7 @@ export type RelationshipMeta = {
 export const RELATIONSHIPS: RelationshipMeta[] = [
   {
     key: "mirror",
-    label: "Mirror",
+    label: "Your Mirror",
     emoji: "🪞",
     oneLine: "Thinks like you",
     hex: "#9CA3AF",
@@ -22,7 +22,7 @@ export const RELATIONSHIPS: RelationshipMeta[] = [
   },
   {
     key: "complement",
-    label: "Complement",
+    label: "Your Complement",
     emoji: "🧩",
     oneLine: "Fills your gaps",
     hex: "#0D9488",
@@ -31,7 +31,7 @@ export const RELATIONSHIPS: RelationshipMeta[] = [
   },
   {
     key: "precursor",
-    label: "Precursor",
+    label: "Your Precursor",
     emoji: "🌱",
     oneLine: "Built your foundation",
     hex: "#92400E",
@@ -40,7 +40,7 @@ export const RELATIONSHIPS: RelationshipMeta[] = [
   },
   {
     key: "antagonist",
-    label: "Antagonist",
+    label: "Your Antagonist",
     emoji: "⚔️",
     oneLine: "Challenges you",
     hex: "#B91C1C",
@@ -49,7 +49,7 @@ export const RELATIONSHIPS: RelationshipMeta[] = [
   },
   {
     key: "horizon",
-    label: "Horizon",
+    label: "Your Horizon",
     emoji: "🌅",
     oneLine: "Where you're headed",
     hex: "#EA580C",
@@ -58,7 +58,7 @@ export const RELATIONSHIPS: RelationshipMeta[] = [
   },
   {
     key: "shadow",
-    label: "Shadow",
+    label: "Your Shadow",
     emoji: "🌑",
     oneLine: "What you've buried",
     hex: "#6D28D9",
@@ -67,7 +67,7 @@ export const RELATIONSHIPS: RelationshipMeta[] = [
   },
   {
     key: "integrated_self",
-    label: "Integrated Self",
+    label: "Your Integrated Self",
     emoji: "✨",
     oneLine: "Your final form",
     hex: "#B45309",

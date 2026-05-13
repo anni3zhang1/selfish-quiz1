@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import type { AnswerEntry, Constellation, ConstellationCard, RelationshipType, UserInsight } from "@/lib/types";
-import { RELATIONSHIPS } from "@/lib/relationships";
+import { RELATIONSHIPS, getRelationship } from "@/lib/relationships";
 import { slugify } from "@/lib/thinkers";
 import ThinkerModal from "./ThinkerModal";
 
@@ -18,6 +19,13 @@ type PartialCard = {
 
 type Cards = Partial<Record<RelationshipType, PartialCard>>;
 type LoadPhase = "preview" | "detail" | "complete" | "error";
+
+// 3-3-1 grid display order
+const GRID_ORDER: RelationshipType[] = [
+  "precursor", "mirror", "complement",
+  "antagonist", "shadow", "horizon",
+  "integrated_self",
+];
 
 function buildInitialCards(constellation: Constellation): Cards {
   const cards: Cards = {};
@@ -58,7 +66,6 @@ export default function ResultsView({
   const isPreloaded = !!constellation;
 
   const [phase, setPhase] = useState<LoadPhase>(isPreloaded ? "complete" : "preview");
-  // userInsight: populated from preview API (new sessions) or constellation.user_insight (returning sessions)
   const [userInsight, setUserInsight] = useState<UserInsight | null>(
     isPreloaded ? (constellation.user_insight ?? null) : null
   );
@@ -69,8 +76,12 @@ export default function ResultsView({
   const [previewError, setPreviewError] = useState<string | null>(null);
 
   const [modalType, setModalType] = useState<RelationshipType | null>(null);
-  // Card clicked while its detail was still in-flight — open modal once detail arrives
   const [pendingModal, setPendingModal] = useState<RelationshipType | null>(null);
+
+  // Flip state: preloaded sessions start with all cards flipped (auto-reveal)
+  const [flippedCards, setFlippedCards] = useState<Set<RelationshipType>>(
+    () => isPreloaded ? new Set(GRID_ORDER) : new Set()
+  );
 
   const STATUS_MESSAGES = [
     "Analyzing your positions...",
@@ -106,7 +117,6 @@ export default function ResultsView({
 
     async function runPreview() {
       try {
-        // Check if QuizRunner cached the preview data in sessionStorage
         let data: {
           user_insight: UserInsight;
           thinkers: { type: RelationshipType; name: string; tagline: string }[];
@@ -122,7 +132,6 @@ export default function ResultsView({
           // sessionStorage not available
         }
 
-        // If no cached data, fetch from API as before
         if (!data) {
           const res = await fetch("/api/constellation/preview", {
             method: "POST",
@@ -215,7 +224,7 @@ export default function ResultsView({
           };
         }
 
-        // Save to DB — embed user_insight inside the constellation JSONB
+        // Save to DB
         await fetch("/api/constellation/save", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -254,7 +263,7 @@ export default function ResultsView({
     void runPreview();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Email trigger for preloaded (already complete) sessions
+  // Email trigger for preloaded sessions
   useEffect(() => {
     if (!isPreloaded || emailTriggeredRef.current) return;
     if (emailAlreadySent || !userEmail) return;
@@ -276,8 +285,7 @@ export default function ResultsView({
       });
   }, [isPreloaded, sessionId, userEmail, emailAlreadySent]);
 
-  // Speculative pre-generation: once all 7 cards are ready, silently pre-fetch
-  // thinker profiles so the session cache is warm before the user clicks.
+  // Speculative pre-generation
   useEffect(() => {
     if (phase !== "complete") return;
     if (preGenTriggeredRef.current) return;
@@ -309,7 +317,7 @@ export default function ResultsView({
     return () => controller.abort();
   }, [phase]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // When detail finishes loading for a pending card, open the modal fully populated
+  // When detail finishes loading for a pending card, open the modal
   useEffect(() => {
     if (!pendingModal) return;
     if (!detailLoading.has(pendingModal)) {
@@ -319,15 +327,24 @@ export default function ResultsView({
   }, [pendingModal, detailLoading]);
 
   function handleCardClick(key: RelationshipType) {
+    // If card isn't flipped yet, flip it (don't open modal)
+    if (!flippedCards.has(key)) {
+      setFlippedCards((prev) => {
+        const next = new Set(prev);
+        next.add(key);
+        return next;
+      });
+      return;
+    }
+    // Card is flipped — open modal
     if (detailLoading.has(key)) {
-      // Detail still in-flight — show spinner on card, open modal when ready
       setPendingModal(key);
     } else {
       setModalType(key);
     }
   }
 
-  // Enable full-page scroll-snap while this view is mounted
+  // Enable full-page scroll-snap
   useEffect(() => {
     const html = document.documentElement;
     html.style.scrollSnapType = "y mandatory";
@@ -336,7 +353,7 @@ export default function ResultsView({
     };
   }, []);
 
-  const orderedKeys = RELATIONSHIPS.map((r) => r.key);
+  const orderedKeys = GRID_ORDER;
   const modalIndex = modalType ? orderedKeys.indexOf(modalType) : -1;
 
   // Phase 1 — preview API in flight
@@ -384,7 +401,7 @@ export default function ResultsView({
     );
   }
 
-  // Phase 1 failed — preview call errored out
+  // Phase 1 failed
   if (phase === "error") {
     return (
       <main className="mx-auto w-full max-w-6xl px-6 py-12 sm:py-16 min-h-[70vh] flex flex-col items-center justify-center text-center">
@@ -397,7 +414,7 @@ export default function ResultsView({
     );
   }
 
-  // Phase 2+ — insight section visible, thinker cards below
+  // Phase 2+ — insight + intellectual map
   return (
     <main className="w-full">
 
@@ -406,15 +423,15 @@ export default function ResultsView({
         className="min-h-screen [scroll-snap-align:start] relative flex flex-col px-6 pt-12 sm:pt-16"
         style={{ scrollSnapAlign: "start" }}
       >
-        <div className="mx-auto w-full max-w-3xl flex-1">
-        <h1 className="text-4xl sm:text-5xl font-serif tracking-tight leading-tight mb-8">
+        <div className="mx-auto w-full max-w-2xl flex-1">
+        <h1 className="text-4xl sm:text-5xl font-serif tracking-tight leading-tight mb-8 text-center">
           Your Position On {topicLabel}
         </h1>
 
         {userInsight ? (
           <div className="space-y-8">
             {/* Archetype */}
-            <div>
+            <div className="text-center">
               <h2 className="text-2xl sm:text-3xl font-serif tracking-tight leading-tight mb-2">
                 {userInsight.archetype_label}
               </h2>
@@ -428,7 +445,7 @@ export default function ResultsView({
               {userInsight.position}
             </p>
 
-            {/* Why this matters — claim only, no secondary text */}
+            {/* Why this matters */}
             <div>
               <div className="text-xs uppercase tracking-widest text-neutral-400 mb-4">
                 Why this matters
@@ -445,7 +462,7 @@ export default function ResultsView({
               </ul>
             </div>
 
-            {/* Tension — two-sided arrow layout matching thinker profile */}
+            {/* Tension */}
             <div
               className="rounded-2xl border overflow-hidden"
               style={{ borderColor: "#fde68a" }}
@@ -460,7 +477,6 @@ export default function ResultsView({
               </div>
               <div className="px-5 py-4" style={{ backgroundColor: "#fef3c7" }}>
                 <div className="flex items-stretch gap-0 min-h-[6rem]">
-                  {/* Left claim */}
                   <div
                     className="flex-1 flex items-center px-4 py-3 rounded-l-xl"
                     style={{ backgroundColor: "rgba(251,191,36,0.15)" }}
@@ -469,8 +485,6 @@ export default function ResultsView({
                       {userInsight.tension.claim_a}
                     </p>
                   </div>
-
-                  {/* Center — double-headed arrow */}
                   <div className="flex flex-col items-center justify-center px-3 shrink-0 gap-1">
                     <div className="w-px flex-1 bg-amber-300" />
                     <svg width="36" height="20" viewBox="0 0 36 20" fill="none" aria-hidden className="shrink-0">
@@ -480,8 +494,6 @@ export default function ResultsView({
                     </svg>
                     <div className="w-px flex-1 bg-amber-300" />
                   </div>
-
-                  {/* Right claim */}
                   <div
                     className="flex-1 flex items-center px-4 py-3 rounded-r-xl"
                     style={{ backgroundColor: "rgba(99,102,241,0.07)" }}
@@ -491,7 +503,6 @@ export default function ResultsView({
                     </p>
                   </div>
                 </div>
-
                 {userInsight.tension.explanation && (
                   <p className="mt-4 text-sm text-neutral-500 leading-relaxed italic">
                     {userInsight.tension.explanation}
@@ -500,7 +511,7 @@ export default function ResultsView({
               </div>
             </div>
 
-            {/* In practice — horizontal scrollable card row */}
+            {/* In practice */}
             <div>
               <div className="text-xs uppercase tracking-widest text-neutral-400 mb-3">
                 In practice
@@ -521,11 +532,10 @@ export default function ResultsView({
             </div>
           </div>
         ) : initialProfileSummary ? (
-          /* Fallback for sessions predating the insight update */
           <p className="text-base text-neutral-700 leading-relaxed">{initialProfileSummary}</p>
         ) : null}
 
-        </div>{/* end max-w-3xl flex-1 */}
+        </div>{/* end max-w-2xl flex-1 */}
 
         {/* Bounce chevron — clickable scroll cue */}
         <button
@@ -539,12 +549,12 @@ export default function ResultsView({
             height="28"
             viewBox="0 0 24 24"
             fill="none"
-            className="animate-bounce text-neutral-500"
+            className="animate-bounce"
           >
             <path
               d="M6 9l6 6 6-6"
               stroke="currentColor"
-              strokeWidth="1.75"
+              strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
@@ -552,14 +562,14 @@ export default function ResultsView({
         </button>
       </section>
 
-      {/* ── Snap section 2: Thinker cards ───────────────────────────── */}
+      {/* ── Snap section 2: Intellectual Map ────────────────────────── */}
       <div
         ref={cardsRef}
         className="min-h-screen [scroll-snap-align:start] px-6 pt-12 sm:pt-16 pb-16"
         style={{ scrollSnapAlign: "start" }}
       >
-        <div className="mx-auto w-full max-w-6xl">
-        <div className="mb-8 max-w-3xl">
+        <div className="mx-auto w-full max-w-lg">
+        <div className="mb-8 text-center">
           <h2 className="text-2xl sm:text-3xl font-serif tracking-tight leading-tight mb-2">
             Your Intellectual Map
           </h2>
@@ -568,43 +578,92 @@ export default function ResultsView({
           </p>
         </div>
 
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {RELATIONSHIPS.map((r) => {
-            const isPending = pendingModal === r.key;
+        {/* 3-3-1 grid */}
+        <div className="grid grid-cols-3 gap-3 sm:gap-4">
+          {GRID_ORDER.map((key, idx) => {
+            const meta = getRelationship(key);
+            if (!meta) return null;
+            const card = cards[key];
+            const isFlipped = flippedCards.has(key);
+            const isPending = pendingModal === key;
+            const isLastCard = idx === GRID_ORDER.length - 1;
+
             return (
-              <button
-                key={r.key}
-                type="button"
-                onClick={() => handleCardClick(r.key)}
-                aria-label={r.label}
-                className={`card-fade-in aspect-[3/4] w-full rounded-2xl relative overflow-hidden text-left cursor-pointer hover:shadow-lg transition-shadow ${r.faceGradient} ${r.textOnFace}`}
+              <div
+                key={key}
+                className={`${isLastCard ? "col-start-2" : ""}`}
               >
-                <div className="absolute top-5 left-5 right-5">
-                  <div className="text-3xl font-semibold tracking-tight opacity-90 mb-1">
-                    {r.label}
+                <button
+                  type="button"
+                  onClick={() => handleCardClick(key)}
+                  aria-label={isFlipped && card?.name ? `${card.name} — ${meta.label}` : meta.label}
+                  className="flip-card w-full aspect-[3/4] cursor-pointer"
+                >
+                  <div className={`flip-card-inner ${isFlipped ? "flipped" : ""}`} style={{ width: "100%", height: "100%" }}>
+                    {/* Front — face down */}
+                    <div className={`flip-face ${meta.faceGradient} ${meta.textOnFace} flex flex-col items-center justify-center px-3 text-center`}>
+                      <div className="text-3xl sm:text-4xl mb-2 opacity-80">{meta.emoji}</div>
+                      <div className="text-xs sm:text-sm font-semibold tracking-tight opacity-90 mb-1">
+                        {meta.label}
+                      </div>
+                      <div className="text-[10px] sm:text-xs opacity-60 leading-snug max-w-[14ch]">
+                        Tap to reveal
+                      </div>
+                    </div>
+
+                    {/* Back — face up (revealed) */}
+                    <div className={`flip-face flip-face-back ${meta.faceGradient} ${meta.textOnFace} flex flex-col items-center justify-center px-3 text-center`}>
+                      <div className="text-[10px] sm:text-xs uppercase tracking-wider font-semibold opacity-60 mb-2">
+                        {meta.label}
+                      </div>
+                      {card?.thumbnail_url && (
+                        <Image
+                          src={card.thumbnail_url}
+                          alt={card.name ?? ""}
+                          width={48}
+                          height={48}
+                          className="rounded-full object-cover w-10 h-10 sm:w-12 sm:h-12 ring-2 ring-white/30 mb-2 shrink-0"
+                        />
+                      )}
+                      <div className="text-sm sm:text-base font-bold leading-tight mb-1">
+                        {card?.name ?? "..."}
+                      </div>
+                      {card?.tagline && (
+                        <p className="text-[10px] sm:text-xs opacity-75 leading-snug line-clamp-2 mb-2">
+                          {card.tagline}
+                        </p>
+                      )}
+                      <div className="text-[9px] sm:text-[10px] opacity-50 mt-auto">
+                        Tap to explore →
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="absolute inset-0 flex flex-col items-center justify-center px-5 text-center">
-                  <div className="text-6xl mb-5 opacity-80">{r.emoji}</div>
-                  <div className="text-lg opacity-80 max-w-[18ch] leading-relaxed">
-                    {r.oneLine}
-                  </div>
-                </div>
-                {isPending && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/25 backdrop-blur-[2px] rounded-2xl">
-                    <div className="w-8 h-8 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                  </div>
-                )}
-              </button>
+
+                  {/* Loading spinner overlay */}
+                  {isPending && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/25 backdrop-blur-[2px] rounded-2xl z-10">
+                      <div className="w-8 h-8 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                    </div>
+                  )}
+                </button>
+              </div>
             );
           })}
-        </section>
-        </div>{/* end max-w-6xl */}
+        </div>
+
+        {/* All flipped summary */}
+        {flippedCards.size === GRID_ORDER.length && phase === "complete" && (
+          <p className="text-center text-sm text-neutral-500 mt-6 fade-in">
+            Tap any thinker to explore the match.
+          </p>
+        )}
+
+        </div>{/* end max-w-lg */}
       </div>{/* end snap section 2 */}
 
       {/* ── Non-snap: email status + footer ─────────────────────────── */}
       <div className="px-6 pb-12">
-      <div className="mx-auto w-full max-w-6xl">
+      <div className="mx-auto w-full max-w-lg">
 
       {userEmail && emailStatus !== "idle" && (
         <div className="mt-12 text-center text-sm text-neutral-500">
@@ -645,7 +704,7 @@ export default function ResultsView({
         </div>
       </footer>
 
-      </div>{/* end max-w-6xl */}
+      </div>{/* end max-w-lg */}
       </div>{/* end non-snap wrapper */}
 
       {modalType && (

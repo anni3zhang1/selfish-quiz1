@@ -30,6 +30,13 @@ function getInitials(name: string): string {
     .slice(0, 2);
 }
 
+/** Clamp coordinates to a safe zone so circles + labels don't bleed outside the grid */
+const SAFE_MIN = 10;
+const SAFE_MAX = 90;
+function clamp(v: number): number {
+  return Math.max(SAFE_MIN, Math.min(SAFE_MAX, v));
+}
+
 /** Pick a circle color — alternate between dark/light variants per quadrant for variety */
 function getCircleColor(x: number, y: number, index: number): string {
   const q = QUADRANT_COLORS[getQuadrant(x, y)];
@@ -71,7 +78,7 @@ export default function PositionMap({
           </div>
 
           {/* The square grid */}
-          <div style={{ position: "relative", width: "100%", aspectRatio: "1 / 1" }}>
+          <div style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", overflow: "hidden", borderRadius: 12 }}>
 
             {/* Quadrant backgrounds */}
             <div style={{ position: "absolute", top: 0, left: 0, right: "50%", bottom: "50%", background: QUADRANT_COLORS.top_left.bg, borderRadius: "12px 0 0 0", display: "flex", alignItems: "flex-start", justifyContent: "flex-start", padding: 14 }}>
@@ -158,6 +165,8 @@ export default function PositionMap({
             {/* Thinker dots */}
             {data.thinkers.map((t, i) => {
               const thumb = thumbnails?.[t.name];
+              const cx = clamp(t.x);
+              const cy = clamp(t.y);
               const quadrant = getQuadrant(t.x, t.y);
               const textColor = QUADRANT_COLORS[quadrant].text;
               const circleColor = getCircleColor(t.x, t.y, i);
@@ -167,8 +176,8 @@ export default function PositionMap({
                   key={t.name}
                   style={{
                     position: "absolute",
-                    left: `${t.x}%`,
-                    top: `${t.y}%`,
+                    left: `${cx}%`,
+                    top: `${cy}%`,
                     transform: "translate(-50%, -50%)",
                     zIndex: 3,
                     textAlign: "center",
@@ -212,8 +221,8 @@ export default function PositionMap({
             {/* "You" dot */}
             <div style={{
               position: "absolute",
-              left: `${data.user.x}%`,
-              top: `${data.user.y}%`,
+              left: `${clamp(data.user.x)}%`,
+              top: `${clamp(data.user.y)}%`,
               transform: "translate(-50%, -50%)",
               zIndex: 10,
               textAlign: "center",

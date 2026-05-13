@@ -606,7 +606,10 @@ export default function ResultsView({
                       <div className="text-xs sm:text-sm font-semibold tracking-tight opacity-90 mb-1">
                         {meta.label}
                       </div>
-                      <div className="text-[10px] sm:text-xs opacity-60 leading-snug max-w-[14ch]">
+                      <div className="text-[10px] sm:text-xs opacity-60 leading-snug">
+                        {meta.oneLine}
+                      </div>
+                      <div className="text-[9px] sm:text-[10px] opacity-40 mt-1.5">
                         Tap to reveal
                       </div>
                     </div>

@@ -544,6 +544,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
   const canSubmit = freeformOnly
     ? freeformText.trim().length > 0
     : optionId !== null;
+  const isLastQuestion = pendingFollowups.length === 0 && remainingMain.length === 1;
 
   const textareaKey = freeformOnly
     ? `freeform-${current.id}`
@@ -734,6 +735,17 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
                       className="w-full px-4 py-3.5 border border-neutral-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-neutral-900 transition placeholder:text-neutral-300 resize-none"
                     />
                   </div>
+                )}
+
+                {/* "See Results" CTA on last question */}
+                {isLastQuestion && canSubmit && (
+                  <button
+                    type="button"
+                    onClick={animateToNextQuestion}
+                    className="w-full px-6 py-3.5 bg-neutral-900 text-white rounded-xl text-sm font-medium hover:bg-neutral-800 transition-colors annotation-slide-in"
+                  >
+                    See Results →
+                  </button>
                 )}
               </div>
             )}

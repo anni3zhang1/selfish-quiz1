@@ -102,11 +102,7 @@ export default async function StartPage({
         </Link>
       </div>
 
-      <footer className="mt-auto pt-12 text-center">
-        <p className="text-[11px] text-neutral-300">
-          There are no right answers. Only yours.
-        </p>
-      </footer>
+
     </main>
   );
 }

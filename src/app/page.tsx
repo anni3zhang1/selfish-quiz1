@@ -24,6 +24,7 @@ export default async function Home() {
       cards={topicCards}
       completedSlugs={completedTopics}
       userName={user?.name ?? null}
+      userEmail={user?.email ?? null}
     />
   );
 }

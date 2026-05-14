@@ -15,6 +15,19 @@ function isFreeformOnly(q: AnyQuestion): q is Extract<AnyQuestion, { freeformOnl
   return "freeformOnly" in q && q.freeformOnly === true;
 }
 
+/** Split a long question string into context paragraph(s) + final question line */
+function splitQuestionText(text: string): { context: string; question: string } {
+  // Split on sentence endings followed by a space
+  const sentences = text.match(/[^.!?]+[.!?]+/g);
+  if (!sentences || sentences.length <= 2) {
+    return { context: "", question: text };
+  }
+  // Last sentence is the actual question
+  const question = sentences[sentences.length - 1].trim();
+  const context = sentences.slice(0, -1).join("").trim();
+  return { context, question };
+}
+
 export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
   const router = useRouter();
 
@@ -283,49 +296,99 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
     }
   }
 
-  // === Swipe-between-questions state ===
-  const [slideDir, setSlideDir] = useState<"none" | "left" | "right">("none");
-  const [questionDragX, setQuestionDragX] = useState(0);
-  const [isQuestionDragging, setIsQuestionDragging] = useState(false);
-  const questionDragStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  // === Two-step view: "reading" (question text) → "answering" (options) ===
+  const [viewStep, setViewStep] = useState<"reading" | "answering">("reading");
 
-  // Trigger slide-out animation, then advance
-  function animateAndAdvance() {
+  // Reset to "reading" whenever the current question changes
+  const prevQuestionId = useRef(current?.id);
+  useEffect(() => {
+    if (current && current.id !== prevQuestionId.current) {
+      setViewStep("reading");
+      prevQuestionId.current = current.id;
+    }
+  }, [current]);
+
+  // For freeform-only questions, skip straight to answering
+  useEffect(() => {
+    if (current && isFreeformOnly(current)) {
+      setViewStep("answering");
+    }
+  }, [current]);
+
+  // Slide animation state
+  const [slideDir, setSlideDir] = useState<"none" | "left" | "right">("none");
+
+  function animateToAnswers() {
+    setSlideDir("left");
+    setTimeout(() => {
+      setViewStep("answering");
+      setSlideDir("right");
+      setTimeout(() => setSlideDir("none"), 50);
+    }, 200);
+  }
+
+  function animateToNextQuestion() {
     setSlideDir("left");
     setTimeout(() => {
       handleNext();
-      setSlideDir("right"); // new question enters from right
-      setTimeout(() => setSlideDir("none"), 50); // reset to trigger CSS transition
-    }, 250);
+      // handleNext updates state → useEffect resets viewStep to "reading"
+      setSlideDir("right");
+      setTimeout(() => setSlideDir("none"), 50);
+    }, 200);
   }
 
-  // Question-level swipe handlers (swipe left to submit & advance)
-  function onQuestionPointerDown(e: React.PointerEvent) {
-    // Don't capture swipe if interacting with textarea or button
+  // Swipe handler for both steps
+  const swipeDragX = useRef(0);
+  const swipeStartRef = useRef<{ x: number; time: number } | null>(null);
+  const [dragX, setDragX] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+
+  function onSwipePointerDown(e: React.PointerEvent) {
     const tag = (e.target as HTMLElement).tagName;
-    if (tag === "TEXTAREA" || tag === "BUTTON" || tag === "INPUT") return;
-    questionDragStartRef.current = { x: e.clientX, y: e.clientY, time: Date.now() };
-    setIsQuestionDragging(true);
+    if (tag === "TEXTAREA" || tag === "INPUT") return;
+    swipeStartRef.current = { x: e.clientX, time: Date.now() };
+    setIsDragging(true);
   }
 
-  function onQuestionPointerMove(e: React.PointerEvent) {
-    if (!questionDragStartRef.current || !isQuestionDragging) return;
-    const dx = e.clientX - questionDragStartRef.current.x;
-    // Only allow left swipe (negative) when answer is selected
-    if (dx < 0 && canSubmit) {
-      setQuestionDragX(dx);
-    }
+  function animateBackToQuestion() {
+    setSlideDir("right");
+    setTimeout(() => {
+      setViewStep("reading");
+      setSlideDir("left");
+      setTimeout(() => setSlideDir("none"), 50);
+    }, 200);
   }
 
-  function onQuestionPointerUp() {
-    if (!questionDragStartRef.current) return;
-    const threshold = 80;
-    if (questionDragX < -threshold && canSubmit) {
-      animateAndAdvance();
+  function onSwipePointerMove(e: React.PointerEvent) {
+    if (!swipeStartRef.current || !isDragging) return;
+    const dx = e.clientX - swipeStartRef.current.x;
+    swipeDragX.current = dx;
+    setDragX(dx);
+  }
+
+  function onSwipePointerUp() {
+    if (!swipeStartRef.current) return;
+    const threshold = 60;
+    const dx = swipeDragX.current;
+
+    if (dx < -threshold) {
+      // Swipe left → forward
+      if (viewStep === "reading" && current && !isFreeformOnly(current)) {
+        animateToAnswers();
+      } else if (viewStep === "answering" && canSubmit) {
+        animateToNextQuestion();
+      }
+    } else if (dx > threshold) {
+      // Swipe right → back to question
+      if (viewStep === "answering") {
+        animateBackToQuestion();
+      }
     }
-    setQuestionDragX(0);
-    setIsQuestionDragging(false);
-    questionDragStartRef.current = null;
+
+    swipeDragX.current = 0;
+    setDragX(0);
+    setIsDragging(false);
+    swipeStartRef.current = null;
   }
 
   // === Render ===
@@ -486,134 +549,197 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
     ? `freeform-${current.id}`
     : `annotation-${current.id}-${optionId ?? "none"}`;
 
-  // Slide transform for question transitions
-  const questionTransform =
+  // Slide transform
+  const slideTransform =
     slideDir === "left"
       ? "translateX(-110%)"
       : slideDir === "right"
       ? "translateX(110%)"
-      : `translateX(${questionDragX}px)`;
+      : `translateX(${dragX}px)`;
 
-  const questionTransition =
-    isQuestionDragging || slideDir === "right"
+  const slideTransition =
+    isDragging || slideDir === "right"
       ? "none"
-      : "transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease";
+      : "transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease";
 
-  const questionOpacity = slideDir === "left" ? 0 : 1;
+  const slideOpacity = slideDir === "left" ? 0 : 1;
+
+  // Arrow logic
+  const canGoBack = viewStep === "answering";
+  const canGoForward =
+    viewStep === "reading"
+      ? !freeformOnly
+      : canSubmit;
+
+  function handleForward() {
+    if (viewStep === "reading") animateToAnswers();
+    else if (canSubmit) animateToNextQuestion();
+  }
+
+  function handleBack() {
+    if (canGoBack) animateBackToQuestion();
+  }
 
   return (
     <div
-      className="touch-pan-y select-none"
-      onPointerDown={onQuestionPointerDown}
-      onPointerMove={onQuestionPointerMove}
-      onPointerUp={onQuestionPointerUp}
-      onPointerCancel={onQuestionPointerUp}
+      className="relative touch-pan-y select-none overflow-hidden"
+      onPointerDown={onSwipePointerDown}
+      onPointerMove={onSwipePointerMove}
+      onPointerUp={onSwipePointerUp}
+      onPointerCancel={onSwipePointerUp}
     >
-      {/* Progress bar */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-2">
-          <div className="text-xs uppercase tracking-wider text-neutral-400">
-            {quiz.topicLabel}
+      {/* Outer card */}
+      <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm overflow-hidden">
+        {/* Progress header */}
+        <div className="px-6 pt-5 pb-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-xs uppercase tracking-wider text-neutral-400">
+              {quiz.topicLabel}
+            </div>
+            <div className="text-xs tabular-nums text-neutral-400">
+              {progressLabel}
+            </div>
           </div>
-          <div className="text-xs tabular-nums text-neutral-400">
-            {progressLabel}
-          </div>
-        </div>
-        <div className="h-0.5 bg-neutral-200 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-neutral-900 transition-all duration-500"
-            style={{
-              width: `${Math.min(100, (answeredMain / totalMain) * 100)}%`,
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Question content — slides horizontally on transition */}
-      <div
-        style={{
-          transform: questionTransform,
-          transition: questionTransition,
-          opacity: questionOpacity,
-        }}
-      >
-        <h2 className="text-lg sm:text-xl font-serif leading-snug mb-8">
-          {current.text}
-        </h2>
-
-        {/* Answer options as tappable cards */}
-        {!freeformOnly && (
-          <div className="space-y-2.5 mb-6">
-            {shuffledOptions.map((opt, idx) => {
-              const selected = optionId === opt.id;
-              const displayLabel = String.fromCharCode(65 + idx);
-              return (
-                <button
-                  key={opt.id}
-                  type="button"
-                  onClick={() => {
-                    if (optionId !== opt.id) {
-                      setOptionId(opt.id);
-                      setFreeformText("");
-                    }
-                  }}
-                  className={`w-full text-left px-5 py-4 rounded-xl border-2 transition-all duration-200 ${
-                    selected
-                      ? "border-neutral-900 bg-neutral-900 text-white shadow-lg scale-[1.02]"
-                      : "border-neutral-200 bg-white hover:border-neutral-400 active:scale-[0.98]"
-                  }`}
-                >
-                  <span className={`font-mono text-xs mr-3 ${selected ? "text-neutral-400" : "text-neutral-300"}`}>
-                    {displayLabel}
-                  </span>
-                  <span className="text-[15px] leading-relaxed">{opt.text}</span>
-                </button>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Annotation / freeform textarea */}
-        {showAnnotation && (
-          <div className="annotation-slide-in mb-6">
-            <textarea
-              key={textareaKey}
-              value={freeformText}
-              onChange={(e) => setFreeformText(e.target.value)}
-              rows={freeformOnly ? 4 : 3}
-              placeholder={freeformOnly ? "Take your time…" : "Add context (optional)"}
-              className="w-full px-4 py-3.5 border border-neutral-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-neutral-900 transition placeholder:text-neutral-300 resize-none"
+          <div className="h-0.5 bg-neutral-100 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-neutral-900 transition-all duration-500"
+              style={{
+                width: `${Math.min(100, (answeredMain / totalMain) * 100)}%`,
+              }}
             />
           </div>
-        )}
+        </div>
 
-        {/* Next button + swipe hint */}
-        {showAnnotation && (
-          <div className="annotation-slide-in flex items-center gap-4">
-            <button
-              type="button"
-              onClick={canSubmit ? animateAndAdvance : undefined}
-              disabled={!canSubmit}
-              className="px-6 py-3.5 bg-neutral-900 text-white rounded-xl font-medium hover:bg-neutral-800 transition disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              Next →
-            </button>
-            <span className="text-xs text-neutral-300 hidden sm:inline">
-              or swipe left
-            </span>
-          </div>
-        )}
-      </div>
+        {/* Inner well */}
+        <div className="mx-3 mb-3 rounded-xl bg-neutral-50 border border-neutral-100">
+          {/* Side arrows — positioned outside the content column */}
+          <button
+            type="button"
+            onClick={handleBack}
+            disabled={!canGoBack}
+            className="hidden sm:flex fixed left-[max(1rem,calc(50%-300px))] top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full text-neutral-300 hover:text-neutral-600 hover:bg-neutral-100 transition disabled:opacity-0 disabled:cursor-default z-10"
+            aria-label="Go back"
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
 
-      {/* Swipe affordance indicator (shows when answer selected, mobile) */}
-      {canSubmit && !freeformOnly && (
-        <div className="mt-8 flex justify-center sm:hidden">
-          <div className="flex items-center gap-1.5 text-[11px] text-neutral-300">
-            <span>←</span>
-            <span>swipe to continue</span>
+          <button
+            type="button"
+            onClick={canGoForward ? handleForward : undefined}
+            disabled={!canGoForward}
+            className={`hidden sm:flex fixed right-[max(1rem,calc(50%-300px))] top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full hover:bg-neutral-100 transition z-10 ${
+              canGoForward
+                ? "text-neutral-900 hover:text-neutral-700"
+                : "text-neutral-200 cursor-default"
+            }`}
+            aria-label="Go forward"
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+
+          {/* Content area */}
+          <div
+            className="px-6 py-8 sm:py-10"
+            style={{
+              transform: slideTransform,
+              transition: slideTransition,
+              opacity: slideOpacity,
+            }}
+          >
+            {/* === STEP 1: Read the question === */}
+            {viewStep === "reading" && (() => {
+              const { context, question } = splitQuestionText(current.text);
+              return (
+              <div className="flex flex-col justify-center min-h-[45vh]">
+                {context ? (
+                  <>
+                    <p className="text-base sm:text-lg text-neutral-500 leading-relaxed mb-8">
+                      {context}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={animateToAnswers}
+                      className="group text-left"
+                    >
+                      <span className="text-lg sm:text-xl font-serif leading-snug text-neutral-900 underline decoration-neutral-300 underline-offset-4 group-hover:decoration-neutral-900 transition-colors">
+                        {question}
+                      </span>
+                      <span className="inline-block ml-2 text-neutral-400 group-hover:text-neutral-900 transition-colors">→</span>
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={animateToAnswers}
+                    className="group text-left"
+                  >
+                    <span className="text-lg sm:text-xl font-serif leading-snug text-neutral-900 underline decoration-neutral-300 underline-offset-4 group-hover:decoration-neutral-900 transition-colors">
+                      {current.text}
+                    </span>
+                    <span className="inline-block ml-2 text-neutral-400 group-hover:text-neutral-900 transition-colors">→</span>
+                  </button>
+                )}
+              </div>
+              );
+            })()}
+
+            {/* === STEP 2: Answer options === */}
+            {viewStep === "answering" && (
+              <div className="max-w-sm mx-auto">
+                {/* Answer options — centered */}
+                {!freeformOnly && (
+                  <div className="space-y-2.5 mb-4">
+                    {shuffledOptions.map((opt, idx) => {
+                      const selected = optionId === opt.id;
+                      const displayLabel = String.fromCharCode(65 + idx);
+                      return (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => {
+                            if (optionId !== opt.id) {
+                              setOptionId(opt.id);
+                              setFreeformText("");
+                            }
+                          }}
+                          className={`w-full text-left px-5 py-4 rounded-xl border-2 transition-all duration-200 ${
+                            selected
+                              ? "border-neutral-900 bg-neutral-900 text-white shadow-lg scale-[1.02]"
+                              : "border-neutral-200 bg-white hover:border-neutral-400 active:scale-[0.98]"
+                          }`}
+                        >
+                          <span className={`font-mono text-xs mr-3 ${selected ? "text-neutral-400" : "text-neutral-300"}`}>
+                            {displayLabel}
+                          </span>
+                          <span className="text-[15px] leading-relaxed">{opt.text}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Freeform / annotation textarea */}
+                {showAnnotation && (
+                  <div className="annotation-slide-in mb-4">
+                    <textarea
+                      key={textareaKey}
+                      value={freeformText}
+                      onChange={(e) => setFreeformText(e.target.value)}
+                      rows={freeformOnly ? 4 : 3}
+                      placeholder={freeformOnly ? "Take your time…" : "Add context (optional)"}
+                      className="w-full px-4 py-3.5 border border-neutral-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-neutral-900 transition placeholder:text-neutral-300 resize-none"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

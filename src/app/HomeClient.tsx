@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import Link from "next/link";
 
 type TopicCard = {
@@ -12,40 +12,101 @@ type TopicCard = {
   gradient: string;
 };
 
+const CATEGORIES = [
+  { label: "All", slugs: null, special: null },
+  {
+    label: "Current Events",
+    special: null,
+    slugs: new Set([
+      "taiwan", "gaza_israel", "us_foreign_policy", "economic_disruption", "immigration",
+    ]),
+  },
+  {
+    label: "Society & Ethics",
+    special: null,
+    slugs: new Set([
+      "democracy", "trans_rights", "drug_policy", "reparations", "animal_rights",
+      "gun_rights", "homelessness", "gentrification", "education",
+    ]),
+  },
+  {
+    label: "Big Ideas",
+    special: null,
+    slugs: new Set([
+      "ai_governance", "capitalism", "nuclear_deterrence", "truth_media",
+      "surveillance_privacy", "space_colonization",
+    ]),
+  },
+  {
+    label: "The Self & Existence",
+    special: null,
+    slugs: new Set([
+      "meaning_crisis", "consciousness", "longevity", "bioethics", "end_of_life", "climate",
+    ]),
+  },
+  { label: "Completed", slugs: null, special: "completed" as const },
+] as const;
+
+/** Reverse lookup: slug → category label */
+function getCategoryLabel(slug: string): string {
+  for (const cat of CATEGORIES) {
+    if (cat.slugs && cat.slugs.has(slug)) return cat.label;
+  }
+  return "";
+}
+
 interface HomeClientProps {
   cards: readonly TopicCard[];
   completedSlugs: string[];
   userName: string | null;
+  userEmail: string | null;
 }
 
-export default function HomeClient({ cards, completedSlugs, userName }: HomeClientProps) {
+export default function HomeClient({ cards, completedSlugs, userName, userEmail }: HomeClientProps) {
   const completedSet = new Set(completedSlugs);
-
-  // Sort: incomplete first, then completed
-  const sorted = [...cards].sort(
-    (a, b) => (completedSet.has(a.slug) ? 1 : 0) - (completedSet.has(b.slug) ? 1 : 0)
-  );
-
+  const [activeCategory, setActiveCategory] = useState(0); // 0 = "All"
   const [index, setIndex] = useState(0);
   const [dragX, setDragX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
 
-  const current = sorted[index];
-  const isComplete = completedSet.has(current.slug);
+  // Filter + sort cards by category
+  const isCompletedTab = CATEGORIES[activeCategory].special === "completed";
+  const filtered = useMemo(() => {
+    const cat = CATEGORIES[activeCategory];
+    if (cat.special === "completed") {
+      return [...cards].filter((c) => completedSet.has(c.slug));
+    }
+    const pool = cat.slugs
+      ? [...cards].filter((c) => cat.slugs!.has(c.slug))
+      : [...cards];
+    // Incomplete first
+    return pool.sort(
+      (a, b) => (completedSet.has(a.slug) ? 1 : 0) - (completedSet.has(b.slug) ? 1 : 0)
+    );
+  }, [activeCategory, cards, completedSet]);
+
+  // Clamp index when filter changes
+  const safeIndex = Math.min(index, filtered.length - 1);
+  const current = filtered[safeIndex];
 
   const goNext = useCallback(() => {
-    setIndex((i) => Math.min(i + 1, sorted.length - 1));
+    setIndex((i) => Math.min(i + 1, filtered.length - 1));
     setDragX(0);
-  }, [sorted.length]);
+  }, [filtered.length]);
 
   const goPrev = useCallback(() => {
     setIndex((i) => Math.max(i - 1, 0));
     setDragX(0);
   }, []);
 
-  // Pointer-based swipe handling
+  function selectCategory(catIdx: number) {
+    setActiveCategory(catIdx);
+    setIndex(0);
+    setDragX(0);
+  }
+
+  // Pointer swipe
   function onPointerDown(e: React.PointerEvent) {
     dragStartRef.current = { x: e.clientX, y: e.clientY, time: Date.now() };
     setIsDragging(true);
@@ -54,58 +115,84 @@ export default function HomeClient({ cards, completedSlugs, userName }: HomeClie
 
   function onPointerMove(e: React.PointerEvent) {
     if (!dragStartRef.current || !isDragging) return;
-    const dx = e.clientX - dragStartRef.current.x;
-    setDragX(dx);
+    setDragX(e.clientX - dragStartRef.current.x);
   }
 
   function onPointerUp() {
     if (!dragStartRef.current) return;
     const threshold = 60;
     const velocity = Math.abs(dragX) / (Date.now() - dragStartRef.current.time + 1);
-    const shouldSwipe = Math.abs(dragX) > threshold || velocity > 0.4;
-
-    if (shouldSwipe) {
+    if (Math.abs(dragX) > threshold || velocity > 0.4) {
       if (dragX < 0) goNext();
       else goPrev();
     }
-
     setDragX(0);
     setIsDragging(false);
     dragStartRef.current = null;
   }
 
-  // Keyboard navigation
   function onKeyDown(e: React.KeyboardEvent) {
-    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-      e.preventDefault();
-      goNext();
-    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-      e.preventDefault();
-      goPrev();
-    }
+    if (e.key === "ArrowRight") { e.preventDefault(); goNext(); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); goPrev(); }
   }
 
-  // Cards visible: current + next 2 peeking behind
-  const visibleCards = sorted.slice(index, index + 3);
+  const visibleCards = filtered.slice(safeIndex, safeIndex + 3);
+  const canGoPrev = safeIndex > 0;
+  const canGoNext = safeIndex < filtered.length - 1;
+
+  if (!current) {
+    return (
+      <main className="relative mx-auto w-full max-w-[480px] px-6 py-6 sm:py-10 min-h-[calc(100vh-3rem)] flex flex-col">
+        <div className="flex gap-2 overflow-x-auto pb-1 mb-6 scrollbar-none">
+          {CATEGORIES.map((cat, i) => (
+            <button
+              key={cat.label}
+              type="button"
+              onClick={() => selectCategory(i)}
+              className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-medium transition ${
+                activeCategory === i
+                  ? "bg-neutral-900 text-white"
+                  : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200"
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex-1 flex items-center justify-center">
+          <p className="text-neutral-400 text-sm">
+            {isCompletedTab
+              ? "No completed quizzes yet. Go explore!"
+              : "No quizzes in this category."}
+          </p>
+        </div>
+      </main>
+    );
+  }
 
   return (
-    <main className="mx-auto w-full max-w-[480px] px-6 py-16 sm:py-24 min-h-[calc(100vh-3rem)]  flex flex-col">
-      {/* Header */}
-      <header className="mb-10">
-        {userName && (
-          <div className="text-xs uppercase tracking-wider text-neutral-400 mb-3">
-            {userName.split(" ")[0]}
-          </div>
-        )}
-        <h1 className="text-xl sm:text-2xl font-serif tracking-tight leading-snug text-neutral-800">
-          Discover where you stand on the ideas that matter.
-        </h1>
-      </header>
+    <main className="relative mx-auto w-full max-w-[480px] px-6 py-6 sm:py-10 min-h-[calc(100vh-3rem)] flex flex-col">
+      {/* Category pills */}
+      <div className="flex gap-2 overflow-x-auto pb-1 mb-6 scrollbar-none">
+        {CATEGORIES.map((cat, i) => (
+          <button
+            key={cat.label}
+            type="button"
+            onClick={() => selectCategory(i)}
+            className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-medium transition ${
+              activeCategory === i
+                ? "bg-neutral-900 text-white"
+                : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200"
+            }`}
+          >
+            {cat.label}
+          </button>
+        ))}
+      </div>
 
       {/* Card stack */}
       <div
-        ref={containerRef}
-        className="relative flex-1 min-h-[400px] select-none touch-pan-y"
+        className="relative flex-1 min-h-[480px] sm:min-h-[520px] select-none touch-pan-y"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -114,7 +201,6 @@ export default function HomeClient({ cards, completedSlugs, userName }: HomeClie
         tabIndex={0}
         role="region"
         aria-label="Quiz cards"
-        aria-roledescription="carousel"
       >
         {visibleCards.map((card, stackIdx) => {
           const isTop = stackIdx === 0;
@@ -122,6 +208,7 @@ export default function HomeClient({ cards, completedSlugs, userName }: HomeClie
           const yOffset = stackIdx * 12;
           const opacity = 1 - stackIdx * 0.15;
           const cardComplete = completedSet.has(card.slug);
+          const category = getCategoryLabel(card.slug);
 
           const transform = isTop
             ? `translateX(${dragX}px) rotate(${dragX * 0.03}deg)`
@@ -130,48 +217,72 @@ export default function HomeClient({ cards, completedSlugs, userName }: HomeClie
           return (
             <div
               key={card.slug}
-              className={`absolute inset-0 rounded-2xl border border-neutral-200 bg-white overflow-hidden shadow-sm ${
+              className={`absolute inset-0 rounded-2xl border border-neutral-200 bg-white overflow-hidden shadow-sm flex flex-col ${
                 isTop ? "" : "pointer-events-none"
               }`}
               style={{
                 transform,
-                opacity,
+                opacity: cardComplete ? Math.min(opacity, 0.5) : opacity,
                 zIndex: 3 - stackIdx,
                 transition: isDragging && isTop ? "none" : "all 0.4s cubic-bezier(0.22, 1, 0.36, 1)",
               }}
             >
               {/* Gradient banner */}
-              <div className={`h-36 sm:h-44 w-full bg-gradient-to-br ${card.gradient}`} />
+              <div className={`h-28 sm:h-36 w-full bg-gradient-to-br ${card.gradient}`} />
 
               {/* Content */}
-              <div className="p-6 sm:p-8">
-                <div className="flex items-start justify-between mb-3">
-                  <h2 className="text-2xl sm:text-3xl font-serif tracking-tight leading-tight">
-                    {card.name}
-                  </h2>
-                  {cardComplete && (
-                    <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 whitespace-nowrap ml-3 mt-1">
-                      Completed
+              <div className="p-6 sm:p-8 flex flex-col justify-between flex-1">
+                <div>
+                  {/* Category tag */}
+                  {category && (
+                    <span className="inline-block text-[10px] uppercase tracking-widest px-2.5 py-1 rounded-full border border-neutral-300 text-neutral-500 mb-3">
+                      {category}
                     </span>
                   )}
+
+                  <div className="flex items-start justify-between mb-2">
+                    <h2 className="text-2xl sm:text-3xl font-serif tracking-tight leading-tight">
+                      {card.name}
+                    </h2>
+                    {cardComplete && (
+                      <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 whitespace-nowrap ml-3 mt-1">
+                        Completed
+                      </span>
+                    )}
+                  </div>
+
+                  <p className="text-[15px] leading-relaxed text-neutral-600 mb-3">
+                    {card.description}
+                  </p>
+
+                  <p className="text-xs leading-relaxed text-neutral-400 italic">
+                    {card.intention}
+                  </p>
                 </div>
 
-                <p className="text-[15px] leading-relaxed text-neutral-600 mb-4">
-                  {card.description}
-                </p>
-
-                <p className="text-xs leading-relaxed text-neutral-400 italic mb-8">
-                  {card.intention}
-                </p>
-
                 {isTop && (
-                  <Link
-                    href={`/quiz/${card.slug}`}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 text-white rounded-xl text-sm font-medium hover:bg-neutral-800 transition-colors"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {cardComplete ? "Retake" : "Begin"} →
-                  </Link>
+                  <div className="mt-6 flex items-center gap-3">
+                    <Link
+                      href={`/quiz/${card.slug}`}
+                      className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium transition-colors ${
+                        cardComplete
+                          ? "bg-neutral-200 text-neutral-700 hover:bg-neutral-300"
+                          : "bg-neutral-900 text-white hover:bg-neutral-800"
+                      }`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {cardComplete ? "Retake" : "Begin"}
+                    </Link>
+                    {cardComplete && (
+                      <Link
+                        href={`/profile${userEmail ? `?email=${encodeURIComponent(userEmail)}` : ""}`}
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 text-white rounded-xl text-sm font-medium hover:bg-neutral-800 transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        View Results
+                      </Link>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
@@ -179,43 +290,30 @@ export default function HomeClient({ cards, completedSlugs, userName }: HomeClie
         })}
       </div>
 
-      {/* Navigation dots + counter */}
-      <div className="mt-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={goPrev}
-            disabled={index === 0}
-            className="w-8 h-8 flex items-center justify-center rounded-full border border-neutral-200 text-neutral-400 hover:text-neutral-900 hover:border-neutral-400 transition disabled:opacity-30 disabled:cursor-not-allowed"
-            aria-label="Previous quiz"
-          >
-            ←
-          </button>
-          <button
-            onClick={goNext}
-            disabled={index === sorted.length - 1}
-            className="w-8 h-8 flex items-center justify-center rounded-full border border-neutral-200 text-neutral-400 hover:text-neutral-900 hover:border-neutral-400 transition disabled:opacity-30 disabled:cursor-not-allowed"
-            aria-label="Next quiz"
-          >
-            →
-          </button>
-        </div>
+      {/* Side navigation arrows — fixed, outside content column on desktop */}
+      <button
+        type="button"
+        onClick={goPrev}
+        disabled={!canGoPrev}
+        className="hidden sm:flex fixed left-[max(1rem,calc(50%-300px))] top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full text-neutral-300 hover:text-neutral-600 hover:bg-neutral-100 transition disabled:opacity-0 disabled:cursor-default z-10"
+        aria-label="Previous quiz"
+      >
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
 
-        <div className="text-xs text-neutral-400 tabular-nums">
-          {index + 1} / {sorted.length}
-          {completedSlugs.length > 0 && (
-            <span className="ml-2 text-neutral-300">
-              · {completedSlugs.length} completed
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Footer */}
-      <footer className="mt-8 pt-6 border-t border-neutral-100">
-        <p className="text-xs text-neutral-300 text-center">
-          There are no right answers. Only yours.
-        </p>
-      </footer>
+      <button
+        type="button"
+        onClick={goNext}
+        disabled={!canGoNext}
+        className="hidden sm:flex fixed right-[max(1rem,calc(50%-300px))] top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full text-neutral-900 hover:text-neutral-700 hover:bg-neutral-100 transition disabled:opacity-0 disabled:cursor-default z-10"
+        aria-label="Next quiz"
+      >
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
     </main>
   );
 }

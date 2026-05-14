@@ -19,7 +19,7 @@ export default async function QuizPage({
   const user = await getServerUser();
 
   return (
-    <main className="mx-auto w-full max-w-2xl px-6 py-12">
+    <main className="mx-auto w-full max-w-[480px] px-6 py-12 min-h-[calc(100vh-3rem)]">
       <QuizRunner quiz={quiz} user={user} />
     </main>
   );

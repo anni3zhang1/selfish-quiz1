@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { composeMessage } from "@/lib/composer";
 import type { MessageIntensity } from "@/lib/composer";
-import { getTwilioClient, getTwilioPhone } from "@/lib/twilio";
+import { sendSMS } from "@/lib/sms";
 
 export const runtime = "nodejs";
 export const maxDuration = 300; // may process multiple users
@@ -158,9 +158,6 @@ export async function GET(req: Request) {
 
   const results: { email: string; status: string; error?: string }[] = [];
 
-  const twilio = getTwilioClient();
-  const fromPhone = getTwilioPhone();
-
   for (const user of eligible) {
     try {
       // Compose a message, with re-engagement hint if user has been quiet
@@ -169,12 +166,8 @@ export async function GET(req: Request) {
         consecutiveUnanswered: user.consecutiveUnanswered,
       });
 
-      // Send it
-      const sms = await twilio.messages.create({
-        to: user.phone,
-        from: fromPhone,
-        body: composed.body,
-      });
+      // Send via active provider
+      const result = await sendSMS(user.email, user.phone, composed.body);
 
       // Log to messages table
       await supabase.from("messages").insert({
@@ -189,7 +182,7 @@ export async function GET(req: Request) {
       const reengageNote = user.consecutiveUnanswered > 0
         ? ` (re-engage attempt ${user.consecutiveUnanswered}, suggested ${user.suggestedIntensity})`
         : "";
-      console.log(`Sent ${composed.intensity} message to ${user.email}${reengageNote} (SID: ${sms.sid})`);
+      console.log(`Sent ${composed.intensity} message to ${user.email}${reengageNote} (${result.provider}: ${result.messageId})`);
       results.push({ email: user.email, status: "sent" });
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);

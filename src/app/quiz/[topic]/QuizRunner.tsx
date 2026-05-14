@@ -283,6 +283,51 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
     }
   }
 
+  // === Swipe-between-questions state ===
+  const [slideDir, setSlideDir] = useState<"none" | "left" | "right">("none");
+  const [questionDragX, setQuestionDragX] = useState(0);
+  const [isQuestionDragging, setIsQuestionDragging] = useState(false);
+  const questionDragStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+
+  // Trigger slide-out animation, then advance
+  function animateAndAdvance() {
+    setSlideDir("left");
+    setTimeout(() => {
+      handleNext();
+      setSlideDir("right"); // new question enters from right
+      setTimeout(() => setSlideDir("none"), 50); // reset to trigger CSS transition
+    }, 250);
+  }
+
+  // Question-level swipe handlers (swipe left to submit & advance)
+  function onQuestionPointerDown(e: React.PointerEvent) {
+    // Don't capture swipe if interacting with textarea or button
+    const tag = (e.target as HTMLElement).tagName;
+    if (tag === "TEXTAREA" || tag === "BUTTON" || tag === "INPUT") return;
+    questionDragStartRef.current = { x: e.clientX, y: e.clientY, time: Date.now() };
+    setIsQuestionDragging(true);
+  }
+
+  function onQuestionPointerMove(e: React.PointerEvent) {
+    if (!questionDragStartRef.current || !isQuestionDragging) return;
+    const dx = e.clientX - questionDragStartRef.current.x;
+    // Only allow left swipe (negative) when answer is selected
+    if (dx < 0 && canSubmit) {
+      setQuestionDragX(dx);
+    }
+  }
+
+  function onQuestionPointerUp() {
+    if (!questionDragStartRef.current) return;
+    const threshold = 80;
+    if (questionDragX < -threshold && canSubmit) {
+      animateAndAdvance();
+    }
+    setQuestionDragX(0);
+    setIsQuestionDragging(false);
+    questionDragStartRef.current = null;
+  }
+
   // === Render ===
 
   // Registration phase — form + loading animation
@@ -304,7 +349,6 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
 
     return (
       <div className="py-12 sm:py-16 min-h-[70vh] flex flex-col items-center">
-        {/* Loading animation */}
         <h1 className="text-2xl sm:text-3xl font-serif tracking-tight text-center mb-2">
           Building Your {quiz.topicLabel} Intellectual Map
         </h1>
@@ -331,7 +375,6 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
           ))}
         </div>
 
-        {/* Registration form — only for new users */}
         {!user && (
           <div className="w-full max-w-sm">
             <p className="text-sm text-neutral-600 text-center mb-6">
@@ -346,7 +389,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
               className="space-y-4"
             >
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                <label className="block text-xs uppercase tracking-wider text-neutral-400 mb-1.5">
                   Name
                 </label>
                 <input
@@ -357,13 +400,13 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
                   disabled={isSubmitting}
-                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900 disabled:opacity-50"
+                  className="w-full px-4 py-3.5 border border-neutral-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-neutral-900 disabled:opacity-50 transition placeholder:text-neutral-300"
                   placeholder="Your name"
                   autoFocus
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                <label className="block text-xs uppercase tracking-wider text-neutral-400 mb-1.5">
                   Email
                 </label>
                 <input
@@ -373,12 +416,12 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
                   value={formEmail}
                   onChange={(e) => setFormEmail(e.target.value)}
                   disabled={isSubmitting}
-                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900 disabled:opacity-50"
+                  className="w-full px-4 py-3.5 border border-neutral-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-neutral-900 disabled:opacity-50 transition placeholder:text-neutral-300"
                   placeholder="you@example.com"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                <label className="block text-xs uppercase tracking-wider text-neutral-400 mb-1.5">
                   Phone
                 </label>
                 <PhoneInput
@@ -395,13 +438,13 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
               </div>
 
               {formError && (
-                <div className="text-sm text-red-600">{formError}</div>
+                <div className="text-sm text-red-600 bg-red-50 px-4 py-2.5 rounded-lg">{formError}</div>
               )}
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full px-6 py-3 bg-neutral-900 text-white rounded-lg font-medium hover:bg-neutral-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-6 py-3.5 bg-neutral-900 text-white rounded-xl font-medium hover:bg-neutral-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? "Saving..." : "See My Results"}
               </button>
@@ -414,7 +457,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
 
   if (phase === "error") {
     return (
-      <div className="py-20 max-w-md mx-auto text-center">
+      <div className="py-20 text-center">
         <h2 className="text-2xl font-serif mb-3">Something went wrong.</h2>
         <p className="text-sm text-red-600 mb-6">{error}</p>
         <button
@@ -423,7 +466,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
             setPhase("registering");
             setError(null);
           }}
-          className="px-6 py-3 bg-neutral-900 text-white rounded-lg font-medium"
+          className="px-6 py-3 bg-neutral-900 text-white rounded-xl font-medium"
         >
           Try again
         </button>
@@ -443,15 +486,42 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
     ? `freeform-${current.id}`
     : `annotation-${current.id}-${optionId ?? "none"}`;
 
+  // Slide transform for question transitions
+  const questionTransform =
+    slideDir === "left"
+      ? "translateX(-110%)"
+      : slideDir === "right"
+      ? "translateX(110%)"
+      : `translateX(${questionDragX}px)`;
+
+  const questionTransition =
+    isQuestionDragging || slideDir === "right"
+      ? "none"
+      : "transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease";
+
+  const questionOpacity = slideDir === "left" ? 0 : 1;
+
   return (
-    <div>
+    <div
+      className="touch-pan-y select-none"
+      onPointerDown={onQuestionPointerDown}
+      onPointerMove={onQuestionPointerMove}
+      onPointerUp={onQuestionPointerUp}
+      onPointerCancel={onQuestionPointerUp}
+    >
+      {/* Progress bar */}
       <div className="mb-8">
-        <div className="text-xs uppercase tracking-wider text-neutral-500 mb-2">
-          {quiz.topicLabel} · {progressLabel}
+        <div className="flex items-center justify-between mb-2">
+          <div className="text-xs uppercase tracking-wider text-neutral-400">
+            {quiz.topicLabel}
+          </div>
+          <div className="text-xs tabular-nums text-neutral-400">
+            {progressLabel}
+          </div>
         </div>
-        <div className="h-1 bg-neutral-200 rounded-full overflow-hidden">
+        <div className="h-0.5 bg-neutral-200 rounded-full overflow-hidden">
           <div
-            className="h-full bg-neutral-900 transition-all"
+            className="h-full bg-neutral-900 transition-all duration-500"
             style={{
               width: `${Math.min(100, (answeredMain / totalMain) * 100)}%`,
             }}
@@ -459,63 +529,90 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
         </div>
       </div>
 
-      <h2 className="text-lg sm:text-xl font-serif leading-snug mb-8">
-        {current.text}
-      </h2>
+      {/* Question content — slides horizontally on transition */}
+      <div
+        style={{
+          transform: questionTransform,
+          transition: questionTransition,
+          opacity: questionOpacity,
+        }}
+      >
+        <h2 className="text-lg sm:text-xl font-serif leading-snug mb-8">
+          {current.text}
+        </h2>
 
-      {!freeformOnly && (
-        <div className="space-y-2 mb-6">
-          {shuffledOptions.map((opt, idx) => {
-            const selected = optionId === opt.id;
-            const displayLabel = String.fromCharCode(65 + idx);
-            return (
-              <button
-                key={opt.id}
-                type="button"
-                onClick={() => {
-                  if (optionId !== opt.id) {
-                    setOptionId(opt.id);
-                    setFreeformText("");
-                  }
-                }}
-                className={`w-full text-left px-5 py-4 rounded-lg border transition ${
-                  selected
-                    ? "border-neutral-900 bg-neutral-900 text-white"
-                    : "border-neutral-300 bg-white hover:border-neutral-500"
-                }`}
-              >
-                <span className="font-mono text-xs mr-3 opacity-70">
-                  {displayLabel}
-                </span>
-                {opt.text}
-              </button>
-            );
-          })}
+        {/* Answer options as tappable cards */}
+        {!freeformOnly && (
+          <div className="space-y-2.5 mb-6">
+            {shuffledOptions.map((opt, idx) => {
+              const selected = optionId === opt.id;
+              const displayLabel = String.fromCharCode(65 + idx);
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => {
+                    if (optionId !== opt.id) {
+                      setOptionId(opt.id);
+                      setFreeformText("");
+                    }
+                  }}
+                  className={`w-full text-left px-5 py-4 rounded-xl border-2 transition-all duration-200 ${
+                    selected
+                      ? "border-neutral-900 bg-neutral-900 text-white shadow-lg scale-[1.02]"
+                      : "border-neutral-200 bg-white hover:border-neutral-400 active:scale-[0.98]"
+                  }`}
+                >
+                  <span className={`font-mono text-xs mr-3 ${selected ? "text-neutral-400" : "text-neutral-300"}`}>
+                    {displayLabel}
+                  </span>
+                  <span className="text-[15px] leading-relaxed">{opt.text}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Annotation / freeform textarea */}
+        {showAnnotation && (
+          <div className="annotation-slide-in mb-6">
+            <textarea
+              key={textareaKey}
+              value={freeformText}
+              onChange={(e) => setFreeformText(e.target.value)}
+              rows={freeformOnly ? 4 : 3}
+              placeholder={freeformOnly ? "Take your time…" : "Add context (optional)"}
+              className="w-full px-4 py-3.5 border border-neutral-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-neutral-900 transition placeholder:text-neutral-300 resize-none"
+            />
+          </div>
+        )}
+
+        {/* Next button + swipe hint */}
+        {showAnnotation && (
+          <div className="annotation-slide-in flex items-center gap-4">
+            <button
+              type="button"
+              onClick={canSubmit ? animateAndAdvance : undefined}
+              disabled={!canSubmit}
+              className="px-6 py-3.5 bg-neutral-900 text-white rounded-xl font-medium hover:bg-neutral-800 transition disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              Next →
+            </button>
+            <span className="text-xs text-neutral-300 hidden sm:inline">
+              or swipe left
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Swipe affordance indicator (shows when answer selected, mobile) */}
+      {canSubmit && !freeformOnly && (
+        <div className="mt-8 flex justify-center sm:hidden">
+          <div className="flex items-center gap-1.5 text-[11px] text-neutral-300">
+            <span>←</span>
+            <span>swipe to continue</span>
+          </div>
         </div>
-      )}
-
-      {showAnnotation && (
-        <div className="annotation-slide-in mb-6">
-          <textarea
-            key={textareaKey}
-            value={freeformText}
-            onChange={(e) => setFreeformText(e.target.value)}
-            rows={freeformOnly ? 4 : 3}
-            placeholder={freeformOnly ? "Take your time…" : "add context (optional)"}
-            className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900"
-          />
-        </div>
-      )}
-
-      {showAnnotation && (
-        <button
-          type="button"
-          onClick={handleNext}
-          disabled={!canSubmit}
-          className="annotation-slide-in px-6 py-3 bg-neutral-900 text-white rounded-lg font-medium hover:bg-neutral-800 transition disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          Next →
-        </button>
       )}
     </div>
   );

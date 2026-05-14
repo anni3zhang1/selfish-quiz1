@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { getTwilioClient, getTwilioPhone } from "@/lib/twilio";
+import { sendSMS } from "@/lib/sms";
 
 export const runtime = "nodejs";
 
@@ -47,16 +47,9 @@ export async function POST(req: Request) {
     );
   }
 
-  // Send via Twilio
-  const twilio = getTwilioClient();
-  const fromPhone = getTwilioPhone();
-
+  // Send via active provider (Twilio or Linq)
   try {
-    const message = await twilio.messages.create({
-      to: user.phone,
-      from: fromPhone,
-      body,
-    });
+    const result = await sendSMS(email, user.phone, body);
 
     // Log to messages table
     const { error: insertErr } = await supabase.from("messages").insert({
@@ -70,19 +63,20 @@ export async function POST(req: Request) {
 
     if (insertErr) {
       console.error("Failed to log message:", insertErr);
-      // Don't fail the request — the SMS was sent successfully
+      // Don't fail the request — the message was sent successfully
     }
 
     return NextResponse.json({
       ok: true,
-      sid: message.sid,
+      provider: result.provider,
+      messageId: result.messageId,
       to: user.phone,
     });
   } catch (err) {
-    console.error("Twilio send failed:", err);
+    console.error("Message send failed:", err);
     return NextResponse.json(
       {
-        error: err instanceof Error ? err.message : "Failed to send SMS",
+        error: err instanceof Error ? err.message : "Failed to send message",
       },
       { status: 500 }
     );

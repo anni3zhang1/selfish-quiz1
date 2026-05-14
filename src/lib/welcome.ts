@@ -1,6 +1,6 @@
 import { anthropic, MODEL } from "./anthropic";
 import { supabase } from "@/lib/supabase";
-import { getTwilioClient, getTwilioPhone } from "@/lib/twilio";
+import { sendSMS, replySMS } from "@/lib/sms";
 import type { AnswerEntry, Fingerprint } from "@/lib/types";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://selfish.world";
@@ -180,34 +180,34 @@ export async function sendWelcomeSequence(
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 
-  // Build the message
-  let body: string;
+  // ── Two-message strategy ──────────────────────────────────────────
+  // Message 1: Intro + MC question (NO link — Linq blocks links in first messages)
+  // Message 2: Results link as immediate follow-up (links allowed in follow-ups)
+  //
+  // For Twilio, both messages work fine either way. The split keeps
+  // behavior consistent across providers.
+
+  let introBody: string;
 
   if (hooks.length >= 3) {
-    body =
-      `Hey! Here are your Selfish results on ${topicDisplay}: ${resultsLink}\n\n` +
-      `I'm your thinking partner. I'll send you ideas, questions, and content to help sharpen your thinking.\n\n` +
-      `What are you curious to explore next?\n` +
+    introBody =
+      `Hey! I'm your Selfish thinking partner. I'll send you ideas, questions, and rabbit holes to sharpen your thinking.\n\n` +
+      `Based on your ${topicDisplay} quiz — what are you curious to explore next?\n` +
       `1. ${hooks[0].hook}\n` +
       `2. ${hooks[1].hook}\n` +
       `3. ${hooks[2].hook}`;
   } else {
     // Fallback — no hooks generated
-    body =
-      `Hey! Here are your Selfish results on ${topicDisplay}: ${resultsLink}\n\n` +
-      `I'm your thinking partner. I'll send you ideas, questions, and content to help sharpen your thinking. Talk soon!`;
+    introBody =
+      `Hey! I'm your Selfish thinking partner. I'll send you ideas, questions, and rabbit holes to sharpen your thinking based on your ${topicDisplay} quiz. Talk soon!`;
   }
 
-  // Send via Twilio
-  const twilio = getTwilioClient();
-  const sms = await twilio.messages.create({
-    to: user.phone,
-    from: getTwilioPhone(),
-    body,
-  });
+  const linkBody = `Here are your results: ${resultsLink}`;
 
-  // Log to messages table — store hooks in content_id for MC reply detection
-  // Format: welcome:<sessionId>:<hook1_domain>|<hook2_domain>|<hook3_domain>
+  // Send message 1: intro (creates the chat for Linq)
+  const result = await sendSMS(email, user.phone, introBody);
+
+  // Log message 1
   const hookDomains = hooks.map((h) => h.domain).join("|");
   const contentId = hooks.length >= 3
     ? `welcome:${sessionId}:${hookDomains}`
@@ -217,13 +217,30 @@ export async function sendWelcomeSequence(
     user_email: email,
     phone: user.phone,
     direction: "outbound",
-    body,
+    body: introBody,
     intensity: "light",
     content_id: contentId,
   });
 
+  // Send message 2: results link (follow-up — links allowed)
+  const linkResult = await replySMS(
+    email,
+    user.phone,
+    linkBody,
+    result.chatId
+  );
+
+  await supabase.from("messages").insert({
+    user_email: email,
+    phone: user.phone,
+    direction: "outbound",
+    body: linkBody,
+    intensity: "light",
+    content_id: `welcome_link:${sessionId}`,
+  });
+
   console.log(
-    `Welcome SMS sent to ${email} (SID: ${sms.sid}), ${hooks.length} hooks offered`
+    `Welcome sequence sent to ${email} (${result.provider}: msg1=${result.messageId}, msg2=${linkResult.messageId}), ${hooks.length} hooks offered`
   );
 }
 

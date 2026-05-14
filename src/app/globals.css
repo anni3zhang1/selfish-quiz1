@@ -116,6 +116,21 @@ body {
   animation: annotation-slide-in 250ms ease-out;
 }
 
+/* Question slide transition */
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.slide-in-right {
+  animation: slide-in-right 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 /* Position map — "You" pulse ring */
 @keyframes position-map-pulse {
   0% { transform: scale(1); opacity: 0.6; }

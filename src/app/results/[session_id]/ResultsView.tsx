@@ -80,6 +80,7 @@ export default function ResultsView({
     isPreloaded ? (constellation.position_map ?? null) : null
   );
   const positionMapStartedRef = useRef(false);
+  const positionMapDataRef = useRef<PositionMapData | null>(null);
 
   const [modalType, setModalType] = useState<RelationshipType | null>(null);
   const [pendingModal, setPendingModal] = useState<RelationshipType | null>(null);
@@ -178,16 +179,8 @@ export default function ResultsView({
             .then(async (res) => {
               if (!res.ok) throw new Error(`Position map failed (${res.status})`);
               const pmData = (await res.json()) as PositionMapData;
+              positionMapDataRef.current = pmData;
               setPositionMap(pmData);
-              // Patch position_map into saved constellation
-              fetch("/api/constellation/save", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  session_id: sessionId,
-                  patch: { position_map: pmData },
-                }),
-              }).catch((err) => console.error("Position map save failed:", err));
             })
             .catch((err) => console.error("Position map generation failed:", err));
         }
@@ -260,15 +253,41 @@ export default function ResultsView({
           };
         }
 
-        // Save to DB
+        // Save to DB (include position_map if it arrived before save fires)
         await fetch("/api/constellation/save", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             session_id: sessionId,
-            constellation: { ...fullConstellation, user_insight: data.user_insight },
+            constellation: {
+              ...fullConstellation,
+              user_insight: data.user_insight,
+              ...(positionMapDataRef.current ? { position_map: positionMapDataRef.current } : {}),
+            },
           }),
         }).catch((err) => console.error("Save failed:", err));
+
+        // If position map arrives AFTER the save, patch it in
+        if (!positionMapDataRef.current) {
+          const waitForPM = () => {
+            const check = setInterval(() => {
+              if (positionMapDataRef.current) {
+                clearInterval(check);
+                fetch("/api/constellation/save", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    session_id: sessionId,
+                    patch: { position_map: positionMapDataRef.current },
+                  }),
+                }).catch((err) => console.error("Position map patch save failed:", err));
+              }
+            }, 500);
+            // Stop checking after 30s
+            setTimeout(() => clearInterval(check), 30000);
+          };
+          waitForPM();
+        }
 
         // Trigger email after save
         if (userEmail && !emailAlreadySent && !emailTriggeredRef.current) {
@@ -298,6 +317,33 @@ export default function ResultsView({
 
     void runPreview();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Re-fetch position map for preloaded sessions that are missing it
+  useEffect(() => {
+    if (!isPreloaded || positionMap || positionMapStartedRef.current || !answers) return;
+    // Extract thinker names from the constellation
+    const thinkerNames = RELATIONSHIPS.map((r) => constellation[r.key]?.name).filter(Boolean) as string[];
+    if (thinkerNames.length === 0) return;
+    positionMapStartedRef.current = true;
+    fetch("/api/constellation/position-map", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ topic, answers, thinkers: thinkerNames }),
+    })
+      .then(async (res) => {
+        if (!res.ok) throw new Error(`Position map failed (${res.status})`);
+        const pmData = (await res.json()) as PositionMapData;
+        positionMapDataRef.current = pmData;
+        setPositionMap(pmData);
+        // Patch-save to DB
+        fetch("/api/constellation/save", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ session_id: sessionId, patch: { position_map: pmData } }),
+        }).catch((err) => console.error("Position map patch save failed:", err));
+      })
+      .catch((err) => console.error("Position map re-fetch failed:", err));
+  }, [isPreloaded, positionMap, answers]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Email trigger for preloaded sessions
   useEffect(() => {

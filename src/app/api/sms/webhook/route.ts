@@ -2,7 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { synthesizeMemory } from "@/lib/memory";
 import { detectWelcomeReply } from "@/lib/welcome";
 import { composeMessage } from "@/lib/composer";
-import { getTwilioClient, getTwilioPhone } from "@/lib/twilio";
+import { replySMS } from "@/lib/sms";
 import twilio from "twilio";
 
 export const runtime = "nodejs";
@@ -101,12 +101,7 @@ export async function POST(req: Request) {
         .then(async () => {
           // Compose a message that leans into the chosen curiosity edge
           const composed = await composeMessage(userEmail);
-          const twilioClient = getTwilioClient();
-          const sms = await twilioClient.messages.create({
-            to: from!,
-            from: getTwilioPhone(),
-            body: composed.body,
-          });
+          const result = await replySMS(userEmail, from!, composed.body);
 
           await supabase.from("messages").insert({
             user_email: userEmail,
@@ -117,7 +112,7 @@ export async function POST(req: Request) {
             content_id: null,
           });
 
-          console.log(`Follow-up sent to ${userEmail} after welcome choice (SID: ${sms.sid})`);
+          console.log(`Follow-up sent to ${userEmail} after welcome choice (${result.provider}: ${result.messageId})`);
         })
         .catch((err) => {
           console.error("Welcome follow-up failed:", err);
@@ -127,12 +122,7 @@ export async function POST(req: Request) {
       synthesizeMemory(userEmail, "sms_reply")
         .then(async () => {
           const composed = await composeMessage(userEmail);
-          const twilioClient = getTwilioClient();
-          const sms = await twilioClient.messages.create({
-            to: from!,
-            from: getTwilioPhone(),
-            body: composed.body,
-          });
+          const result = await replySMS(userEmail, from!, composed.body);
 
           await supabase.from("messages").insert({
             user_email: userEmail,
@@ -143,7 +133,7 @@ export async function POST(req: Request) {
             content_id: null,
           });
 
-          console.log(`Reply sent to ${userEmail} (${composed.intensity}, SID: ${sms.sid})`);
+          console.log(`Reply sent to ${userEmail} (${composed.intensity}, ${result.provider}: ${result.messageId})`);
         })
         .catch((err) => {
           console.error("Reply compose/send failed:", err);

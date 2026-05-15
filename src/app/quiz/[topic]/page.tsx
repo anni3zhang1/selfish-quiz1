@@ -18,7 +18,7 @@ export default async function QuizPage({
   if (!user) redirect("/start");
 
   return (
-    <main className="mx-auto w-full max-w-[480px] px-6 py-6 sm:py-10 min-h-[calc(100vh-3rem)]">
+    <main className="relative mx-auto w-full max-w-[480px] px-6 py-6 sm:py-10 min-h-[calc(100vh-3rem)] flex flex-col justify-center">
       <QuizRunner quiz={quiz} user={user} />
     </main>
   );

@@ -568,7 +568,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
 
             {/* === STEP 2: Answer options === */}
             {viewStep === "answering" && (
-              <div className={`max-w-sm mx-auto w-full ${freeformOnly ? "flex-1 flex flex-col" : ""}`}>
+              <div className={`w-full ${freeformOnly ? "flex-1 flex flex-col" : ""}`}>
                 {/* Answer options — centered */}
                 {!freeformOnly && (
                   <div className="space-y-2.5 mb-4">
@@ -613,6 +613,17 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
                       className={`w-full px-4 py-3.5 border border-neutral-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-neutral-900 transition placeholder:text-neutral-300 resize-none ${freeformOnly ? "flex-1" : ""}`}
                     />
                   </div>
+                )}
+
+                {/* Mobile "Next" CTA (non-last questions) */}
+                {!isLastQuestion && canSubmit && (
+                  <button
+                    type="button"
+                    onClick={animateToNextQuestion}
+                    className="sm:hidden w-full px-6 py-3.5 rounded-xl text-sm font-medium bg-neutral-900 text-white hover:bg-neutral-800 transition-colors annotation-slide-in"
+                  >
+                    Next →
+                  </button>
                 )}
 
                 {/* "See where you stand" CTA on last question */}

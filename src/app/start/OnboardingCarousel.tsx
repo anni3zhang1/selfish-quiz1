@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useMemo } from "react";
+import { useState, useRef, useCallback, useMemo, useEffect } from "react";
 import Link from "next/link";
 import PhoneInput from "@/components/PhoneInput";
 import { SubmitButton } from "./SubmitButton";
@@ -83,6 +83,29 @@ export default function OnboardingCarousel({ error }: OnboardingCarouselProps) {
   const [dragX, setDragX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef<{ x: number; time: number } | null>(null);
+
+  // Browser history state — so back button navigates slides instead of leaving
+  const isInitialMount = useRef(true);
+  useEffect(() => {
+    if (isInitialMount.current) {
+      window.history.replaceState({ slide: 0 }, "");
+      isInitialMount.current = false;
+      return;
+    }
+    window.history.pushState({ slide: index }, "");
+  }, [index]);
+
+  useEffect(() => {
+    function handlePopState(e: PopStateEvent) {
+      const state = e.state as { slide?: number } | null;
+      if (state && typeof state.slide === "number") {
+        setIndex(state.slide);
+        setDragX(0);
+      }
+    }
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
   // Shuffle the first 12 topics once on mount
   const shuffledAboveFold = useMemo(() => {
@@ -217,7 +240,7 @@ export default function OnboardingCarousel({ error }: OnboardingCarouselProps) {
                   onClick={goNext}
                   className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 text-white rounded-xl text-sm font-medium hover:bg-neutral-800 transition-colors self-start"
                 >
-                  {index === SLIDES.length - 1 ? "Get started" : "Next"} →
+                  Next →
                 </button>
               </div>
             </>

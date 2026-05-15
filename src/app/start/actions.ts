@@ -8,6 +8,14 @@ export async function submitIdentity(formData: FormData) {
   const rawName = (formData.get("name") as string | null)?.trim() ?? "";
   const rawEmail = (formData.get("email") as string | null)?.trim().toLowerCase() ?? "";
   const rawPhone = (formData.get("phone") as string | null)?.trim() || null;
+  const rawTopics = (formData.get("selected_topics") as string | null) ?? "[]";
+
+  let selectedTopics: string[] = [];
+  try {
+    selectedTopics = JSON.parse(rawTopics);
+  } catch {
+    selectedTopics = [];
+  }
 
   if (rawName.length < 2 || !isValidEmail(rawEmail)) {
     redirect("/start?error=invalid");
@@ -16,7 +24,12 @@ export async function submitIdentity(formData: FormData) {
   const { error } = await supabase
     .from("users")
     .upsert(
-      { email: rawEmail, name: rawName, ...(rawPhone ? { phone: rawPhone } : {}) },
+      {
+        email: rawEmail,
+        name: rawName,
+        ...(rawPhone ? { phone: rawPhone } : {}),
+        selected_topics: selectedTopics,
+      },
       { onConflict: "email" }
     );
 

@@ -58,12 +58,14 @@ function getCategoryLabel(slug: string): string {
 interface HomeClientProps {
   cards: readonly TopicCard[];
   completedSlugs: string[];
+  selectedTopics: string[];
   userName: string | null;
   userEmail: string | null;
 }
 
-export default function HomeClient({ cards, completedSlugs, userName, userEmail }: HomeClientProps) {
+export default function HomeClient({ cards, completedSlugs, selectedTopics, userName, userEmail }: HomeClientProps) {
   const completedSet = new Set(completedSlugs);
+  const selectedSet = new Set(selectedTopics);
   const [activeCategory, setActiveCategory] = useState(0); // 0 = "All"
   const [index, setIndex] = useState(0);
   const [dragX, setDragX] = useState(0);
@@ -71,6 +73,7 @@ export default function HomeClient({ cards, completedSlugs, userName, userEmail 
   const dragStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
 
   // Filter + sort cards by category
+  // Sort priority: selected & incomplete first, then unselected incomplete, then completed
   const isCompletedTab = CATEGORIES[activeCategory].special === "completed";
   const filtered = useMemo(() => {
     const cat = CATEGORIES[activeCategory];
@@ -80,11 +83,16 @@ export default function HomeClient({ cards, completedSlugs, userName, userEmail 
     const pool = cat.slugs
       ? [...cards].filter((c) => cat.slugs!.has(c.slug))
       : [...cards];
-    // Incomplete first
-    return pool.sort(
-      (a, b) => (completedSet.has(a.slug) ? 1 : 0) - (completedSet.has(b.slug) ? 1 : 0)
-    );
-  }, [activeCategory, cards, completedSet]);
+    return pool.sort((a, b) => {
+      const aComplete = completedSet.has(a.slug) ? 1 : 0;
+      const bComplete = completedSet.has(b.slug) ? 1 : 0;
+      if (aComplete !== bComplete) return aComplete - bComplete;
+      // Among incomplete, selected topics first
+      const aSelected = selectedSet.has(a.slug) ? 0 : 1;
+      const bSelected = selectedSet.has(b.slug) ? 0 : 1;
+      return aSelected - bSelected;
+    });
+  }, [activeCategory, cards, completedSet, selectedSet]);
 
   // Clamp index when filter changes
   const safeIndex = Math.min(index, filtered.length - 1);

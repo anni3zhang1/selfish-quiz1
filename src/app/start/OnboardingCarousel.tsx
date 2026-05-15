@@ -8,6 +8,7 @@ import { submitIdentity } from "./actions";
 
 type Slide = {
   gradient: string;
+  title?: string;
   heading: string;
   subheading: string;
 };
@@ -15,19 +16,25 @@ type Slide = {
 const SLIDES: Slide[] = [
   {
     gradient: "from-amber-200 via-orange-200 to-rose-300",
-    heading: "Be the most interesting person you'll meet",
-    subheading: "",
+    title: "Stance",
+    heading: "Know where you stand",
+    subheading: "On the topics that shape the world.",
   },
   {
     gradient: "from-violet-300 via-indigo-300 to-blue-400",
-    heading: "A thinking partner in your DMs",
+    heading: "Quizzes that reveal how you actually think",
     subheading:
-      "Feynman helps you find the ideas that were always yours — you just haven't met them yet.",
+      "See the real arguments on every side and where you land among them.",
   },
   {
     gradient: "from-emerald-200 via-teal-300 to-cyan-400",
-    heading: "Content that makes you feel smarter",
-    subheading: "Your mind deserves better than the algorithm.",
+    heading: "Meet thinkers who think like you",
+    subheading: "And the ones who challenge everything you believe.",
+  },
+  {
+    gradient: "from-rose-300 via-pink-300 to-fuchsia-400",
+    heading: "A personal trainer for your mind",
+    subheading: "Don't let the algorithm do your thinking for you.",
   },
 ];
 
@@ -129,9 +136,9 @@ export default function OnboardingCarousel({ error }: OnboardingCarouselProps) {
               {/* Content */}
               <div className="p-6 sm:p-8 flex flex-col justify-between flex-1">
                 <div>
-                  {index === 0 && (
+                  {SLIDES[index].title && (
                     <h1 className="text-3xl sm:text-4xl font-serif tracking-tight leading-tight mb-2">
-                      Self<em>ish</em>
+                      {SLIDES[index].title}
                     </h1>
                   )}
                   <h2 className="text-xl sm:text-2xl font-serif tracking-tight leading-snug mb-3">
@@ -156,13 +163,10 @@ export default function OnboardingCarousel({ error }: OnboardingCarouselProps) {
           ) : (
             /* Signup slide */
             <div className="p-6 sm:p-8 flex flex-col justify-center flex-1">
-              <div className="mb-8">
+              <div className="mb-6">
                 <h2 className="text-2xl sm:text-3xl font-serif tracking-tight leading-snug mb-2">
                   Start thinking
                 </h2>
-                <p className="text-sm text-neutral-500">
-                  Create your account to begin.
-                </p>
               </div>
 
               <form action={submitIdentity} className="space-y-4">

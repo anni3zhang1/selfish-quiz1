@@ -455,16 +455,35 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
     if (canGoBack) animateBackToQuestion();
   }
 
+  // Show stacking hint on mobile when there are more questions ahead
+  const showStackHint = !isLastQuestion && viewStep === "reading";
+
   return (
     <div
-      className="relative touch-pan-y select-none overflow-hidden"
+      className="relative touch-pan-y select-none"
       onPointerDown={onSwipePointerDown}
       onPointerMove={onSwipePointerMove}
       onPointerUp={onSwipePointerUp}
       onPointerCancel={onSwipePointerUp}
     >
+      {/* Stacking ghost cards (mobile only) */}
+      <div
+        className={`sm:hidden absolute inset-x-0 top-0 min-h-[520px] rounded-2xl border border-neutral-200 bg-neutral-50 shadow-sm transition-all duration-300 ${
+          showStackHint ? "opacity-60 translate-y-3 scale-[0.96]" : "opacity-0 translate-y-0 scale-100"
+        }`}
+        style={{ zIndex: 0 }}
+        aria-hidden="true"
+      />
+      <div
+        className={`sm:hidden absolute inset-x-0 top-0 min-h-[520px] rounded-2xl border border-neutral-200 bg-neutral-100/50 shadow-sm transition-all duration-300 ${
+          showStackHint ? "opacity-40 translate-y-[22px] scale-[0.92]" : "opacity-0 translate-y-0 scale-100"
+        }`}
+        style={{ zIndex: 0 }}
+        aria-hidden="true"
+      />
+
       {/* Outer card */}
-      <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm overflow-hidden min-h-[520px] sm:min-h-[560px] flex flex-col">
+      <div className="relative z-10 rounded-2xl border border-neutral-200 bg-white shadow-sm overflow-hidden min-h-[520px] sm:min-h-[560px] flex flex-col">
         {/* Progress header */}
         <div className="px-6 pt-5 pb-4">
           <div className="flex items-center justify-between mb-2">

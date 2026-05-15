@@ -43,32 +43,66 @@ function getCircleColor(x: number, y: number, index: number): string {
   return index % 2 === 0 ? q.circleDark : q.circleLight;
 }
 
+/** Nudge points apart so circles + labels don't overlap.
+ *  Works in percentage space (0-100). MIN_DIST ≈ circle diameter as % of grid. */
+function spreadPoints(
+  points: { x: number; y: number }[],
+  minDist = 12,
+  iterations = 8
+): { x: number; y: number }[] {
+  const out = points.map((p) => ({ x: p.x, y: p.y }));
+  for (let iter = 0; iter < iterations; iter++) {
+    for (let i = 0; i < out.length; i++) {
+      for (let j = i + 1; j < out.length; j++) {
+        const dx = out[j].x - out[i].x;
+        const dy = out[j].y - out[i].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < minDist && dist > 0) {
+          const push = (minDist - dist) / 2;
+          const nx = dx / dist;
+          const ny = dy / dist;
+          out[i].x -= nx * push;
+          out[i].y -= ny * push;
+          out[j].x += nx * push;
+          out[j].y += ny * push;
+          // Re-clamp
+          out[i].x = Math.max(SAFE_MIN, Math.min(SAFE_MAX, out[i].x));
+          out[i].y = Math.max(SAFE_MIN, Math.min(SAFE_MAX, out[i].y));
+          out[j].x = Math.max(SAFE_MIN, Math.min(SAFE_MAX, out[j].x));
+          out[j].y = Math.max(SAFE_MIN, Math.min(SAFE_MAX, out[j].y));
+        } else if (dist === 0) {
+          // Exact same position — push apart randomly
+          out[j].x = Math.max(SAFE_MIN, Math.min(SAFE_MAX, out[j].x + minDist * 0.7));
+          out[j].y = Math.max(SAFE_MIN, Math.min(SAFE_MAX, out[j].y + minDist * 0.3));
+        }
+      }
+    }
+  }
+  return out;
+}
+
 export default function PositionMap({
   data,
   topicLabel,
   thumbnails,
+  compact,
 }: {
   data: PositionMapData;
   topicLabel: string;
   /** name → thumbnail_url mapping from detail data */
   thumbnails?: Record<string, string>;
+  /** When true, renders just the map without the card wrapper and header */
+  compact?: boolean;
 }) {
-  return (
-    <div style={{ maxWidth: 560, width: "100%", margin: "0 auto", background: "white", border: "0.5px solid rgba(0,0,0,0.1)", borderRadius: "12px", overflow: "hidden" }}>
+  // Spread all points (thinkers + user) to avoid overlap
+  const allRaw = [...data.thinkers.map((t) => ({ x: t.x, y: t.y })), { x: data.user.x, y: data.user.y }];
+  const spread = spreadPoints(allRaw);
+  const thinkerPositions = spread.slice(0, data.thinkers.length);
+  const userPosition = spread[spread.length - 1];
 
-      {/* Header */}
-      <div style={{ padding: "1.5rem 1.5rem 0.75rem" }}>
-        <p style={{ fontFamily: "var(--font-space-grotesk), 'Space Grotesk', sans-serif", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", color: "#a3a3a3", margin: "0 0 6px", fontWeight: 500 }}>
-          Your position map
-        </p>
-        <p style={{ fontFamily: "var(--font-dm-serif), 'DM Serif Display', serif", fontSize: 22, color: "#171717", margin: 0, fontWeight: 400 }}>
-          {topicLabel}
-        </p>
-      </div>
-
-      {/* Map */}
-      <div style={{ padding: "0 1rem 1rem", position: "relative" }}>
-        <div style={{ position: "relative", width: "100%", paddingTop: 32, paddingBottom: 32, paddingLeft: 4, paddingRight: 4 }}>
+  const mapSection = (
+      <div style={{ padding: compact ? "0" : "0 1rem 1rem", position: "relative" }}>
+        <div style={{ position: "relative", width: "100%", paddingTop: compact ? 16 : 32, paddingBottom: compact ? 16 : 32, paddingLeft: 0, paddingRight: 0 }}>
 
           {/* Y-axis top label */}
           <div style={{ textAlign: "center", marginBottom: 6 }}>
@@ -165,8 +199,8 @@ export default function PositionMap({
             {/* Thinker dots */}
             {data.thinkers.map((t, i) => {
               const thumb = thumbnails?.[t.name];
-              const cx = clamp(t.x);
-              const cy = clamp(t.y);
+              const cx = thinkerPositions[i].x;
+              const cy = thinkerPositions[i].y;
               const quadrant = getQuadrant(t.x, t.y);
               const textColor = QUADRANT_COLORS[quadrant].text;
               const circleColor = getCircleColor(t.x, t.y, i);
@@ -184,12 +218,12 @@ export default function PositionMap({
                   }}
                 >
                   <div style={{
-                    width: 46,
-                    height: 46,
+                    width: 38,
+                    height: 38,
                     borderRadius: "50%",
                     background: thumb ? undefined : circleColor,
-                    border: "2.5px solid white",
-                    margin: "0 auto 3px",
+                    border: "2px solid white",
+                    margin: "0 auto 2px",
                     overflow: "hidden",
                     boxShadow: "0 1px 4px rgba(0,0,0,0.15)",
                     display: "flex",
@@ -200,18 +234,18 @@ export default function PositionMap({
                       <Image
                         src={thumb}
                         alt={t.name}
-                        width={46}
-                        height={46}
+                        width={38}
+                        height={38}
                         className="object-cover"
-                        style={{ width: 46, height: 46 }}
+                        style={{ width: 38, height: 38 }}
                       />
                     ) : (
-                      <span style={{ fontFamily: "var(--font-space-grotesk), 'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, color: "white" }}>
+                      <span style={{ fontFamily: "var(--font-space-grotesk), 'Space Grotesk', sans-serif", fontSize: 11, fontWeight: 600, color: "white" }}>
                         {getInitials(t.name)}
                       </span>
                     )}
                   </div>
-                  <span style={{ fontFamily: "var(--font-space-grotesk), 'Space Grotesk', sans-serif", fontSize: 11, fontWeight: 600, color: textColor, whiteSpace: "nowrap" }}>
+                  <span style={{ fontFamily: "var(--font-space-grotesk), 'Space Grotesk', sans-serif", fontSize: 9, fontWeight: 600, color: textColor, whiteSpace: "nowrap" }}>
                     {t.name}
                   </span>
                 </div>
@@ -221,13 +255,13 @@ export default function PositionMap({
             {/* "You" dot */}
             <div style={{
               position: "absolute",
-              left: `${clamp(data.user.x)}%`,
-              top: `${clamp(data.user.y)}%`,
+              left: `${userPosition.x}%`,
+              top: `${userPosition.y}%`,
               transform: "translate(-50%, -50%)",
               zIndex: 10,
               textAlign: "center",
             }}>
-              <div style={{ position: "relative", width: 60, height: 60, margin: "0 auto" }}>
+              <div style={{ position: "relative", width: 48, height: 48, margin: "0 auto" }}>
                 <div
                   className="position-map-pulse-ring"
                   style={{
@@ -238,17 +272,17 @@ export default function PositionMap({
                   }}
                 />
                 <div style={{
-                  width: 54,
-                  height: 54,
+                  width: 44,
+                  height: 44,
                   borderRadius: "50%",
                   background: "#185FA5",
-                  border: "3px solid white",
+                  border: "2.5px solid white",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   boxShadow: "0 3px 12px rgba(24,95,165,0.4)",
                 }}>
-                  <span style={{ fontFamily: "var(--font-dm-serif), 'DM Serif Display', serif", fontSize: 18, color: "white", fontWeight: 400 }}>
+                  <span style={{ fontFamily: "var(--font-dm-serif), 'DM Serif Display', serif", fontSize: 15, color: "white", fontWeight: 400 }}>
                     You
                   </span>
                 </div>
@@ -266,6 +300,24 @@ export default function PositionMap({
 
         </div>
       </div>
+  );
+
+  if (compact) {
+    return mapSection;
+  }
+
+  return (
+    <div style={{ maxWidth: 560, width: "100%", margin: "0 auto", background: "white", border: "0.5px solid rgba(0,0,0,0.1)", borderRadius: "12px", overflow: "hidden" }}>
+      {/* Header */}
+      <div style={{ padding: "1.5rem 1.5rem 0.75rem" }}>
+        <p style={{ fontFamily: "var(--font-space-grotesk), 'Space Grotesk', sans-serif", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", color: "#a3a3a3", margin: "0 0 6px", fontWeight: 500 }}>
+          Your position map
+        </p>
+        <p style={{ fontFamily: "var(--font-dm-serif), 'DM Serif Display', serif", fontSize: 22, color: "#171717", margin: 0, fontWeight: 400 }}>
+          {topicLabel}
+        </p>
+      </div>
+      {mapSection}
     </div>
   );
 }

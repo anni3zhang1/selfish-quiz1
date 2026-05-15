@@ -63,262 +63,288 @@ export function getQuiz(slug: string) {
 export const topicCards = [
   {
     slug: "ai_governance",
-    name: "AI Governance",
+    name: "Who Gets to Build God?",
     available: true,
+    tags: ["AI", "power", "regulation"],
     description:
-      "How do you think about who controls AI, who's responsible for its harms, and what's actually at stake?",
+      "The most powerful technology ever built is being developed by a handful of companies, and nobody elected any of them. Who should have the final say?",
     intention:
-      "Reveals your relationship to institutions, authority, and how you reason about technological risk.",
+      "Reveals how you think about power, risk, and whether you trust institutions to govern what they don't fully understand.",
     gradient: "from-blue-500 via-cyan-500 to-blue-700",
   },
   {
     slug: "climate",
-    name: "Climate",
+    name: "Who Pays for the Planet?",
     available: true,
+    tags: ["climate", "energy", "trade-offs"],
     description:
-      "Where do you stand on the hardest trade-offs of the climate crisis?",
+      "The planet is warming and everyone agrees something should be done. Nobody agrees on what. Every solution has a cost, and the people who pay aren't the people who decide.",
     intention:
-      "Reveals whether you think in systems, individuals, or institutions — and how you handle uncertainty at civilizational scale.",
+      "Reveals whether you think in systems, individuals, or institutions, and how you handle uncertainty when the stakes are civilization-sized.",
     gradient: "from-emerald-700 via-green-600 to-teal-800",
   },
   {
     slug: "longevity",
-    name: "Longevity",
+    name: "What If Nobody Had to Die?",
     available: true,
+    tags: ["aging", "science", "inequality"],
     description:
-      "If we could dramatically extend healthy human life, should we — and who gets to?",
+      "We're getting closer to dramatically extending healthy human life. Some billionaires are spending fortunes on it. The question isn't just whether it works. It's what happens to a world where some people can afford to live forever and most can't.",
     intention:
-      "Reveals your relationship to equality, mortality, and what you think makes life meaningful.",
+      "Reveals your relationship to mortality, equality, and what you think actually makes a life meaningful.",
     gradient: "from-slate-900 via-slate-600 to-slate-300",
   },
   {
     slug: "bioethics",
-    name: "Bioethics",
+    name: "Engineering Humans",
     available: true,
+    tags: ["biology", "ethics", "medicine"],
     description:
-      "Where do you draw the line on what humans should engineer about themselves?",
+      "We can edit genes, grow embryos from scratch, and sequence your genome for less than a pair of sneakers. The question isn't whether we can. It's who decides what's okay.",
     intention:
-      "Reveals your relationship to nature, progress, and the limits of human agency.",
+      "Reveals where you draw the line between healing and designing, and whether you think nature is something to protect or improve.",
     gradient: "from-amber-700 via-amber-500 to-orange-700",
   },
   {
     slug: "meaning_crisis",
-    name: "Meaning Crisis",
+    name: "The Meaning Vacuum",
     available: true,
+    tags: ["religion", "purpose", "identity"],
     description:
-      "What fills the void left by declining religion, nation, and community?",
+      "Religion is fading faster than anything is filling the gap. People are lonelier, more anxious, and spending more on astrology apps than ever. Something is missing. What is it?",
     intention:
-      "Reveals what you think grounds identity, purpose, and collective life.",
+      "Reveals what you think actually holds people together, and whether we need something sacred or just something shared.",
     gradient: "from-indigo-900 via-indigo-700 to-violet-900",
   },
   {
     slug: "gentrification",
-    name: "Gentrification",
+    name: "Who Gets to Stay?",
     available: true,
+    tags: ["cities", "housing", "class"],
     description:
-      "When a neighborhood improves economically and longtime residents are priced out, what should happen?",
+      "A neighborhood gets nicer. Coffee shops open. Rents double. The people who made it a community in the first place can't afford to live there anymore. Progress for whom?",
     intention:
-      "Reveals how you think about belonging, development, and who cities are for.",
+      "Reveals how you think about belonging, development, and whether cities should serve the people who built them or the people who can pay.",
     gradient: "from-stone-700 via-stone-500 to-stone-800",
   },
   {
     slug: "homelessness",
-    name: "Homelessness",
+    name: "More Empty Homes Than Homeless People",
     available: true,
+    tags: ["poverty", "policy", "cities"],
     description:
-      "Is homelessness a policy failure, an individual failure, or something else entirely?",
+      "The U.S. has more empty homes than homeless people. That fact alone tells you this isn't a simple problem. Is it a policy failure, a personal one, or something we haven't named yet?",
     intention:
-      "Reveals your moral framework and what solutions you're willing to accept.",
+      "Reveals your moral framework and what solutions you're actually willing to accept.",
     gradient: "from-zinc-900 via-zinc-600 to-zinc-200",
   },
   {
     slug: "gun_rights",
-    name: "Gun Rights",
+    name: "The Gun Equation",
     available: true,
+    tags: ["rights", "safety", "culture"],
     description:
-      "How do you think about individual rights, collective safety, and cultural identity?",
+      "America has more guns than people. It also has a constitutional amendment that millions consider sacred. Every proposed solution makes someone's deepest values feel threatened. How do you solve a problem where both sides are right about something?",
     intention:
-      "Reveals your constitutional vs. utilitarian reasoning and how you handle irreducible value conflicts.",
+      "Reveals how you reason when rights and safety collide, and whether you think some values are simply non-negotiable.",
     gradient: "from-red-900 via-red-700 to-stone-800",
   },
   {
     slug: "truth_media",
-    name: "Truth & Media",
+    name: "How Do You Know What's True?",
     available: true,
+    tags: ["media", "trust", "epistemics"],
     description:
-      "In a world of AI-generated content and institutional mistrust, how do you know what's true?",
+      "AI can now generate fake video indistinguishable from real footage. Trust in every major institution is at historic lows. Your uncle and your professor get their news from completely different realities. Who do you believe?",
     intention:
-      "Reveals your epistemic framework and relationship to authority and expertise.",
+      "Reveals your epistemic framework and whether you think truth is something you find, something you build, or something you fight over.",
     gradient: "from-fuchsia-700 via-purple-600 to-slate-900",
   },
   {
     slug: "economic_disruption",
-    name: "Economic Disruption",
+    name: "Your Job Wasn't Supposed to Disappear",
     available: true,
+    tags: ["work", "automation", "inequality"],
     description:
-      "When automation reshapes work, who's responsible and what should be done?",
+      "Every wave of automation creates new jobs and destroys old ones. Economists say the math works out in the long run. But nobody lives in the long run. What happens to the people in between?",
     intention:
-      "Reveals your views on individual vs. systemic responsibility and how you think about economic transitions.",
+      "Reveals whether you think disruption is something individuals should adapt to or something systems should prevent.",
     gradient: "from-neutral-700 via-zinc-600 to-neutral-900",
   },
   {
     slug: "us_foreign_policy",
-    name: "US Foreign Policy",
+    name: "When Should America Intervene?",
     available: true,
+    tags: ["war", "diplomacy", "power"],
     description:
-      "When should the world's most powerful military intervene — and who bears the cost when it does or doesn't?",
+      "The U.S. has military bases in 80 countries and has intervened more than any nation in modern history. Sometimes it works. Sometimes it's catastrophic. When should the most powerful military on earth get involved, and who pays when it does or doesn't?",
     intention:
       "Reveals how you weigh sovereignty, humanitarianism, and national interest against each other.",
     gradient: "from-sky-800 via-blue-700 to-indigo-900",
   },
   {
     slug: "taiwan",
-    name: "Taiwan",
+    name: "The Most Dangerous Place on Earth",
     available: true,
+    tags: ["China", "geopolitics", "chips"],
     description:
-      "How far should the U.S. go to defend Taiwan — and what's really at stake?",
+      "Taiwan makes over 90% of the world's most advanced chips. China says it's a renegade province. The U.S. has been deliberately vague about whether it would go to war to defend it. Clarity could start a war. Ambiguity could too.",
     intention:
-      "Reveals how you think about strategic risk, economic interdependence, and the limits of deterrence.",
+      "Reveals how you think about strategic risk, economic interdependence, and whether deterrence actually works.",
     gradient: "from-red-600 via-rose-500 to-blue-800",
   },
   {
     slug: "gaza_israel",
-    name: "Gaza & Israel",
+    name: "75 Years, No Answer",
     available: true,
+    tags: ["conflict", "justice", "history"],
     description:
-      "How do you think about one of the world's most intractable conflicts?",
+      "Two peoples, both with real historical claims, real trauma, and real grievances, fighting over the same territory for 75 years. Almost everyone who has an opinion is certain they're right. How do you think about a conflict where both sides have a point and both sides have blood on their hands?",
     intention:
       "Reveals how you navigate moral complexity, historical grievance, and competing claims to justice.",
     gradient: "from-amber-800 via-orange-600 to-stone-700",
   },
   {
     slug: "immigration",
-    name: "Immigration",
+    name: "The Border Question",
     available: true,
+    tags: ["borders", "belonging", "labor"],
     description:
-      "Who should get in, who decides, and what do we owe people who are already here?",
+      "The U.S. was built by immigrants, runs on immigrant labor, and can't agree on whether to let more in. Every policy choice trades off compassion against pragmatism, and nobody's found a version that satisfies both.",
     intention:
-      "Reveals your views on borders, belonging, and how you balance compassion with pragmatism.",
+      "Reveals how you think about borders, belonging, and what a country owes people who show up at its door.",
     gradient: "from-teal-700 via-cyan-600 to-emerald-800",
   },
   {
     slug: "nuclear_deterrence",
-    name: "Nuclear Deterrence",
+    name: "Peace by Threat of Annihilation",
     available: true,
+    tags: ["nukes", "war", "risk"],
     description:
-      "Does the threat of mutual annihilation keep the peace — or is it a gamble we'll eventually lose?",
+      "Nine countries have nuclear weapons. The theory is simple: nobody attacks because everyone dies. It's worked for 80 years. But it only has to fail once. Is mutually assured destruction the most successful peace strategy in history, or a coin flip we keep calling skill?",
     intention:
-      "Reveals how you reason about catastrophic risk, power, and whether stability built on fear can last.",
+      "Reveals how you reason about catastrophic risk and whether stability built on fear can last.",
     gradient: "from-yellow-600 via-orange-500 to-red-800",
   },
   {
     slug: "animal_rights",
-    name: "Animal Rights",
+    name: "Sweaters for Dogs, Cages for Pigs",
     available: true,
+    tags: ["ethics", "food", "science"],
     description:
-      "Where do you draw the line on how humans treat other species?",
+      "We put dogs in sweaters and pigs in cages. We prosecute people for hurting cats and subsidize industries that kill billions of chickens a year. The line between which animals matter and which don't has nothing to do with biology. So where does it come from?",
     intention:
-      "Reveals your moral circle — who counts, why, and what you're willing to change when the evidence is uncomfortable.",
+      "Reveals the boundaries of your moral circle and what you're willing to change when the evidence makes you uncomfortable.",
     gradient: "from-lime-700 via-green-600 to-emerald-800",
   },
   {
     slug: "democracy",
-    name: "Democracy",
+    name: "Can the People Be Trusted?",
     available: true,
+    tags: ["governance", "power", "legitimacy"],
     description:
-      "Is democracy the best system — or just the least bad one, and is it failing?",
+      "Democracy is the system most of the world claims to believe in. It's also the system that elected every leader people love to complain about. If voters keep choosing badly, is the problem the voters, the options, or the system itself?",
     intention:
-      "Reveals how you think about legitimacy, expertise, and whether the people can be trusted to govern themselves.",
+      "Reveals how you think about legitimacy, expertise, and whether self-governance is a right or a skill.",
     gradient: "from-blue-800 via-indigo-600 to-purple-900",
   },
   {
     slug: "trans_rights",
-    name: "Trans Rights",
+    name: "Gender Is the New Fault Line",
     available: true,
+    tags: ["identity", "medicine", "autonomy"],
     description:
-      "How do you think about identity, medicine, and the boundaries of personal autonomy?",
+      "Gender identity has become one of the most polarized topics in politics, medicine, and education. The science is evolving. The laws are contradictory. And the people at the center of it are caught between those who want to protect them and those who claim to.",
     intention:
       "Reveals how you navigate evolving science, competing rights claims, and whose experience you center.",
     gradient: "from-pink-500 via-blue-300 to-pink-500",
   },
   {
     slug: "drug_policy",
-    name: "Drug Policy",
+    name: "Crime or Illness?",
     available: true,
+    tags: ["drugs", "justice", "health"],
     description:
-      "Should drugs be a criminal justice issue, a public health issue, or something else?",
+      "The U.S. spent $1 trillion on the War on Drugs and has more people in prison for drug offenses than Europe has in prison for everything. Meanwhile, Portugal decriminalized all drugs in 2001 and overdose deaths dropped. Same problem, opposite solutions. Which one is working?",
     intention:
-      "Reveals how you weigh personal freedom, public safety, and racial justice — and whether you trust evidence over intuition.",
+      "Reveals how you weigh personal freedom, public safety, and racial justice, and whether you trust evidence over intuition.",
     gradient: "from-violet-800 via-purple-600 to-fuchsia-700",
   },
   {
     slug: "consciousness",
-    name: "Consciousness",
+    name: "Are You Sure You're Conscious?",
     available: true,
+    tags: ["mind", "philosophy", "AI"],
     description:
-      "What is subjective experience, and does it matter for how we treat minds — human or artificial?",
+      "You know you're conscious. You assume other people are too. But nobody can actually prove it. Now we're building AI systems that act like they understand, and we have no test for whether anything is truly experiencing the world or just performing like it does.",
     intention:
-      "Reveals your deepest assumptions about what makes a mind real and whether science can answer that question.",
+      "Reveals your deepest assumptions about what makes a mind real and whether science can ever answer that question.",
     gradient: "from-cyan-900 via-teal-700 to-sky-900",
   },
   {
     slug: "capitalism",
-    name: "Capitalism",
+    name: "Who Wins When the Market Decides?",
     available: true,
+    tags: ["economics", "markets", "power"],
     description:
-      "Is the economic system working — and if not, what would something better look like?",
+      "Capitalism lifted billions out of poverty. It also created a world where eight people own more than the bottom half of humanity. Defenders say it just needs fixing. Critics say the flaws are the features. What do you think?",
     intention:
       "Reveals how you think about markets, power, and whether reform or replacement is the right frame.",
     gradient: "from-emerald-800 via-green-700 to-lime-900",
   },
   {
     slug: "reparations",
-    name: "Reparations",
+    name: "Can You Fix the Past?",
     available: true,
+    tags: ["race", "justice", "history"],
     description:
-      "Can historical wrongs be repaired — and if so, what does that actually look like?",
+      "Slavery ended 160 years ago. Its economic effects didn't. The average white family in America has eight times the wealth of the average Black family. Some say that's ancient history. Others say the bill is still unpaid. Can historical wrongs actually be repaired?",
     intention:
       "Reveals how you think about collective responsibility, historical debt, and what justice requires across generations.",
     gradient: "from-amber-900 via-yellow-700 to-orange-900",
   },
   {
     slug: "space_colonization",
-    name: "Space Colonization",
+    name: "Should We Leave Earth?",
     available: true,
+    tags: ["space", "survival", "resources"],
     description:
-      "Should humanity expand beyond Earth — and who decides how?",
+      "Elon Musk wants a million people on Mars. Jeff Bezos wants factories in orbit. NASA is planning a permanent moon base. Is expanding into space humanity's insurance policy, or the most expensive way to avoid fixing the planet we already have?",
     intention:
-      "Reveals how you weigh existential risk, resource allocation, and whether frontier expansion solves or exports our problems.",
+      "Reveals how you weigh existential risk against present needs, and whether frontier expansion solves problems or exports them.",
     gradient: "from-slate-800 via-indigo-900 to-violet-950",
   },
   {
     slug: "surveillance_privacy",
-    name: "Surveillance & Privacy",
+    name: "Your Phone Knows More Than Your Therapist",
     available: true,
+    tags: ["privacy", "security", "data"],
     description:
-      "How much should governments and corporations be allowed to know about you?",
+      "Your phone tracks where you go. Your browser knows what you think about at 2am. Governments say surveillance prevents terrorism. Companies say it improves your experience. You agreed to all of it in a terms-of-service you didn't read. How much should they be allowed to know?",
     intention:
-      "Reveals where you draw the line between security and freedom — and whether you trust institutions with power over information.",
+      "Reveals where you draw the line between security and freedom, and whether you trust institutions with power over information.",
     gradient: "from-gray-800 via-slate-600 to-zinc-900",
   },
   {
     slug: "end_of_life",
-    name: "End of Life",
+    name: "How Should a Life End?",
     available: true,
+    tags: ["death", "autonomy", "medicine"],
     description:
-      "Who should decide when and how a life ends — and what makes a death good?",
+      "Modern medicine can keep a body alive long after the person inside would have chosen to stop. Eleven U.S. states allow assisted dying. Most don't. The people who want the right to choose and the people who want to protect life both think they're defending human dignity.",
     intention:
-      "Reveals your relationship to mortality, autonomy, and what you think a society owes people at their most vulnerable.",
+      "Reveals your relationship to mortality, autonomy, and what a society owes people at their most vulnerable.",
     gradient: "from-stone-800 via-warm-gray-600 to-neutral-900",
   },
   {
     slug: "education",
-    name: "Education",
+    name: "What Is School Actually For?",
     available: true,
+    tags: ["learning", "kids", "opportunity"],
     description:
-      "What is school actually for — and is the current system delivering it?",
+      "The American school system was designed in the 1800s to produce factory workers. It hasn't fundamentally changed since. Meanwhile, a kid with WiFi can learn more from YouTube than most classrooms offer. Is the system broken, or is it doing exactly what it was built to do?",
     intention:
-      "Reveals how you think about human development, equal opportunity, and what knowledge matters most.",
+      "Reveals how you think about human development, equal opportunity, and what knowledge actually matters.",
     gradient: "from-sky-600 via-blue-500 to-cyan-700",
   },
 ] as const;

@@ -122,7 +122,7 @@ const fingerprintSchema = {
 
 // ─── System prompts ──────────────────────────────────────────────────
 
-const FULL_SYNTHESIS_PROMPT = `You are building an intellectual fingerprint for a user of Selfish, an edutainment platform. Your job is to synthesize everything we know about this person into a structured profile that will power personalized content recommendations via SMS.
+const FULL_SYNTHESIS_PROMPT = `You are building an intellectual fingerprint for a user of Selfish, an edutainment platform. The fingerprint powers "Feynman" — an AI thinking partner that texts users ideas, questions, and provocations. Your job is to synthesize everything we know about this person into a structured profile that will power personalized content recommendations via SMS.
 
 CONTEXT: The user has taken one or more quizzes on controversial topics. Each quiz produced a "constellation" — 7 thinkers matched to them in different relationship types (mirror, complement, precursor, antagonist, horizon, shadow, integrated_self). You have their quiz answers and constellation results.
 
@@ -310,7 +310,7 @@ function formatMessagesForLLM(messages: MessageRow[]): string {
   if (messages.length === 0) return "(No SMS history yet)";
   return messages
     .map((m) => {
-      const prefix = m.direction === "outbound" ? "SELFISH" : "USER";
+      const prefix = m.direction === "outbound" ? "FEYNMAN" : "USER";
       return `[${prefix}] ${m.body}`;
     })
     .join("\n");

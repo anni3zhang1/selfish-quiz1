@@ -10,6 +10,7 @@ type TopicCard = {
   description: string;
   intention: string;
   gradient: string;
+  tags?: readonly string[];
 };
 
 const CATEGORIES = [
@@ -241,12 +242,20 @@ export default function HomeClient({ cards, completedSlugs, selectedTopics, user
               {/* Content */}
               <div className="p-6 sm:p-8 flex flex-col justify-between flex-1">
                 <div>
-                  {/* Category tag */}
-                  {category && (
+                  {/* Topic tags */}
+                  {(card.tags && card.tags.length > 0) ? (
+                    <div className="flex flex-wrap gap-1.5 mb-3">
+                      {card.tags.map((tag) => (
+                        <span key={tag} className="inline-block text-[10px] uppercase tracking-widest px-2.5 py-1 rounded-full border border-neutral-300 text-neutral-500">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  ) : category ? (
                     <span className="inline-block text-[10px] uppercase tracking-widest px-2.5 py-1 rounded-full border border-neutral-300 text-neutral-500 mb-3">
                       {category}
                     </span>
-                  )}
+                  ) : null}
 
                   <div className="flex items-start justify-between mb-2">
                     <h2 className="text-2xl sm:text-3xl font-serif tracking-tight leading-tight">

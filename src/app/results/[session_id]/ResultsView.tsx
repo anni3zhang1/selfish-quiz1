@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { AnswerEntry, Constellation, ConstellationCard, PositionMapData, RelationshipType, UserInsight } from "@/lib/types";
@@ -21,8 +21,11 @@ type PartialCard = {
 type Cards = Partial<Record<RelationshipType, PartialCard>>;
 type LoadPhase = "preview" | "detail" | "complete" | "error";
 
-// 3-3-1 grid display order
-const GRID_ORDER: RelationshipType[] = [
+// Spotlight thinker types (shown as flip cards)
+const SPOTLIGHT_TYPES: RelationshipType[] = ["mirror", "shadow", "antagonist"];
+
+// All 7 thinker types in display order
+const ALL_THINKER_ORDER: RelationshipType[] = [
   "precursor", "mirror", "complement",
   "antagonist", "shadow", "horizon",
   "integrated_self",
@@ -85,10 +88,80 @@ export default function ResultsView({
   const [modalType, setModalType] = useState<RelationshipType | null>(null);
   const [pendingModal, setPendingModal] = useState<RelationshipType | null>(null);
 
-  // Flip state: preloaded sessions start with all cards flipped (auto-reveal)
+  // Flip state for spotlight thinker cards
   const [flippedCards, setFlippedCards] = useState<Set<RelationshipType>>(
-    () => isPreloaded ? new Set(GRID_ORDER) : new Set()
+    () => isPreloaded ? new Set(SPOTLIGHT_TYPES) : new Set()
   );
+
+  // ── Card carousel state ──
+  const [slideIndex, setSlideIndex] = useState(0);
+  const [dragX, setDragX] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef<{ x: number; time: number } | null>(null);
+
+  // Total slides: 4 insight cards + 3 spotlight thinkers + 1 remaining thinkers + 1 position map/share = 9
+  const TOTAL_SLIDES = 9;
+
+  // Push browser history entries per slide so back button navigates carousel
+  const isInitialMount = useRef(true);
+  useEffect(() => {
+    if (isInitialMount.current) {
+      // Replace the initial entry with slide 0
+      window.history.replaceState({ slide: 0 }, "");
+      isInitialMount.current = false;
+      return;
+    }
+    // Push a new entry when navigating forward
+    window.history.pushState({ slide: slideIndex }, "");
+  }, [slideIndex]);
+
+  useEffect(() => {
+    function handlePopState(e: PopStateEvent) {
+      const state = e.state as { slide?: number } | null;
+      if (state && typeof state.slide === "number") {
+        setSlideIndex(state.slide);
+        setDragX(0);
+      }
+    }
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  const goNext = useCallback(() => {
+    setSlideIndex((i) => Math.min(i + 1, TOTAL_SLIDES - 1));
+    setDragX(0);
+  }, []);
+
+  const goPrev = useCallback(() => {
+    setSlideIndex((i) => Math.max(i - 1, 0));
+    setDragX(0);
+  }, []);
+
+  function onPointerDown(e: React.PointerEvent) {
+    const tag = (e.target as HTMLElement).tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || tag === "BUTTON" || tag === "A") return;
+    dragStartRef.current = { x: e.clientX, time: Date.now() };
+    setIsDragging(true);
+    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+  }
+
+  function onPointerMove(e: React.PointerEvent) {
+    if (!dragStartRef.current || !isDragging) return;
+    setDragX(e.clientX - dragStartRef.current.x);
+  }
+
+  function onPointerUp() {
+    if (!dragStartRef.current) return;
+    const threshold = 60;
+    const velocity = Math.abs(dragX) / (Date.now() - dragStartRef.current.time + 1);
+    if (Math.abs(dragX) > threshold || velocity > 0.4) {
+      if (dragX < 0) goNext();
+      else goPrev();
+    }
+    setDragX(0);
+    setIsDragging(false);
+    dragStartRef.current = null;
+  }
 
   const STATUS_MESSAGES = [
     "Analyzing your positions...",
@@ -115,8 +188,6 @@ export default function ResultsView({
   const emailTriggeredRef = useRef(false);
   const generationStartedRef = useRef(false);
   const preGenTriggeredRef = useRef(false);
-  const cardsRef = useRef<HTMLDivElement>(null);
-  const positionMapRef = useRef<HTMLDivElement>(null);
 
   // Progressive loading — only fires for new (in_progress) sessions
   useEffect(() => {
@@ -408,35 +479,11 @@ export default function ResultsView({
     }
   }, [pendingModal, detailLoading]);
 
-  function handleCardClick(key: RelationshipType) {
-    // If card isn't flipped yet, flip it (don't open modal)
-    if (!flippedCards.has(key)) {
-      setFlippedCards((prev) => {
-        const next = new Set(prev);
-        next.add(key);
-        return next;
-      });
-      return;
-    }
-    // Card is flipped — open modal
-    if (detailLoading.has(key)) {
-      setPendingModal(key);
-    } else {
-      setModalType(key);
-    }
-  }
-
-  // Enable full-page scroll-snap
-  useEffect(() => {
-    const html = document.documentElement;
-    html.style.scrollSnapType = "y mandatory";
-    return () => {
-      html.style.scrollSnapType = "";
-    };
-  }, []);
-
-  const orderedKeys = GRID_ORDER;
+  const orderedKeys = ALL_THINKER_ORDER;
   const modalIndex = modalType ? orderedKeys.indexOf(modalType) : -1;
+
+  // Remaining thinkers (not spotlighted)
+  const remainingThinkerTypes = ALL_THINKER_ORDER.filter((t) => !SPOTLIGHT_TYPES.includes(t));
 
   // Phase 1 — preview API in flight
   if (phase === "preview") {
@@ -454,31 +501,43 @@ export default function ResultsView({
     });
 
     return (
-      <main className="mx-auto w-full max-w-6xl px-6 py-12 sm:py-16 min-h-[70vh] flex flex-col items-center justify-center text-center">
-        <h1 className="text-2xl sm:text-3xl font-serif tracking-tight mb-10">
-          Building Your {topicLabel} Intellectual Map
-        </h1>
-        <div
-          className="relative mb-10"
-          style={{ width: CENTER * 2, height: CENTER * 2 }}
-        >
-          {nodes.map((n, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full bg-neutral-400"
-              style={{
-                width: 10,
-                height: 10,
-                left: n.x - 5,
-                top: n.y - 5,
-                animation: `node-pulse 1.8s ease-in-out ${n.delay.toFixed(2)}s infinite`,
-              }}
-            />
+      <main className="relative mx-auto w-full max-w-[480px] px-6 py-6 sm:py-10 min-h-[calc(100vh-3rem)] flex flex-col justify-center">
+        {/* Dot indicators (single dot for loading) */}
+        <div className="flex justify-center gap-2 mb-6">
+          <div className="h-2 w-6 rounded-full bg-neutral-900" />
+          {Array.from({ length: 8 }, (_, i) => (
+            <div key={i} className="h-2 w-2 rounded-full bg-neutral-300" />
           ))}
         </div>
-        <p key={statusMsgIdx} className="text-sm text-neutral-500 fade-in">
-          {STATUS_MESSAGES[statusMsgIdx]}
-        </p>
+
+        <div
+          className="rounded-2xl border border-neutral-200 bg-white shadow-sm overflow-hidden flex flex-col min-h-[520px] sm:min-h-[560px] items-center justify-center text-center p-8"
+        >
+          <div className="text-[10px] uppercase tracking-widest text-neutral-400 mb-4">
+            {topicLabel}
+          </div>
+          <div
+            className="relative mb-8"
+            style={{ width: CENTER * 2, height: CENTER * 2 }}
+          >
+            {nodes.map((n, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full bg-neutral-400"
+                style={{
+                  width: 10,
+                  height: 10,
+                  left: n.x - 5,
+                  top: n.y - 5,
+                  animation: `node-pulse 1.8s ease-in-out ${n.delay.toFixed(2)}s infinite`,
+                }}
+              />
+            ))}
+          </div>
+          <p key={statusMsgIdx} className="text-sm text-neutral-500 fade-in">
+            {STATUS_MESSAGES[statusMsgIdx]}
+          </p>
+        </div>
       </main>
     );
   }
@@ -486,359 +545,437 @@ export default function ResultsView({
   // Phase 1 failed
   if (phase === "error") {
     return (
-      <main className="mx-auto w-full max-w-6xl px-6 py-12 sm:py-16 min-h-[70vh] flex flex-col items-center justify-center text-center">
-        <h2 className="text-2xl font-serif mb-3">Something went wrong.</h2>
-        <p className="text-sm text-red-600 mb-6 max-w-sm">{previewError ?? "Please try again."}</p>
-        <Link href="/" className="text-sm text-neutral-600 underline underline-offset-4">
-          ← Back to topics
-        </Link>
+      <main className="relative mx-auto w-full max-w-[480px] px-6 py-6 sm:py-10 min-h-[calc(100vh-3rem)] flex flex-col justify-center">
+        <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm overflow-hidden flex flex-col min-h-[520px] sm:min-h-[560px] items-center justify-center text-center p-8">
+          <h2 className="text-2xl font-serif mb-3">Something went wrong.</h2>
+          <p className="text-sm text-red-600 mb-6 max-w-sm">{previewError ?? "Please try again."}</p>
+          <Link href="/" className="text-sm text-neutral-600 underline underline-offset-4">
+            ← Back to topics
+          </Link>
+        </div>
       </main>
     );
   }
 
-  // Phase 2+ — insight + intellectual map
+  // Phase 2+ — card carousel
   return (
-    <main className="w-full">
+    <main className="relative mx-auto w-full max-w-[480px] px-6 py-6 sm:py-10 min-h-[calc(100vh-3rem)] flex flex-col justify-center">
+      {/* Dot indicators */}
+      <div className="flex justify-center gap-2 mb-6">
+        {Array.from({ length: TOTAL_SLIDES }, (_, i) => (
+          <button
+            key={i}
+            type="button"
+            onClick={() => { setSlideIndex(i); setDragX(0); }}
+            className={`h-2 rounded-full transition-all duration-300 ${
+              i === slideIndex
+                ? "bg-neutral-900 w-6"
+                : "bg-neutral-300 hover:bg-neutral-400 w-2"
+            }`}
+            aria-label={`Go to slide ${i + 1}`}
+          />
+        ))}
+      </div>
 
-      {/* ── Snap section 1: Insight ─────────────────────────────────── */}
-      <section
-        className="min-h-screen [scroll-snap-align:start] relative flex flex-col px-6 pt-12 sm:pt-16"
-        style={{ scrollSnapAlign: "start" }}
+      {/* Card container */}
+      <div
+        className="relative min-h-[520px] sm:min-h-[560px] select-none touch-pan-y"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
       >
-        <div className="mx-auto w-full max-w-2xl flex-1">
-        <h1 className="text-4xl sm:text-5xl font-serif tracking-tight leading-tight mb-8 text-center">
-          Your Position On {topicLabel}
-        </h1>
+        <div
+          className="rounded-2xl border border-neutral-200 bg-white shadow-sm overflow-hidden flex flex-col min-h-[520px] sm:min-h-[560px]"
+          style={{
+            transform: `translateX(${isDragging ? dragX : 0}px)`,
+            transition: isDragging ? "none" : "transform 0.3s cubic-bezier(0.22, 1, 0.36, 1)",
+          }}
+        >
+          {/* ═══ CARD 0: Your Position + What Shaped It ═══ */}
+          {slideIndex === 0 && (
+            <div className="p-6 sm:p-8 flex flex-col flex-1">
+              <div className="text-[10px] uppercase tracking-widest text-neutral-400 mb-2">
+                Your position on {topicLabel}
+              </div>
+              {userInsight ? (
+                <>
+                  <h2 className="text-xl sm:text-2xl font-serif tracking-tight leading-snug mb-2">
+                    {userInsight.archetype_label}
+                  </h2>
+                  <p className="text-[15px] leading-relaxed text-neutral-500 mb-4">
+                    {userInsight.archetype_description}
+                  </p>
 
-        {userInsight ? (
-          <div className="space-y-8">
-            {/* Archetype */}
-            <div className="text-center">
-              <h2 className="text-2xl sm:text-3xl font-serif tracking-tight leading-tight mb-2">
-                {userInsight.archetype_label}
+                  {/* What shaped your position */}
+                  <div className="border-t border-neutral-100 pt-4 mt-auto">
+                    <div className="text-[10px] uppercase tracking-widest text-neutral-400 mb-3">
+                      What shaped your position
+                    </div>
+                    {userInsight.reasons.map((r, i) => (
+                      <div key={i} className={`py-2.5 ${i < userInsight.reasons.length - 1 ? "border-b border-neutral-100" : ""}`}>
+                        <p className="text-[13px] font-medium text-neutral-900 leading-snug mb-0.5">{r.claim}</p>
+                        <p className="text-xs text-neutral-400 leading-relaxed">{r.what_it_means}</p>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : initialProfileSummary ? (
+                <p className="text-[15px] leading-relaxed text-neutral-500">{initialProfileSummary}</p>
+              ) : null}
+            </div>
+          )}
+
+          {/* ═══ CARD 1: What You Care About (emoji badges) ═══ */}
+          {slideIndex === 1 && userInsight && (
+            <div className="p-6 sm:p-8 flex flex-col flex-1">
+              <div className="text-[10px] uppercase tracking-widest text-neutral-400 mb-2">
+                {topicLabel}
+              </div>
+              <h2 className="text-xl sm:text-2xl font-serif tracking-tight leading-snug mb-2">
+                What you care about
               </h2>
-              <p className="text-base italic text-neutral-500">
-                {userInsight.archetype_description}
+              <p className="text-[15px] leading-relaxed text-neutral-500 mb-5">
+                The values that came through strongest in your answers.
               </p>
-            </div>
 
-            {/* Position */}
-            <p className="text-base text-neutral-700 leading-relaxed">
-              {userInsight.position}
-            </p>
-
-            {/* Why this matters */}
-            <div>
-              <div className="text-xs uppercase tracking-widest text-neutral-400 mb-4">
-                Why this matters
+              {/* Emoji badge grid — always 4, derived from reasons */}
+              <div className="grid grid-cols-2 gap-3">
+                {(() => {
+                  const emojis = ["🎯", "⚡", "🌍", "🏆"];
+                  const reasons = userInsight.reasons;
+                  // Always produce exactly 4 badges
+                  return Array.from({ length: 4 }, (_, i) => {
+                    const r = reasons[i % reasons.length];
+                    return (
+                      <div
+                        key={i}
+                        className="aspect-square rounded-xl bg-neutral-50 border border-neutral-200 flex flex-col items-center justify-center gap-2 p-4 text-center"
+                      >
+                        <span className="text-3xl">{emojis[i]}</span>
+                        <span className="text-xs font-medium text-neutral-700 leading-tight">{r.claim.split(" ").slice(0, 4).join(" ")}</span>
+                      </div>
+                    );
+                  });
+                })()}
               </div>
-              <ul className="space-y-3">
-                {userInsight.reasons.map((r, i) => (
-                  <li key={i} className="flex gap-3">
-                    <span className="text-neutral-300 select-none shrink-0 mt-0.5">—</span>
-                    <p className="text-sm font-medium text-neutral-800 leading-snug">
-                      {r.claim}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </div>
 
-            {/* Tension */}
-            <div
-              className="rounded-2xl border overflow-hidden"
-              style={{ borderColor: "#fde68a" }}
-            >
-              <div className="px-5 pt-4 pb-1" style={{ backgroundColor: "#fef3c7" }}>
-                <div
-                  className="text-xs uppercase tracking-wider font-semibold mb-3"
-                  style={{ color: "#92400e" }}
-                >
-                  Tension
+              <div className="mt-auto" />
+            </div>
+          )}
+
+          {/* ═══ CARD 2: In Practice ═══ */}
+          {slideIndex === 2 && userInsight && (
+            <div className="p-6 sm:p-8 flex flex-col flex-1">
+              <div className="text-[10px] uppercase tracking-widest text-neutral-400 mb-2">
+                {topicLabel}
+              </div>
+              <h2 className="text-xl sm:text-2xl font-serif tracking-tight leading-snug mb-2">
+                In practice
+              </h2>
+              <p className="text-[15px] leading-relaxed text-neutral-500 mb-5">
+                What your position actually looks like in the real world.
+              </p>
+
+              {userInsight.real_world_examples.map((ex, i) => (
+                <div key={i} className={`py-3 ${i < userInsight.real_world_examples.length - 1 ? "border-b border-neutral-100" : ""}`}>
+                  <p className="text-[13px] font-medium text-neutral-900 leading-snug mb-1">{ex.title}</p>
+                  <p className="text-xs text-neutral-400 leading-relaxed">{ex.description}</p>
                 </div>
+              ))}
+
+              <div className="mt-auto" />
+            </div>
+          )}
+
+          {/* ═══ CARD 3: Core Tension ═══ */}
+          {slideIndex === 3 && userInsight && (
+            <div className="p-6 sm:p-8 flex flex-col flex-1">
+              <div className="text-[10px] uppercase tracking-widest text-neutral-400 mb-2">
+                {topicLabel}
               </div>
-              <div className="px-5 py-4" style={{ backgroundColor: "#fef3c7" }}>
-                <div className="flex items-stretch gap-0 min-h-[6rem]">
-                  <div
-                    className="flex-1 flex items-center px-4 py-3 rounded-l-xl"
-                    style={{ backgroundColor: "rgba(251,191,36,0.15)" }}
-                  >
-                    <p className="text-sm font-medium text-neutral-900 leading-snug text-left">
+              <h2 className="text-xl sm:text-2xl font-serif tracking-tight leading-snug mb-2">
+                Your core tension
+              </h2>
+              <p className="text-[15px] leading-relaxed text-neutral-500 mb-6">
+                The contradiction at the heart of your position.
+              </p>
+
+              <div className="rounded-xl bg-neutral-100 p-5">
+                <div className="flex items-stretch gap-3 mb-4">
+                  <div className="flex-1 rounded-lg bg-red-50 border border-red-100 p-4 flex items-center justify-center text-center">
+                    <p className="text-[13px] font-medium text-neutral-800 leading-snug">
                       {userInsight.tension.claim_a}
                     </p>
                   </div>
-                  <div className="flex flex-col items-center justify-center px-3 shrink-0 gap-1">
-                    <div className="w-px flex-1 bg-amber-300" />
-                    <svg width="36" height="20" viewBox="0 0 36 20" fill="none" aria-hidden className="shrink-0">
-                      <line x1="6" y1="10" x2="30" y2="10" stroke="#d97706" strokeWidth="2" strokeLinecap="round" />
-                      <polyline points="12,4 6,10 12,16" stroke="#d97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-                      <polyline points="24,4 30,10 24,16" stroke="#d97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-                    </svg>
-                    <div className="w-px flex-1 bg-amber-300" />
-                  </div>
-                  <div
-                    className="flex-1 flex items-center px-4 py-3 rounded-r-xl"
-                    style={{ backgroundColor: "rgba(99,102,241,0.07)" }}
-                  >
-                    <p className="text-sm font-medium text-neutral-900 leading-snug text-right w-full">
+                  <div className="flex items-center text-[10px] uppercase tracking-widest text-neutral-400 shrink-0">vs</div>
+                  <div className="flex-1 rounded-lg bg-blue-50 border border-blue-100 p-4 flex items-center justify-center text-center">
+                    <p className="text-[13px] font-medium text-neutral-800 leading-snug">
                       {userInsight.tension.claim_b}
                     </p>
                   </div>
                 </div>
                 {userInsight.tension.explanation && (
-                  <p className="mt-4 text-sm text-neutral-500 leading-relaxed italic">
+                  <p className="text-xs text-neutral-500 leading-relaxed">
                     {userInsight.tension.explanation}
                   </p>
                 )}
               </div>
+
+              <div className="mt-auto" />
             </div>
+          )}
 
-            {/* In practice */}
-            <div>
-              <div className="text-xs uppercase tracking-widest text-neutral-400 mb-3">
-                In practice
-              </div>
-              <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
-                {userInsight.real_world_examples.map((ex, i) => (
-                  <div
-                    key={i}
-                    className="shrink-0 w-52 rounded-xl border border-neutral-200 bg-white p-4 flex flex-col"
-                  >
-                    <span className="text-sm font-semibold text-neutral-900 leading-snug mb-2">
-                      {ex.title}
-                    </span>
-                    <p className="text-xs text-neutral-600 leading-relaxed">{ex.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        ) : initialProfileSummary ? (
-          <p className="text-base text-neutral-700 leading-relaxed">{initialProfileSummary}</p>
-        ) : null}
+          {/* ═══ CARDS 4-6: Spotlight Thinker Flip Cards ═══ */}
+          {slideIndex >= 4 && slideIndex <= 6 && (() => {
+            const spotlightIdx = slideIndex - 4;
+            const thinkerType = SPOTLIGHT_TYPES[spotlightIdx];
+            const meta = getRelationship(thinkerType);
+            const card = cards[thinkerType];
+            const isFlipped = flippedCards.has(thinkerType);
 
-        </div>{/* end max-w-2xl flex-1 */}
-
-        {/* Bounce chevron — clickable scroll cue */}
-        <button
-          type="button"
-          aria-label="Scroll to your intellectual map"
-          onClick={() => cardsRef.current?.scrollIntoView({ behavior: "smooth" })}
-          className="flex justify-center items-center w-full pt-4 pb-3 opacity-40 hover:opacity-70 cursor-pointer transition-opacity"
-        >
-          <svg
-            width="28"
-            height="28"
-            viewBox="0 0 24 24"
-            fill="none"
-            className="animate-bounce"
-          >
-            <path
-              d="M6 9l6 6 6-6"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
-      </section>
-
-      {/* ── Snap section 2: Intellectual Map ────────────────────────── */}
-      <section
-        ref={cardsRef}
-        className="min-h-screen [scroll-snap-align:start] relative flex flex-col px-6 pt-12 sm:pt-16"
-        style={{ scrollSnapAlign: "start" }}
-      >
-        <div className="mx-auto w-full max-w-lg flex-1">
-        <div className="mb-8 text-center">
-          <h2 className="text-2xl sm:text-3xl font-serif tracking-tight leading-tight mb-2">
-            Your Intellectual Map
-          </h2>
-          <p className="text-base text-neutral-600 leading-relaxed">
-            The thinkers who share your logic, challenge your assumptions, and push where you&rsquo;re headed.
-          </p>
-          <p className="text-xs text-neutral-400 mt-2">
-            Tap any thinker to explore the match.
-          </p>
-        </div>
-
-        {/* 3-3-1 grid */}
-        <div className="grid grid-cols-3 gap-3 sm:gap-4">
-          {GRID_ORDER.map((key, idx) => {
-            const meta = getRelationship(key);
             if (!meta) return null;
-            const card = cards[key];
-            const isFlipped = flippedCards.has(key);
-            const isPending = pendingModal === key;
-            const isLastCard = idx === GRID_ORDER.length - 1;
 
-            return (
-              <div
-                key={key}
-                className={`${isLastCard ? "col-start-2" : ""}`}
-              >
-                <button
-                  type="button"
-                  onClick={() => handleCardClick(key)}
-                  aria-label={isFlipped && card?.name ? `${card.name} — ${meta.label}` : meta.label}
-                  className="flip-card w-full aspect-[3/4] cursor-pointer"
-                >
-                  <div className={`flip-card-inner ${isFlipped ? "flipped" : ""}`} style={{ width: "100%", height: "100%" }}>
-                    {/* Front — face down */}
-                    <div className={`flip-face ${meta.faceGradient} ${meta.textOnFace} flex flex-col items-center justify-center px-3 text-center`}>
-                      <div className="text-3xl sm:text-4xl mb-2 opacity-80">{meta.emoji}</div>
-                      <div className="text-xs sm:text-sm font-semibold tracking-tight opacity-90 mb-1">
-                        {meta.label}
-                      </div>
-                      <div className="text-[10px] sm:text-xs opacity-60 leading-snug">
-                        {meta.oneLine}
-                      </div>
-                    </div>
-
-                    {/* Back — face up (revealed) */}
-                    <div className={`flip-face flip-face-back ${meta.faceGradient} ${meta.textOnFace} flex flex-col items-center justify-center px-3 text-center`}>
-                      <div className="text-[10px] sm:text-xs uppercase tracking-wider font-semibold opacity-60 mb-2">
-                        {meta.label}
-                      </div>
-                      {card?.thumbnail_url && (
-                        <Image
-                          src={card.thumbnail_url}
-                          alt={card.name ?? ""}
-                          width={48}
-                          height={48}
-                          className="rounded-full object-cover w-10 h-10 sm:w-12 sm:h-12 ring-2 ring-white/30 mb-2 shrink-0"
-                        />
-                      )}
-                      <div className="text-sm sm:text-base font-bold leading-tight mb-1">
-                        {card?.name ?? "..."}
-                      </div>
-                      {card?.tagline && (
-                        <p className="text-[10px] sm:text-xs opacity-75 leading-snug line-clamp-2 mb-2">
-                          {card.tagline}
-                        </p>
-                      )}
-                      <div className="text-[9px] sm:text-[10px] opacity-50 mt-auto">
-                        Tap to explore →
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Loading spinner overlay */}
-                  {isPending && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/25 backdrop-blur-[2px] rounded-2xl z-10">
-                      <div className="w-8 h-8 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+            return isFlipped && card ? (
+              /* Face up — revealed */
+              <div className={`p-6 sm:p-8 flex flex-col flex-1 ${meta.faceUpBg}`}>
+                <div className="mb-4">
+                  <span className={`inline-block text-[10px] uppercase tracking-widest px-2.5 py-1 rounded-full border font-medium ${meta.faceUpTag}`}>
+                    {meta.label}
+                  </span>
+                </div>
+                <div className="flex flex-col items-center text-center mb-5">
+                  {card.thumbnail_url ? (
+                    <Image
+                      src={card.thumbnail_url}
+                      alt={card.name}
+                      width={88}
+                      height={88}
+                      className="rounded-full object-cover w-[88px] h-[88px] mb-3 shadow-md"
+                    />
+                  ) : (
+                    <div className="w-[88px] h-[88px] rounded-full bg-neutral-200 flex items-center justify-center text-2xl font-medium text-neutral-500 mb-3 shadow-md">
+                      {card.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
                     </div>
                   )}
-                </button>
+                  <h2 className="text-xl sm:text-2xl font-serif tracking-tight leading-snug">
+                    {card.name}
+                  </h2>
+                  <p className="text-xs text-neutral-400 mt-0.5 italic">{card.tagline}</p>
+                </div>
+                {(() => {
+                  // Split match_reason into user belief vs thinker belief
+                  const reason = card.match_reason || meta.oneLine;
+                  // Split on sentence boundaries: period/quote followed by space + capital letter
+                  const sentenceBreak = /(?<=[.!?]['""']?\s)(?=[A-Z])/g;
+                  const sentences = reason.split(sentenceBreak).filter(Boolean);
+
+                  // Separate: sentences starting with "You" → user part, rest → thinker part
+                  const userSentences: string[] = [];
+                  const thinkerSentences: string[] = [];
+                  for (const s of sentences) {
+                    if (s.startsWith("You ") || s.startsWith("You'") || s.startsWith("Your ")) {
+                      userSentences.push(s.trim());
+                    } else {
+                      thinkerSentences.push(s.trim());
+                    }
+                  }
+
+                  // If everything ended up in one bucket, fall back to first half / second half
+                  const userPart = userSentences.length > 0 ? userSentences.join(" ") : "";
+                  const thinkerPart = thinkerSentences.length > 0
+                    ? thinkerSentences.join(" ")
+                    : "";
+
+                  return (
+                    <div className="space-y-3">
+                      {userPart && (
+                        <p className="text-[14px] leading-relaxed text-neutral-400">
+                          {userPart}
+                        </p>
+                      )}
+                      {thinkerPart && (
+                        <p className="text-[14px] leading-relaxed text-neutral-900">
+                          {thinkerPart}
+                        </p>
+                      )}
+                      {!userPart && !thinkerPart && (
+                        <p className="text-[14px] leading-relaxed text-neutral-900">
+                          {reason}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })()}
+                <div className="mt-auto pt-5">
+                  <Link
+                    href={`/thinker/${slugify(card.name)}?from=${sessionId}&relationship=${thinkerType}`}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 border border-neutral-200 rounded-xl text-sm font-medium text-neutral-600 hover:bg-white/60 transition-colors"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    See full profile →
+                  </Link>
+                </div>
               </div>
+            ) : (
+              /* Face down — tap to flip */
+              <button
+                type="button"
+                onClick={() => {
+                  setFlippedCards((prev) => {
+                    const next = new Set(prev);
+                    next.add(thinkerType);
+                    return next;
+                  });
+                }}
+                className={`flex-1 flex flex-col items-center justify-center text-center p-8 cursor-pointer ${meta.faceGradient} ${meta.textOnFace}`}
+              >
+                <div className="text-7xl sm:text-8xl mb-6 opacity-80">{meta.emoji}</div>
+                <h2 className="text-2xl sm:text-3xl font-serif tracking-tight leading-snug mb-3 opacity-90">
+                  {meta.label}
+                </h2>
+                <p className="text-base sm:text-lg opacity-60 leading-snug mb-8">
+                  {meta.oneLine}
+                </p>
+                <p className="text-sm opacity-50">Tap to reveal</p>
+              </button>
             );
-          })}
+          })()}
+
+          {/* ═══ CARD 7: Remaining Thinkers ═══ */}
+          {slideIndex === 7 && (
+            <div className="p-6 sm:p-8 flex flex-col flex-1">
+              <h2 className="text-xl sm:text-2xl font-serif tracking-tight leading-snug mb-1">
+                Your full constellation
+              </h2>
+              <p className="text-[15px] leading-relaxed text-neutral-500 mb-5">
+                {remainingThinkerTypes.length} more thinkers in your intellectual map.
+              </p>
+
+              {remainingThinkerTypes.map((key, i) => {
+                const meta = getRelationship(key);
+                const card = cards[key];
+                if (!meta || !card) return null;
+
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => {
+                      if (detailLoading.has(key)) {
+                        setPendingModal(key);
+                      } else {
+                        setModalType(key);
+                      }
+                    }}
+                    className={`flex items-center gap-3 py-3 text-left w-full ${i < remainingThinkerTypes.length - 1 ? "border-b border-neutral-100" : ""}`}
+                  >
+                    {card.thumbnail_url ? (
+                      <Image
+                        src={card.thumbnail_url}
+                        alt={card.name}
+                        width={36}
+                        height={36}
+                        className="rounded-full object-cover w-9 h-9 shrink-0"
+                      />
+                    ) : (
+                      <div className="w-9 h-9 rounded-full bg-neutral-100 flex items-center justify-center text-xs font-medium text-neutral-500 shrink-0">
+                        {card.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-medium text-neutral-900 leading-snug">{card.name}</p>
+                      <p className="text-xs text-neutral-400 truncate">{meta.label} — {meta.oneLine}</p>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" className="shrink-0 text-neutral-300">
+                      <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                );
+              })}
+
+              <div className="mt-auto" />
+            </div>
+          )}
+
+          {/* ═══ CARD 8: Position Map + Share ═══ */}
+          {slideIndex === 8 && (
+            <div className="px-3 pt-5 pb-4 sm:px-4 flex flex-col flex-1">
+              <div className="px-3 sm:px-4">
+                <div className="text-[10px] uppercase tracking-widest text-neutral-400 mb-2">
+                  Where you stand
+                </div>
+                <h2 className="text-xl sm:text-2xl font-serif tracking-tight leading-snug mb-2">
+                  Your position map
+                </h2>
+              </div>
+
+              {positionMap ? (
+                <div className="flex-1 flex flex-col">
+                  <div className="flex-1 min-h-[200px]">
+                    <PositionMap
+                      data={positionMap}
+                      topicLabel={topicLabel}
+                      thumbnails={
+                        Object.fromEntries(
+                          Object.values(cards)
+                            .filter((c): c is PartialCard => !!c?.thumbnail_url && !!c?.name)
+                            .map((c) => [c.name, c.thumbnail_url!])
+                        )
+                      }
+                      compact
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="flex-1 flex flex-col items-center justify-center gap-4">
+                  <div className="w-8 h-8 border-2 border-neutral-300 border-t-neutral-600 rounded-full animate-spin" />
+                  <p className="text-sm text-neutral-500">Building your position map...</p>
+                </div>
+              )}
+
+              <div className="flex flex-col items-center gap-2 pt-4 mt-auto">
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 text-white rounded-xl text-sm font-medium hover:bg-neutral-800 transition-colors"
+                >
+                  Share results
+                </button>
+                <Link
+                  href="/"
+                  className="inline-flex items-center gap-2 px-6 py-3 border border-neutral-200 rounded-xl text-sm font-medium text-neutral-600 hover:bg-neutral-50 transition-colors"
+                >
+                  Take another quiz →
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
+      </div>
 
-        {/* All flipped summary */}
-        {flippedCards.size === GRID_ORDER.length && phase === "complete" && (
-          <div className="mt-6" />
-        )}
-
-        </div>{/* end max-w-lg flex-1 */}
-
-        {/* Bounce chevron — scroll to position map */}
-        <button
-          type="button"
-          aria-label="Scroll to your position map"
-          onClick={() => positionMapRef.current?.scrollIntoView({ behavior: "smooth" })}
-          className="flex justify-center items-center w-full pt-4 pb-3 opacity-40 hover:opacity-70 cursor-pointer transition-opacity"
-        >
-          <svg
-            width="28"
-            height="28"
-            viewBox="0 0 24 24"
-            fill="none"
-            className="animate-bounce"
-          >
-            <path
-              d="M6 9l6 6 6-6"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
-      </section>{/* end snap section 2 */}
-
-      {/* ── Snap section 3: Position Map ────────────────────────────── */}
-      <section
-        ref={positionMapRef}
-        className="min-h-screen [scroll-snap-align:start] relative flex flex-col items-center justify-center px-6 py-12 sm:py-16"
-        style={{ scrollSnapAlign: "start" }}
+      {/* Side navigation arrows */}
+      <button
+        type="button"
+        onClick={goPrev}
+        disabled={slideIndex === 0}
+        className="hidden sm:flex fixed left-[max(1rem,calc(50%-300px))] top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full text-neutral-300 hover:text-neutral-600 hover:bg-neutral-100 transition disabled:opacity-0 disabled:cursor-default z-10"
+        aria-label="Previous card"
       >
-        {positionMap ? (
-          <PositionMap
-            data={positionMap}
-            topicLabel={topicLabel}
-            thumbnails={
-              Object.fromEntries(
-                Object.values(cards)
-                  .filter((c): c is PartialCard => !!c?.thumbnail_url && !!c?.name)
-                  .map((c) => [c.name, c.thumbnail_url!])
-              )
-            }
-          />
-        ) : (
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-8 h-8 border-2 border-neutral-300 border-t-neutral-600 rounded-full animate-spin" />
-            <p className="text-sm text-neutral-500">Building your position map...</p>
-          </div>
-        )}
-      </section>{/* end snap section 3 */}
-
-      {/* ── Non-snap: email status + footer ─────────────────────────── */}
-      <div className="px-6 pb-12">
-      <div className="mx-auto w-full max-w-lg">
-
-      {userEmail && emailStatus !== "idle" && (
-        <div className="mt-12 text-center text-sm text-neutral-500">
-          {(emailStatus === "sent" || emailStatus === "sending") && (
-            <div>
-              ✓ Your results {emailStatus === "sending" ? "are being sent" : "were sent"} to{" "}
-              <span className="font-medium text-neutral-700">{userEmail}</span>
-            </div>
-          )}
-          {emailStatus === "skipped" && (
-            <div className="text-neutral-400">
-              (Email delivery isn&rsquo;t configured — results saved to your profile.)
-            </div>
-          )}
-          {emailStatus === "failed" && (
-            <div className="text-amber-600">
-              We couldn&rsquo;t send the email, but your results are saved to your profile.
-            </div>
-          )}
-          <Link
-            href={`/profile?email=${encodeURIComponent(userEmail)}`}
-            className="inline-block mt-3 underline underline-offset-4 text-neutral-700 hover:text-neutral-900"
-          >
-            View all your intellectual maps →
-          </Link>
-        </div>
-      )}
-
-      <footer className="mt-12 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <Link
-          href="/"
-          className="text-sm text-neutral-600 underline underline-offset-4"
-        >
-          ← Explore another topic
-        </Link>
-        <div className="text-xs text-neutral-400">
-          Bookmark this page — your intellectual map lives at this URL.
-        </div>
-      </footer>
-
-      </div>{/* end max-w-lg */}
-      </div>{/* end non-snap wrapper */}
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+      <button
+        type="button"
+        onClick={goNext}
+        disabled={slideIndex === TOTAL_SLIDES - 1}
+        className="hidden sm:flex fixed right-[max(1rem,calc(50%-300px))] top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full text-neutral-900 hover:text-neutral-700 hover:bg-neutral-100 transition disabled:opacity-0 disabled:cursor-default z-10"
+        aria-label="Next card"
+      >
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
 
       {modalType && (
         <ThinkerModal

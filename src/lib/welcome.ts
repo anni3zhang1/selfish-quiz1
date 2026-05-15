@@ -191,7 +191,7 @@ export async function sendWelcomeSequence(
 
   if (hooks.length >= 3) {
     introBody =
-      `Hey! I'm your Selfish thinking partner. I'll send you ideas, questions, and rabbit holes to sharpen your thinking.\n\n` +
+      `Hey! I'm Feynman, your thinking partner. I'll send you ideas, questions, and rabbit holes to sharpen your thinking.\n\n` +
       `Based on your ${topicDisplay} quiz — what are you curious to explore next?\n` +
       `1. ${hooks[0].hook}\n` +
       `2. ${hooks[1].hook}\n` +
@@ -199,7 +199,7 @@ export async function sendWelcomeSequence(
   } else {
     // Fallback — no hooks generated
     introBody =
-      `Hey! I'm your Selfish thinking partner. I'll send you ideas, questions, and rabbit holes to sharpen your thinking based on your ${topicDisplay} quiz. Talk soon!`;
+      `Hey! I'm Feynman, your thinking partner. I'll send you ideas, questions, and rabbit holes to sharpen your thinking based on your ${topicDisplay} quiz. Talk soon!`;
   }
 
   const linkBody = `Here are your results: ${resultsLink}`;

@@ -14,17 +14,24 @@ function isFreeformOnly(q: AnyQuestion): q is Extract<AnyQuestion, { freeformOnl
   return "freeformOnly" in q && q.freeformOnly === true;
 }
 
-/** Split a long question string into context paragraph(s) + final question line */
-function splitQuestionText(text: string): { context: string; question: string } {
+/** Split a long question string into context paragraph(s) + final question line.
+ *  If the text contains \n\n, those become paragraph breaks in the context.
+ *  The last sentence (after splitting) is always the clickable question. */
+function splitQuestionText(text: string): { contextParagraphs: string[]; question: string } {
   // Split on sentence endings followed by a space
   const sentences = text.match(/[^.!?]+[.!?]+/g);
   if (!sentences || sentences.length <= 2) {
-    return { context: "", question: text };
+    return { contextParagraphs: [], question: text };
   }
   // Last sentence is the actual question
   const question = sentences[sentences.length - 1].trim();
-  const context = sentences.slice(0, -1).join("").trim();
-  return { context, question };
+  const contextRaw = sentences.slice(0, -1).join("").trim();
+  // Split context on double-newlines into paragraphs
+  const contextParagraphs = contextRaw
+    .split(/\n\n+/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+  return { contextParagraphs, question };
 }
 
 export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
@@ -351,9 +358,12 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
     });
 
     return (
-      <div className="py-12 sm:py-16 min-h-[70vh] flex flex-col items-center">
+      <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm overflow-hidden flex flex-col min-h-[520px] sm:min-h-[560px] items-center justify-center text-center p-8">
+        <div className="text-[10px] uppercase tracking-widest text-neutral-400 mb-4">
+          {quiz.topicLabel}
+        </div>
         <h1 className="text-2xl sm:text-3xl font-serif tracking-tight text-center mb-2">
-          Building Your {quiz.topicLabel} Intellectual Map
+          Building Your Intellectual Map
         </h1>
         <p key={statusMsgIdx} className="text-sm text-neutral-500 mb-8 fade-in text-center">
           {STATUS_MESSAGES[statusMsgIdx]}
@@ -454,7 +464,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
       onPointerCancel={onSwipePointerUp}
     >
       {/* Outer card */}
-      <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm overflow-hidden">
+      <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm overflow-hidden min-h-[520px] sm:min-h-[560px] flex flex-col">
         {/* Progress header */}
         <div className="px-6 pt-5 pb-4">
           <div className="flex items-center justify-between mb-2">
@@ -476,7 +486,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
         </div>
 
         {/* Inner well */}
-        <div className="mx-3 mb-3 rounded-xl bg-neutral-50 border border-neutral-100">
+        <div className="mx-3 mb-3 rounded-xl bg-neutral-50 border border-neutral-100 flex-1 flex flex-col">
           {/* Side arrows — positioned outside the content column */}
           <button
             type="button"
@@ -498,7 +508,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
               canGoForward
                 ? "text-neutral-900 hover:text-neutral-700"
                 : "text-neutral-200 cursor-default"
-            }`}
+            } ${isLastQuestion && viewStep === "answering" ? "!hidden" : ""}`}
             aria-label="Go forward"
           >
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -508,7 +518,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
 
           {/* Content area */}
           <div
-            className="px-6 py-8 sm:py-10"
+            className="px-6 py-8 sm:py-10 flex-1 flex flex-col"
             style={{
               transform: slideTransform,
               transition: slideTransition,
@@ -517,14 +527,18 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
           >
             {/* === STEP 1: Read the question === */}
             {viewStep === "reading" && (() => {
-              const { context, question } = splitQuestionText(current.text);
+              const { contextParagraphs, question } = splitQuestionText(current.text);
               return (
               <div className="flex flex-col justify-center min-h-[45vh]">
-                {context ? (
+                {contextParagraphs.length > 0 ? (
                   <>
-                    <p className="text-base sm:text-lg text-neutral-500 leading-relaxed mb-8">
-                      {context}
-                    </p>
+                    <div className="mb-8 space-y-4">
+                      {contextParagraphs.map((para, i) => (
+                        <p key={i} className="text-base sm:text-lg text-neutral-500 leading-relaxed">
+                          {para}
+                        </p>
+                      ))}
+                    </div>
                     <button
                       type="button"
                       onClick={animateToAnswers}
@@ -554,7 +568,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
 
             {/* === STEP 2: Answer options === */}
             {viewStep === "answering" && (
-              <div className="max-w-sm mx-auto">
+              <div className={`max-w-sm mx-auto w-full ${freeformOnly ? "flex-1 flex flex-col" : ""}`}>
                 {/* Answer options — centered */}
                 {!freeformOnly && (
                   <div className="space-y-2.5 mb-4">
@@ -589,26 +603,31 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
 
                 {/* Freeform / annotation textarea */}
                 {showAnnotation && (
-                  <div className="annotation-slide-in mb-4">
+                  <div className={`annotation-slide-in mb-4 ${freeformOnly ? "flex-1 flex flex-col" : ""}`}>
                     <textarea
                       key={textareaKey}
                       value={freeformText}
                       onChange={(e) => setFreeformText(e.target.value)}
-                      rows={freeformOnly ? 4 : 3}
+                      rows={freeformOnly ? undefined : 3}
                       placeholder={freeformOnly ? "Take your time…" : "Add context (optional)"}
-                      className="w-full px-4 py-3.5 border border-neutral-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-neutral-900 transition placeholder:text-neutral-300 resize-none"
+                      className={`w-full px-4 py-3.5 border border-neutral-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-neutral-900 transition placeholder:text-neutral-300 resize-none ${freeformOnly ? "flex-1" : ""}`}
                     />
                   </div>
                 )}
 
-                {/* "See Results" CTA on last question */}
-                {isLastQuestion && canSubmit && (
+                {/* "See where you stand" CTA on last question */}
+                {isLastQuestion && (
                   <button
                     type="button"
-                    onClick={animateToNextQuestion}
-                    className="w-full px-6 py-3.5 bg-neutral-900 text-white rounded-xl text-sm font-medium hover:bg-neutral-800 transition-colors annotation-slide-in"
+                    onClick={canSubmit ? animateToNextQuestion : undefined}
+                    disabled={!canSubmit}
+                    className={`w-full px-6 py-3.5 rounded-xl text-sm font-medium transition-colors annotation-slide-in ${
+                      canSubmit
+                        ? "bg-neutral-900 text-white hover:bg-neutral-800"
+                        : "bg-neutral-200 text-neutral-400 cursor-not-allowed"
+                    }`}
                   >
-                    See Results →
+                    See where you stand →
                   </button>
                 )}
               </div>

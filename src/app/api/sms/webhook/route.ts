@@ -6,6 +6,7 @@ import { replySMS } from "@/lib/sms";
 import twilio from "twilio";
 
 export const runtime = "nodejs";
+export const maxDuration = 120; // synthesis + compose + send can take 30-60s
 
 /**
  * Twilio sends incoming SMS to this webhook as application/x-www-form-urlencoded.
@@ -71,73 +72,65 @@ export async function POST(req: Request) {
   console.log(`SMS received from ${from} (${userEmail}): ${body.trim().slice(0, 80)}...`);
 
   // Check if this is a reply to the welcome MC question (e.g. "1", "2", "3")
+  // IMPORTANT: We must await the full chain before returning.
+  // Vercel kills serverless functions after the response is sent.
   if (userEmail !== "unknown") {
-    const welcomeChoice = await detectWelcomeReply(userEmail, body.trim());
+    try {
+      const welcomeChoice = await detectWelcomeReply(userEmail, body.trim());
 
-    if (welcomeChoice) {
-      // User picked a curiosity edge — acknowledge and send a follow-up
-      console.log(`Welcome MC reply from ${userEmail}: chose "${welcomeChoice.chosenEdge}" (option ${welcomeChoice.edgeIndex + 1})`);
+      if (welcomeChoice) {
+        console.log(`Welcome MC reply from ${userEmail}: chose "${welcomeChoice.chosenEdge}" (option ${welcomeChoice.edgeIndex + 1})`);
 
-      // Tag the inbound message with the choice for signal tracking
-      // Find the most recent inbound message we just inserted, then update it
-      const { data: recentInbound } = await supabase
-        .from("messages")
-        .select("id")
-        .eq("user_email", userEmail)
-        .eq("direction", "inbound")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (recentInbound) {
-        await supabase
+        const { data: recentInbound } = await supabase
           .from("messages")
-          .update({ content_id: `welcome_reply:${welcomeChoice.chosenEdge}` })
-          .eq("id", recentInbound.id);
+          .select("id")
+          .eq("user_email", userEmail)
+          .eq("direction", "inbound")
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (recentInbound) {
+          await supabase
+            .from("messages")
+            .update({ content_id: `welcome_reply:${welcomeChoice.chosenEdge}` })
+            .eq("id", recentInbound.id);
+        }
+
+        // Synthesize memory, compose, and send follow-up (awaited)
+        await synthesizeMemory(userEmail, "sms_reply");
+        const composed = await composeMessage(userEmail);
+        const result = await replySMS(userEmail, from!, composed.body);
+
+        await supabase.from("messages").insert({
+          user_email: userEmail,
+          phone: from,
+          direction: "outbound",
+          body: composed.body,
+          intensity: composed.intensity,
+          content_id: null,
+        });
+
+        console.log(`Follow-up sent to ${userEmail} after welcome choice (${result.provider}: ${result.messageId})`);
+      } else {
+        // Regular reply — update fingerprint, then respond (awaited)
+        await synthesizeMemory(userEmail, "sms_reply");
+        const composed = await composeMessage(userEmail);
+        const result = await replySMS(userEmail, from!, composed.body);
+
+        await supabase.from("messages").insert({
+          user_email: userEmail,
+          phone: from,
+          direction: "outbound",
+          body: composed.body,
+          intensity: composed.intensity,
+          content_id: null,
+        });
+
+        console.log(`Reply sent to ${userEmail} (${composed.intensity}, ${result.provider}: ${result.messageId})`);
       }
-
-      // Synthesize memory with this new signal, then compose a follow-up
-      synthesizeMemory(userEmail, "sms_reply")
-        .then(async () => {
-          // Compose a message that leans into the chosen curiosity edge
-          const composed = await composeMessage(userEmail);
-          const result = await replySMS(userEmail, from!, composed.body);
-
-          await supabase.from("messages").insert({
-            user_email: userEmail,
-            phone: from,
-            direction: "outbound",
-            body: composed.body,
-            intensity: composed.intensity,
-            content_id: null,
-          });
-
-          console.log(`Follow-up sent to ${userEmail} after welcome choice (${result.provider}: ${result.messageId})`);
-        })
-        .catch((err) => {
-          console.error("Welcome follow-up failed:", err);
-        });
-    } else {
-      // Regular reply — update fingerprint, then respond immediately
-      synthesizeMemory(userEmail, "sms_reply")
-        .then(async () => {
-          const composed = await composeMessage(userEmail);
-          const result = await replySMS(userEmail, from!, composed.body);
-
-          await supabase.from("messages").insert({
-            user_email: userEmail,
-            phone: from,
-            direction: "outbound",
-            body: composed.body,
-            intensity: composed.intensity,
-            content_id: null,
-          });
-
-          console.log(`Reply sent to ${userEmail} (${composed.intensity}, ${result.provider}: ${result.messageId})`);
-        })
-        .catch((err) => {
-          console.error("Reply compose/send failed:", err);
-        });
+    } catch (err) {
+      console.error("Reply compose/send failed:", err);
     }
   }
 

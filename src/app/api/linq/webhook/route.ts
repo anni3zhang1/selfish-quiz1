@@ -6,6 +6,7 @@ import { composeMessage } from "@/lib/composer";
 import { replySMS } from "@/lib/sms";
 
 export const runtime = "nodejs";
+export const maxDuration = 120; // synthesis + compose + send can take 30-60s
 
 /**
  * Linq sends inbound iMessages as JSON POST with HMAC-SHA256 signature.
@@ -163,91 +164,89 @@ export async function POST(req: Request) {
   );
 
   // Process reply — same logic as Twilio webhook
+  // IMPORTANT: We must await the full chain before returning.
+  // Vercel kills serverless functions after the response is sent,
+  // so fire-and-forget (.then/.catch) never completes.
   if (userEmail !== "unknown") {
-    const welcomeChoice = await detectWelcomeReply(userEmail, body);
+    try {
+      const welcomeChoice = await detectWelcomeReply(userEmail, body);
 
-    if (welcomeChoice) {
-      console.log(
-        `Welcome MC reply from ${userEmail}: chose "${welcomeChoice.chosenEdge}" (option ${welcomeChoice.edgeIndex + 1})`
-      );
+      if (welcomeChoice) {
+        console.log(
+          `Welcome MC reply from ${userEmail}: chose "${welcomeChoice.chosenEdge}" (option ${welcomeChoice.edgeIndex + 1})`
+        );
 
-      // Tag the inbound message with the choice
-      const { data: recentInbound } = await supabase
-        .from("messages")
-        .select("id")
-        .eq("user_email", userEmail)
-        .eq("direction", "inbound")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (recentInbound) {
-        await supabase
+        // Tag the inbound message with the choice
+        const { data: recentInbound } = await supabase
           .from("messages")
-          .update({
-            content_id: `welcome_reply:${welcomeChoice.chosenEdge}`,
-          })
-          .eq("id", recentInbound.id);
+          .select("id")
+          .eq("user_email", userEmail)
+          .eq("direction", "inbound")
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (recentInbound) {
+          await supabase
+            .from("messages")
+            .update({
+              content_id: `welcome_reply:${welcomeChoice.chosenEdge}`,
+            })
+            .eq("id", recentInbound.id);
+        }
+
+        // Synthesize memory, compose, and send follow-up (awaited)
+        await synthesizeMemory(userEmail, "sms_reply");
+        const composed = await composeMessage(userEmail);
+        const result = await replySMS(
+          userEmail,
+          from,
+          composed.body,
+          chatId
+        );
+
+        await supabase.from("messages").insert({
+          user_email: userEmail,
+          phone: from,
+          direction: "outbound",
+          body: composed.body,
+          intensity: composed.intensity,
+          content_id: null,
+        });
+
+        console.log(
+          `Follow-up sent to ${userEmail} after welcome choice (${result.provider}: ${result.messageId})`
+        );
+      } else {
+        // Regular reply — update fingerprint, then respond (awaited)
+        await synthesizeMemory(userEmail, "sms_reply");
+        const composed = await composeMessage(userEmail);
+        const result = await replySMS(
+          userEmail,
+          from,
+          composed.body,
+          chatId
+        );
+
+        await supabase.from("messages").insert({
+          user_email: userEmail,
+          phone: from,
+          direction: "outbound",
+          body: composed.body,
+          intensity: composed.intensity,
+          content_id: null,
+        });
+
+        console.log(
+          `Reply sent to ${userEmail} (${composed.intensity}, ${result.provider}: ${result.messageId})`
+        );
       }
-
-      // Synthesize memory, then compose and send follow-up
-      synthesizeMemory(userEmail, "sms_reply")
-        .then(async () => {
-          const composed = await composeMessage(userEmail);
-          const result = await replySMS(
-            userEmail,
-            from,
-            composed.body,
-            chatId
-          );
-
-          await supabase.from("messages").insert({
-            user_email: userEmail,
-            phone: from,
-            direction: "outbound",
-            body: composed.body,
-            intensity: composed.intensity,
-            content_id: null,
-          });
-
-          console.log(
-            `Follow-up sent to ${userEmail} after welcome choice (${result.provider}: ${result.messageId})`
-          );
-        })
-        .catch((err) => {
-          console.error("Welcome follow-up failed:", err);
-        });
-    } else {
-      // Regular reply — update fingerprint, then respond
-      synthesizeMemory(userEmail, "sms_reply")
-        .then(async () => {
-          const composed = await composeMessage(userEmail);
-          const result = await replySMS(
-            userEmail,
-            from,
-            composed.body,
-            chatId
-          );
-
-          await supabase.from("messages").insert({
-            user_email: userEmail,
-            phone: from,
-            direction: "outbound",
-            body: composed.body,
-            intensity: composed.intensity,
-            content_id: null,
-          });
-
-          console.log(
-            `Reply sent to ${userEmail} (${composed.intensity}, ${result.provider}: ${result.messageId})`
-          );
-        })
-        .catch((err) => {
-          console.error("Reply compose/send failed:", err);
-        });
+    } catch (err) {
+      console.error("Reply compose/send failed:", err);
+      // Don't fail the webhook — message was already stored
     }
   }
 
-  // Acknowledge receipt
+  // Acknowledge receipt (after reply is fully sent)
   return new Response("OK", { status: 200 });
 }

@@ -839,7 +839,19 @@ export default function ResultsView({
                 </div>
                 {(() => {
                   // Split match_reason into user belief vs thinker belief
-                  const reason = card.match_reason || meta.oneLine;
+                  const reason = card.match_reason?.trim();
+
+                  // If no real match_reason, show the oneLine as a centered description
+                  if (!reason) {
+                    return (
+                      <div className="flex-1 flex items-center justify-center">
+                        <p className="text-[15px] leading-relaxed text-neutral-500 text-center">
+                          {meta.oneLine}
+                        </p>
+                      </div>
+                    );
+                  }
+
                   // Split on sentence boundaries: period/quote followed by space + capital letter
                   const sentenceBreak = /(?<=[.!?]['""']?\s)(?=[A-Z])/g;
                   const sentences = reason.split(sentenceBreak).filter(Boolean);
@@ -855,7 +867,6 @@ export default function ResultsView({
                     }
                   }
 
-                  // If everything ended up in one bucket, fall back to first half / second half
                   const userPart = userSentences.length > 0 ? userSentences.join(" ") : "";
                   const thinkerPart = thinkerSentences.length > 0
                     ? thinkerSentences.join(" ")

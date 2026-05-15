@@ -1,11 +1,11 @@
-import { NextResponse, after } from "next/server";
+import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { synthesizeMemory } from "@/lib/memory";
 import { sendWelcomeSequence } from "@/lib/welcome";
 import type { Constellation } from "@/lib/types";
 
 export const runtime = "nodejs";
-export const maxDuration = 60; // synthesis + welcome can take a while
+export const maxDuration = 120; // synthesis + hooks + message sending can take 30-60s
 
 type Body = {
   session_id?: string;
@@ -83,24 +83,23 @@ export async function POST(req: Request) {
     .eq("id", session_id)
     .single();
 
-  // Use after() to run synthesis + welcome AFTER the response is sent
-  // but keep the serverless function alive until it completes.
-  // (Plain fire-and-forget gets killed by Vercel before finishing.)
+  // Await synthesis + welcome before returning.
+  // The client already has results on screen — the extra seconds are fine.
+  // (after() and fire-and-forget both get killed by Vercel before finishing.)
   if (session?.email) {
     const email = session.email;
     const topic = session.topic ?? "your quiz";
 
-    after(async () => {
-      try {
-        console.log(`[save] Starting memory synthesis for ${email}`);
-        await synthesizeMemory(email, "quiz_completion");
-        console.log(`[save] Memory synthesis complete, sending welcome sequence`);
-        await sendWelcomeSequence(email, session_id, topic);
-        console.log(`[save] Welcome sequence complete for ${email}`);
-      } catch (err) {
-        console.error("Memory synthesis or welcome sequence failed:", err);
-      }
-    });
+    try {
+      console.log(`[save] Starting memory synthesis for ${email}`);
+      await synthesizeMemory(email, "quiz_completion");
+      console.log(`[save] Memory synthesis complete, sending welcome sequence`);
+      await sendWelcomeSequence(email, session_id, topic);
+      console.log(`[save] Welcome sequence complete for ${email}`);
+    } catch (err) {
+      console.error("Memory synthesis or welcome sequence failed:", err);
+      // Don't fail the save response — the constellation was saved successfully
+    }
   }
 
   return NextResponse.json({ ok: true });

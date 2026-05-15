@@ -85,22 +85,50 @@ export async function POST(req: Request) {
     return new Response("OK", { status: 200 });
   }
 
-  const { data } = payload;
-  const chatId = data.chat.id;
-  const from = data.sender_handle.handle; // E.164 phone number
-  const textParts = data.parts.filter((p) => p.type === "text");
+  const { data: eventData } = payload;
+  const chatId = eventData.chat.id;
+  let from = eventData.sender_handle.handle; // phone number
+  const textParts = eventData.parts.filter((p) => p.type === "text");
   const body = textParts.map((p) => p.value).join("\n").trim();
 
   if (!from || !body) {
     return new Response("Missing sender or body", { status: 400 });
   }
 
-  // Look up user by phone number
-  const { data: user, error: userErr } = await supabase
+  // Normalize phone to E.164 — Linq may send with or without "+"
+  if (!from.startsWith("+")) {
+    from = `+${from}`;
+  }
+
+  console.log(`[linq-webhook] Inbound from ${from}, chatId=${chatId}, body="${body.slice(0, 80)}"`);
+
+  // Look up user by phone number (try both with and without +1 prefix)
+  let { data: user, error: userErr } = await supabase
     .from("users")
     .select("email, linq_chat_id")
     .eq("phone", from)
     .maybeSingle();
+
+  // Fallback: if phone stored as +1XXXXXXXXXX but Linq sent +XXXXXXXXXX or vice versa
+  if (!user && !userErr && from.startsWith("+1")) {
+    const without1 = "+" + from.slice(2);
+    const result = await supabase
+      .from("users")
+      .select("email, linq_chat_id")
+      .eq("phone", without1)
+      .maybeSingle();
+    user = result.data;
+    userErr = result.error;
+  } else if (!user && !userErr && !from.startsWith("+1")) {
+    const with1 = "+1" + from.slice(1);
+    const result = await supabase
+      .from("users")
+      .select("email, linq_chat_id")
+      .eq("phone", with1)
+      .maybeSingle();
+    user = result.data;
+    userErr = result.error;
+  }
 
   if (userErr) {
     console.error("User lookup by phone failed:", userErr);

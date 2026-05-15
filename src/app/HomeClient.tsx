@@ -61,10 +61,9 @@ interface HomeClientProps {
   completedSlugs: string[];
   selectedTopics: string[];
   userName: string | null;
-  userEmail: string | null;
 }
 
-export default function HomeClient({ cards, completedSlugs, selectedTopics, userName, userEmail }: HomeClientProps) {
+export default function HomeClient({ cards, completedSlugs, selectedTopics, userName }: HomeClientProps) {
   const completedSet = new Set(completedSlugs);
   const selectedSet = new Set(selectedTopics);
   const [activeCategory, setActiveCategory] = useState(0); // 0 = "All"
@@ -292,7 +291,7 @@ export default function HomeClient({ cards, completedSlugs, selectedTopics, user
                     </Link>
                     {cardComplete && (
                       <Link
-                        href={`/profile${userEmail ? `?email=${encodeURIComponent(userEmail)}` : ""}`}
+                        href="/profile"
                         className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 text-white rounded-xl text-sm font-medium hover:bg-neutral-800 transition-colors"
                         onClick={(e) => e.stopPropagation()}
                       >

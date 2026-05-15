@@ -33,7 +33,6 @@ export default async function Home() {
       completedSlugs={completedTopics}
       selectedTopics={selectedTopics}
       userName={user?.name ?? null}
-      userEmail={user?.email ?? null}
     />
   );
 }

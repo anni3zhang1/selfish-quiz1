@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { isValidEmail } from "@/lib/user";
+import { getServerUser } from "@/lib/user";
 import { topicCards } from "@/lib/quizzes";
 import { RELATIONSHIPS } from "@/lib/relationships";
 import type { Constellation } from "@/lib/types";
@@ -17,60 +18,21 @@ type SessionRow = {
   created_at: string;
 };
 
-export default async function ProfilePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ email?: string }>;
-}) {
-  const { email: rawEmail } = await searchParams;
-  const email = rawEmail?.trim().toLowerCase();
+export default async function ProfilePage() {
+  const user = await getServerUser();
+  if (!user) redirect("/start");
 
-  if (!email || !isValidEmail(email)) {
-    return (
-      <main className="mx-auto max-w-md px-6 py-20">
-        <h1 className="text-3xl font-serif tracking-tight mb-3">
-          See your profile
-        </h1>
-        <p className="text-neutral-600 mb-8">
-          Enter the email you used. We&rsquo;ll show every intellectual map you&rsquo;ve made.
-        </p>
-        <form method="GET" className="space-y-5">
-          <input
-            name="email"
-            type="email"
-            required
-            placeholder="you@example.com"
-            className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900"
-          />
-          <button
-            type="submit"
-            className="w-full py-3 bg-neutral-900 text-white rounded-lg font-medium"
-          >
-            View profile
-          </button>
-        </form>
-        <div className="mt-8 text-center text-xs text-neutral-500">
-          New here?{" "}
-          <Link href="/start" className="underline underline-offset-4">
-            Start a quiz instead
-          </Link>
-        </div>
-      </main>
-    );
-  }
+  const email = user.email;
+  const greetingName = user.name;
 
-  const [{ data: user }, { data: rawSessions }] = await Promise.all([
-    supabase.from("users").select("name, email").eq("email", email).maybeSingle(),
-    supabase
-      .from("quiz_sessions")
-      .select("id, topic, profile_summary, constellation, status, created_at")
-      .eq("email", email)
-      .eq("status", "complete")
-      .order("created_at", { ascending: false }),
-  ]);
+  const { data: rawSessions } = await supabase
+    .from("quiz_sessions")
+    .select("id, topic, profile_summary, constellation, status, created_at")
+    .eq("email", email)
+    .eq("status", "complete")
+    .order("created_at", { ascending: false });
 
   const sessions = (rawSessions ?? []) as SessionRow[];
-  const greetingName = user?.name ?? email;
 
   const takenTopics = new Set(sessions.map((s) => s.topic));
   const unexplored = topicCards.filter(

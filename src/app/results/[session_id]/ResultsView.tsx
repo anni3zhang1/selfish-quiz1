@@ -852,25 +852,55 @@ export default function ResultsView({
                     );
                   }
 
-                  // Split on sentence boundaries: period/quote followed by space + capital letter
-                  const sentenceBreak = /(?<=[.!?]['""']?\s)(?=[A-Z])/g;
+                  // Split on sentence boundaries: .!? (optionally followed by quote) + space + capital
+                  const sentenceBreak = /(?<=[.!?]['"'""']?\s)(?=[A-Z])/g;
                   const sentences = reason.split(sentenceBreak).filter(Boolean);
 
-                  // Separate: sentences starting with "You" → user part, rest → thinker part
+                  // Thinker name parts for matching (e.g. "Wacquant", "DJ Jaffe" → "Jaffe")
+                  const nameParts = card.name.split(/\s+/);
+                  const lastName = nameParts[nameParts.length - 1];
+
+                  // Separate: sentences about the user vs sentences about the thinker
                   const userSentences: string[] = [];
                   const thinkerSentences: string[] = [];
                   for (const s of sentences) {
-                    if (s.startsWith("You ") || s.startsWith("You'") || s.startsWith("Your ")) {
+                    const isUserSentence = /^(You |You'|Your )/i.test(s);
+                    const mentionsThinker = s.includes(card.name) || s.includes(lastName);
+                    // If it starts with "You" BUT also mentions the thinker, it's a bridge — put in thinker
+                    if (isUserSentence && !mentionsThinker) {
                       userSentences.push(s.trim());
                     } else {
                       thinkerSentences.push(s.trim());
                     }
                   }
 
-                  const userPart = userSentences.length > 0 ? userSentences.join(" ") : "";
-                  const thinkerPart = thinkerSentences.length > 0
-                    ? thinkerSentences.join(" ")
-                    : "";
+                  // If all sentences landed in one bucket (e.g. one long paragraph),
+                  // try splitting on the thinker's name as a pivot
+                  if (sentences.length <= 1 || (userSentences.length > 0 && thinkerSentences.length === 0)) {
+                    const nameIdx = reason.indexOf(lastName + "'s");
+                    const altIdx = nameIdx === -1 ? reason.indexOf(lastName) : nameIdx;
+                    if (altIdx > 20) {
+                      // Find the nearest sentence-like break before the name
+                      const beforeName = reason.slice(0, altIdx);
+                      // Look for last comma, em-dash, or period before the name
+                      const breakMatch = beforeName.match(/^([\s\S]*[,;—–])\s*/);
+                      if (breakMatch) {
+                        return (
+                          <div className="space-y-3">
+                            <p className="text-[14px] leading-relaxed text-neutral-400">
+                              {breakMatch[1].replace(/[,;—–]\s*$/, ".")}
+                            </p>
+                            <p className="text-[14px] leading-relaxed text-neutral-900">
+                              {reason.slice(breakMatch[0].length).replace(/^\s*/, "").replace(/^which is /i, "That's ").replace(/^that is /i, "That's ")}
+                            </p>
+                          </div>
+                        );
+                      }
+                    }
+                  }
+
+                  const userPart = userSentences.join(" ");
+                  const thinkerPart = thinkerSentences.join(" ");
 
                   return (
                     <div className="space-y-3">

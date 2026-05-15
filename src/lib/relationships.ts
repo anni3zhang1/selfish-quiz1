@@ -21,8 +21,8 @@ export const RELATIONSHIPS: RelationshipMeta[] = [
     hex: "#9CA3AF",
     faceGradient: "bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400",
     textOnFace: "text-gray-800",
-    faceUpBg: "bg-gray-50",
-    faceUpTag: "text-gray-600 border-gray-300 bg-gray-100",
+    faceUpBg: "bg-gray-100",
+    faceUpTag: "text-gray-600 border-gray-300 bg-gray-200",
   },
   {
     key: "complement",

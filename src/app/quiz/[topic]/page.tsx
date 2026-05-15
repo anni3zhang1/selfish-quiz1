@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getQuiz } from "@/lib/quizzes";
 import { getServerUser } from "@/lib/user";
 import QuizRunner from "./QuizRunner";
@@ -14,9 +14,8 @@ export default async function QuizPage({
   const quiz = getQuiz(topic);
   if (!quiz) notFound();
 
-  // User may or may not be registered — QuizRunner handles both cases.
-  // If registered, we pass their info so we can skip the post-quiz form.
   const user = await getServerUser();
+  if (!user) redirect("/start");
 
   return (
     <main className="mx-auto w-full max-w-[480px] px-6 py-12 min-h-[calc(100vh-3rem)]">

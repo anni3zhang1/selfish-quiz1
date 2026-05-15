@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { topicCards } from "@/lib/quizzes";
 import { getServerUser } from "@/lib/user";
 import { supabase } from "@/lib/supabase";
@@ -7,6 +8,7 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const user = await getServerUser();
+  if (!user) redirect("/start");
 
   let completedTopics: string[] = [];
   if (user) {

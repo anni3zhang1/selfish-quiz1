@@ -16,7 +16,7 @@ export function SubmitButton() {
           Loading&hellip;
         </span>
       ) : (
-        <>Let&rsquo;s go &rarr;</>
+        <>Start thinking &rarr;</>
       )}
     </button>
   );

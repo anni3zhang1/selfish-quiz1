@@ -4,12 +4,11 @@ import { useMemo, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import type { AnswerEntry, AnyQuestion, Question } from "@/lib/types";
 import type { aiGovernanceQuiz } from "@/lib/quizzes/ai-governance";
-import PhoneInput from "@/components/PhoneInput";
 
 type Quiz = typeof aiGovernanceQuiz;
 type User = { email: string; name: string } | null;
 
-type Phase = "questions" | "registering" | "submitting" | "error";
+type Phase = "questions" | "submitting" | "error";
 
 function isFreeformOnly(q: AnyQuestion): q is Extract<AnyQuestion, { freeformOnly: true }> {
   return "freeformOnly" in q && q.freeformOnly === true;
@@ -41,14 +40,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
   const [phase, setPhase] = useState<Phase>("questions");
   const [error, setError] = useState<string | null>(null);
 
-  // Registration form fields
-  const [formName, setFormName] = useState(user?.name ?? "");
-  const [formEmail, setFormEmail] = useState(user?.email ?? "");
-  const [formPhone, setFormPhone] = useState("");
-  const [phoneValid, setPhoneValid] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
-
-  // Preview generation state (runs in parallel with registration form)
+  // Preview generation state
   const previewStartedRef = useRef(false);
   const [previewDone, setPreviewDone] = useState(false);
   const previewDataRef = useRef<unknown>(null);
@@ -62,7 +54,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
   ];
   const [statusMsgIdx, setStatusMsgIdx] = useState(0);
   useEffect(() => {
-    if (phase !== "registering" && phase !== "submitting") return;
+    if (phase !== "submitting") return;
     const id = setInterval(() => {
       setStatusMsgIdx((i) => (i + 1) % STATUS_MESSAGES.length);
     }, 4000);
@@ -175,50 +167,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
     }
   }
 
-  // New user — validate form, register, then create session
-  async function submitWithRegistration(finalAnswers: AnswerEntry[]) {
-    setFormError(null);
-    setPhase("submitting");
 
-    const name = formName.trim();
-    const email = formEmail.trim().toLowerCase();
-    const phone = formPhone;
-
-    if (name.length < 2) {
-      setFormError("Please enter your name (2+ characters).");
-      setPhase("registering");
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setFormError("Please enter a valid email address.");
-      setPhase("registering");
-      return;
-    }
-    if (!phoneValid) {
-      setFormError("Please enter a complete phone number.");
-      setPhase("registering");
-      return;
-    }
-
-    try {
-      // 1. Register user (upsert + set cookies)
-      const regRes = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone }),
-      });
-      if (!regRes.ok) {
-        const d = await regRes.json().catch(() => ({}));
-        throw new Error(d.error ?? "Registration failed");
-      }
-
-      // 2. Create session + navigate
-      await createSessionAndNavigate(finalAnswers, name, email);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
-      setPhase("error");
-    }
-  }
 
   function handleNext() {
     if (!current) return;
@@ -282,17 +231,10 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
     setRemainingMain(nextRemaining);
     resetDraft();
 
-    // All questions answered
+    // All questions answered — user is always registered (signup gates access)
     if (nextPending.length === 0 && nextRemaining.length === 0) {
-      if (user) {
-        // Already registered — skip form, go straight to results
-        startPreviewGeneration(nextAnswers);
-        void submitForReturningUser(nextAnswers);
-      } else {
-        // Show registration form, start generation in parallel
-        startPreviewGeneration(nextAnswers);
-        setPhase("registering");
-      }
+      startPreviewGeneration(nextAnswers);
+      void submitForReturningUser(nextAnswers);
     }
   }
 
@@ -394,7 +336,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
   // === Render ===
 
   // Registration phase — form + loading animation
-  if (phase === "registering" || phase === "submitting") {
+  if (phase === "submitting") {
     const NODE_COUNT = 7;
     const RADIUS = 42;
     const CENTER = 54;
@@ -407,8 +349,6 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
         delay: (i * 1.8) / NODE_COUNT,
       };
     });
-
-    const isSubmitting = phase === "submitting";
 
     return (
       <div className="py-12 sm:py-16 min-h-[70vh] flex flex-col items-center">
@@ -437,83 +377,6 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
             />
           ))}
         </div>
-
-        {!user && (
-          <div className="w-full max-w-sm">
-            <p className="text-sm text-neutral-600 text-center mb-6">
-              While we map your thinkers, tell us where to save your results.
-            </p>
-
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                void submitWithRegistration(answers);
-              }}
-              className="space-y-4"
-            >
-              <div>
-                <label className="block text-xs uppercase tracking-wider text-neutral-400 mb-1.5">
-                  Name
-                </label>
-                <input
-                  name="name"
-                  type="text"
-                  required
-                  minLength={2}
-                  value={formName}
-                  onChange={(e) => setFormName(e.target.value)}
-                  disabled={isSubmitting}
-                  className="w-full px-4 py-3.5 border border-neutral-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-neutral-900 disabled:opacity-50 transition placeholder:text-neutral-300"
-                  placeholder="Your name"
-                  autoFocus
-                />
-              </div>
-              <div>
-                <label className="block text-xs uppercase tracking-wider text-neutral-400 mb-1.5">
-                  Email
-                </label>
-                <input
-                  name="email"
-                  type="email"
-                  required
-                  value={formEmail}
-                  onChange={(e) => setFormEmail(e.target.value)}
-                  disabled={isSubmitting}
-                  className="w-full px-4 py-3.5 border border-neutral-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-neutral-900 disabled:opacity-50 transition placeholder:text-neutral-300"
-                  placeholder="you@example.com"
-                />
-              </div>
-              <div>
-                <label className="block text-xs uppercase tracking-wider text-neutral-400 mb-1.5">
-                  Phone
-                </label>
-                <PhoneInput
-                  value={formPhone}
-                  onChange={(full, valid) => {
-                    setFormPhone(full);
-                    setPhoneValid(valid);
-                  }}
-                  disabled={isSubmitting}
-                />
-                <p className="text-xs text-neutral-400 mt-1.5">
-                  We&rsquo;ll text you personalized reading recommendations.
-                </p>
-              </div>
-
-              {formError && (
-                <div className="text-sm text-red-600 bg-red-50 px-4 py-2.5 rounded-lg">{formError}</div>
-              )}
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full px-6 py-3.5 bg-neutral-900 text-white rounded-xl font-medium hover:bg-neutral-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? "Saving..." : "See My Results"}
-              </button>
-            </form>
-          </div>
-        )}
       </div>
     );
   }
@@ -526,8 +389,9 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
         <button
           type="button"
           onClick={() => {
-            setPhase("registering");
+            setPhase("submitting");
             setError(null);
+            void submitForReturningUser(answers);
           }}
           className="px-6 py-3 bg-neutral-900 text-white rounded-xl font-medium"
         >

@@ -180,9 +180,9 @@ export default function OnboardingCarousel({ error }: OnboardingCarouselProps) {
   const canGoNext = index < totalSlides - 1;
 
   return (
-    <main className="relative mx-auto w-full max-w-[480px] px-6 py-6 sm:py-10 min-h-[calc(100vh-3rem)] flex flex-col justify-center">
+    <main className="relative mx-auto w-full max-w-[480px] px-6 pt-4 pb-6 sm:py-10 min-h-[calc(100dvh-3rem)] flex flex-col">
       {/* Dot indicators */}
-      <div className="flex justify-center gap-2 mb-6">
+      <div className="flex justify-center gap-2 mb-4">
         {Array.from({ length: totalSlides }, (_, i) => (
           <button
             key={i}
@@ -200,14 +200,14 @@ export default function OnboardingCarousel({ error }: OnboardingCarouselProps) {
 
       {/* Card */}
       <div
-        className="relative min-h-[520px] sm:min-h-[560px] select-none touch-pan-y"
+        className="relative flex-1 flex flex-col select-none touch-pan-y"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
       >
         <div
-          className="rounded-2xl border border-neutral-200 bg-white shadow-sm overflow-hidden flex flex-col min-h-[520px] sm:min-h-[560px]"
+          className="rounded-2xl border border-neutral-200 bg-white shadow-sm overflow-hidden flex flex-col flex-1"
           style={{
             transform: `translateX(${isDragging ? dragX : 0}px)`,
             transition: isDragging ? "none" : "transform 0.3s cubic-bezier(0.22, 1, 0.36, 1)",

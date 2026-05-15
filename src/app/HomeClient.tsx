@@ -151,7 +151,7 @@ export default function HomeClient({ cards, completedSlugs, selectedTopics, user
 
   if (!current) {
     return (
-      <main className="relative mx-auto w-full max-w-[480px] px-6 py-6 sm:py-10 min-h-[calc(100vh-3rem)] flex flex-col">
+      <main className="relative mx-auto w-full max-w-[480px] px-6 pt-4 pb-6 sm:py-10 min-h-[calc(100dvh-3rem)] flex flex-col">
         <div className="flex gap-2 overflow-x-auto pb-1 mb-6 scrollbar-none">
           {CATEGORIES.map((cat, i) => (
             <button
@@ -180,7 +180,7 @@ export default function HomeClient({ cards, completedSlugs, selectedTopics, user
   }
 
   return (
-    <main className="relative mx-auto w-full max-w-[480px] px-6 py-6 sm:py-10 min-h-[calc(100vh-3rem)] flex flex-col">
+    <main className="relative mx-auto w-full max-w-[480px] px-6 pt-4 pb-6 sm:py-10 min-h-[calc(100dvh-3rem)] flex flex-col">
       {/* Category pills */}
       <div className="flex gap-2 overflow-x-auto pb-1 mb-6 scrollbar-none">
         {CATEGORIES.map((cat, i) => (

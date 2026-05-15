@@ -358,7 +358,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
     });
 
     return (
-      <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm overflow-hidden flex flex-col min-h-[520px] sm:min-h-[560px] items-center justify-center text-center p-8">
+      <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm overflow-hidden flex-1 flex flex-col items-center justify-center text-center p-8">
         <div className="text-[10px] uppercase tracking-widest text-neutral-400 mb-4">
           {quiz.topicLabel}
         </div>
@@ -460,7 +460,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
 
   return (
     <div
-      className="relative touch-pan-y select-none"
+      className="relative touch-pan-y select-none flex-1 flex flex-col"
       onPointerDown={onSwipePointerDown}
       onPointerMove={onSwipePointerMove}
       onPointerUp={onSwipePointerUp}
@@ -468,14 +468,14 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
     >
       {/* Stacking ghost cards (mobile only) */}
       <div
-        className={`sm:hidden absolute inset-x-0 top-0 min-h-[520px] rounded-2xl border border-neutral-200 bg-neutral-50 shadow-sm transition-all duration-300 ${
+        className={`sm:hidden absolute inset-x-0 top-0 bottom-0 rounded-2xl border border-neutral-200 bg-neutral-50 shadow-sm transition-all duration-300 ${
           showStackHint ? "opacity-60 translate-y-3 scale-[0.96]" : "opacity-0 translate-y-0 scale-100"
         }`}
         style={{ zIndex: 0 }}
         aria-hidden="true"
       />
       <div
-        className={`sm:hidden absolute inset-x-0 top-0 min-h-[520px] rounded-2xl border border-neutral-200 bg-neutral-100/50 shadow-sm transition-all duration-300 ${
+        className={`sm:hidden absolute inset-x-0 top-0 bottom-0 rounded-2xl border border-neutral-200 bg-neutral-100/50 shadow-sm transition-all duration-300 ${
           showStackHint ? "opacity-40 translate-y-[22px] scale-[0.92]" : "opacity-0 translate-y-0 scale-100"
         }`}
         style={{ zIndex: 0 }}
@@ -483,7 +483,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
       />
 
       {/* Outer card */}
-      <div className="relative z-10 rounded-2xl border border-neutral-200 bg-white shadow-sm overflow-hidden min-h-[520px] sm:min-h-[560px] flex flex-col">
+      <div className="relative z-10 rounded-2xl border border-neutral-200 bg-white shadow-sm overflow-hidden flex-1 flex flex-col">
         {/* Progress header */}
         <div className="px-6 pt-5 pb-4">
           <div className="flex items-center justify-between mb-2">

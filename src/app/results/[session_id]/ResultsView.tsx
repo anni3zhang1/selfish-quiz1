@@ -575,7 +575,7 @@ export default function ResultsView({
     });
 
     return (
-      <main className="relative mx-auto w-full max-w-[480px] px-6 py-6 sm:py-10 min-h-[calc(100vh-3rem)] flex flex-col justify-center">
+      <main className="relative mx-auto w-full max-w-[480px] px-6 pt-4 pb-6 sm:py-10 min-h-[calc(100dvh-3rem)] flex flex-col justify-center">
         {/* Dot indicators (single dot for loading) */}
         <div className="flex justify-center gap-2 mb-6">
           <div className="h-2 w-6 rounded-full bg-neutral-900" />
@@ -619,7 +619,7 @@ export default function ResultsView({
   // Phase 1 failed
   if (phase === "error") {
     return (
-      <main className="relative mx-auto w-full max-w-[480px] px-6 py-6 sm:py-10 min-h-[calc(100vh-3rem)] flex flex-col justify-center">
+      <main className="relative mx-auto w-full max-w-[480px] px-6 pt-4 pb-6 sm:py-10 min-h-[calc(100dvh-3rem)] flex flex-col justify-center">
         <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm overflow-hidden flex flex-col min-h-[520px] sm:min-h-[560px] items-center justify-center text-center p-8">
           <h2 className="text-2xl font-serif mb-3">Something went wrong.</h2>
           <p className="text-sm text-red-600 mb-6 max-w-sm">{previewError ?? "Please try again."}</p>
@@ -633,7 +633,7 @@ export default function ResultsView({
 
   // Phase 2+ — card carousel
   return (
-    <main className="relative mx-auto w-full max-w-[480px] px-6 py-6 sm:py-10 min-h-[calc(100vh-3rem)] flex flex-col justify-center">
+    <main className="relative mx-auto w-full max-w-[480px] px-6 pt-4 pb-6 sm:py-10 min-h-[calc(100dvh-3rem)] flex flex-col justify-center">
       {/* Dot indicators */}
       <div className="flex justify-center gap-2 mb-6">
         {Array.from({ length: TOTAL_SLIDES }, (_, i) => (

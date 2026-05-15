@@ -85,6 +85,80 @@ export default function ResultsView({
   const positionMapStartedRef = useRef(false);
   const positionMapDataRef = useRef<PositionMapData | null>(null);
 
+  const [shareStatus, setShareStatus] = useState<"idle" | "sharing" | "copied" | "downloaded" | "error">("idle");
+
+  const shareUrl = typeof window !== "undefined"
+    ? `${window.location.origin}/share/${sessionId}`
+    : `https://selfish-quiz1.vercel.app/share/${sessionId}`;
+
+  const handleShare = async () => {
+    setShareStatus("sharing");
+    try {
+      // Try Web Share API first (mobile)
+      if (navigator.share) {
+        const shareData: ShareData = {
+          title: userInsight?.archetype_label ?? `My stance on ${topicLabel}`,
+          text: userInsight?.archetype_description ?? `See where I stand on ${topicLabel}`,
+          url: shareUrl,
+        };
+
+        // Try to include the OG image as a file
+        try {
+          const imgRes = await fetch(`/api/og/${sessionId}`);
+          if (imgRes.ok) {
+            const blob = await imgRes.blob();
+            const file = new File([blob], "my-stance.png", { type: "image/png" });
+            if (navigator.canShare?.({ files: [file] })) {
+              shareData.files = [file];
+            }
+          }
+        } catch {
+          // Image fetch failed — share without image
+        }
+
+        await navigator.share(shareData);
+        setShareStatus("idle");
+        return;
+      }
+
+      // Desktop fallback: copy link to clipboard
+      await navigator.clipboard.writeText(shareUrl);
+      setShareStatus("copied");
+      setTimeout(() => setShareStatus("idle"), 2000);
+    } catch (err) {
+      // User cancelled share sheet — not an error
+      if (err instanceof Error && err.name === "AbortError") {
+        setShareStatus("idle");
+        return;
+      }
+      console.error("Share failed:", err);
+      setShareStatus("error");
+      setTimeout(() => setShareStatus("idle"), 2000);
+    }
+  };
+
+  const handleDownloadImage = async () => {
+    try {
+      const res = await fetch(`/api/og/${sessionId}`);
+      if (!res.ok) throw new Error("Failed to generate image");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "my-stance.png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      setShareStatus("downloaded");
+      setTimeout(() => setShareStatus("idle"), 2000);
+    } catch (err) {
+      console.error("Download failed:", err);
+      setShareStatus("error");
+      setTimeout(() => setShareStatus("idle"), 2000);
+    }
+  };
+
   const [modalType, setModalType] = useState<RelationshipType | null>(null);
   const [pendingModal, setPendingModal] = useState<RelationshipType | null>(null);
 
@@ -937,15 +1011,30 @@ export default function ResultsView({
               <div className="flex flex-col items-center gap-2 pt-4 mt-auto">
                 <button
                   type="button"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 text-white rounded-xl text-sm font-medium hover:bg-neutral-800 transition-colors"
+                  onClick={handleShare}
+                  disabled={shareStatus === "sharing"}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 text-white rounded-xl text-sm font-medium hover:bg-neutral-800 transition-colors disabled:opacity-60"
                 >
-                  Share results
+                  {shareStatus === "sharing" && (
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  )}
+                  {shareStatus === "copied" ? "Link copied!" :
+                   shareStatus === "error" ? "Try again" :
+                   shareStatus === "sharing" ? "Preparing..." :
+                   "Share your stance"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDownloadImage}
+                  className="inline-flex items-center gap-2 px-6 py-3 text-sm text-neutral-500 hover:text-neutral-700 transition-colors"
+                >
+                  {shareStatus === "downloaded" ? "Saved!" : "Save as image"}
                 </button>
                 <Link
                   href="/"
                   className="inline-flex items-center gap-2 px-6 py-3 border border-neutral-200 rounded-xl text-sm font-medium text-neutral-600 hover:bg-neutral-50 transition-colors"
                 >
-                  Take another quiz →
+                  Take another quiz
                 </Link>
               </div>
             </div>

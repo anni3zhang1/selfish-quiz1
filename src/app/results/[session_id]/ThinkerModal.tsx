@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { RelationshipType } from "@/lib/types";
@@ -48,18 +48,39 @@ export default function ThinkerModal({
   onClose,
 }: Props) {
   const meta = getRelationship(type);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const prevOverflow = useRef("");
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
       else if (e.key === "ArrowLeft" && hasPrev) onPrev();
       else if (e.key === "ArrowRight" && hasNext) onNext();
+      else if (e.key === "Tab" && panelRef.current) {
+        // Focus trap: keep Tab cycling within the modal
+        const focusable = panelRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     };
     window.addEventListener("keydown", onKey);
+    prevOverflow.current = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    // Auto-focus the close button on open
+    panelRef.current?.querySelector<HTMLElement>("button")?.focus();
     return () => {
       window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
+      document.body.style.overflow = prevOverflow.current;
     };
   }, [hasPrev, hasNext, onPrev, onNext, onClose]);
 
@@ -73,12 +94,16 @@ export default function ThinkerModal({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${meta.label}: ${card.name}`}
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/60" aria-hidden />
+      <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
 
       {/* Panel — card-style */}
       <div
+        ref={panelRef}
         onClick={(e) => e.stopPropagation()}
         className={`modal-panel relative w-[95vw] sm:w-[90vw] sm:max-w-[680px] max-h-[85vh] overflow-y-auto rounded-2xl flex flex-col shadow-2xl ${meta.faceGradient} ${meta.textOnFace}`}
       >
@@ -91,7 +116,7 @@ export default function ThinkerModal({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="text-3xl leading-none opacity-70 hover:opacity-100 px-1 -mr-1 transition"
+            className="text-3xl leading-none opacity-70 hover:opacity-100 w-11 h-11 flex items-center justify-center -mr-2 transition rounded-full"
           >
             ×
           </button>

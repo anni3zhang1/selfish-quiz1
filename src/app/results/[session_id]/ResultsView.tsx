@@ -84,6 +84,17 @@ export default function ResultsView({
   );
   const positionMapStartedRef = useRef(false);
   const positionMapDataRef = useRef<PositionMapData | null>(null);
+  const pmPollRef = useRef<{ interval: ReturnType<typeof setInterval>; timeout: ReturnType<typeof setTimeout> } | null>(null);
+
+  // Cleanup position map polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pmPollRef.current) {
+        clearInterval(pmPollRef.current.interval);
+        clearTimeout(pmPollRef.current.timeout);
+      }
+    };
+  }, []);
 
   const [shareStatus, setShareStatus] = useState<"idle" | "sharing" | "copied" | "downloaded" | "error">("idle");
 
@@ -414,24 +425,23 @@ export default function ResultsView({
 
         // If position map arrives AFTER the save, patch it in
         if (!positionMapDataRef.current) {
-          const waitForPM = () => {
-            const check = setInterval(() => {
-              if (positionMapDataRef.current) {
-                clearInterval(check);
-                fetch("/api/constellation/save", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    session_id: sessionId,
-                    patch: { position_map: positionMapDataRef.current },
-                  }),
-                }).catch((err) => console.error("Position map patch save failed:", err));
-              }
-            }, 500);
-            // Stop checking after 30s
-            setTimeout(() => clearInterval(check), 30000);
-          };
-          waitForPM();
+          const check = setInterval(() => {
+            if (positionMapDataRef.current) {
+              clearInterval(check);
+              clearTimeout(stopCheck);
+              fetch("/api/constellation/save", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  session_id: sessionId,
+                  patch: { position_map: positionMapDataRef.current },
+                }),
+              }).catch((err) => console.error("Position map patch save failed:", err));
+            }
+          }, 500);
+          const stopCheck = setTimeout(() => clearInterval(check), 30000);
+          // Store refs so cleanup can clear them if component unmounts
+          pmPollRef.current = { interval: check, timeout: stopCheck };
         }
 
         // Trigger email after save

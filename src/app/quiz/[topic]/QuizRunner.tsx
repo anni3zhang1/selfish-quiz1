@@ -128,6 +128,8 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
 
   // Shared: create session + cache preview + navigate to results
   async function createSessionAndNavigate(finalAnswers: AnswerEntry[], name: string, email: string) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 90_000); // 90s timeout
     const sessionRes = await fetch("/api/constellation", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -137,7 +139,8 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
         name,
         email,
       }),
-    });
+      signal: controller.signal,
+    }).finally(() => clearTimeout(timeout));
     if (!sessionRes.ok) {
       const d = await sessionRes.json().catch(() => ({}));
       throw new Error(d.error ?? `Session creation failed (${sessionRes.status})`);
@@ -169,7 +172,10 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
       }
       await createSessionAndNavigate(finalAnswers, user!.name, user!.email);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
+      const msg = err instanceof DOMException && err.name === "AbortError"
+        ? "Request timed out. Please try again."
+        : err instanceof Error ? err.message : "Something went wrong.";
+      setError(msg);
       setPhase("error");
     }
   }
@@ -297,6 +303,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
     if (tag === "TEXTAREA" || tag === "INPUT") return;
     swipeStartRef.current = { x: e.clientX, time: Date.now() };
     setIsDragging(true);
+    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
   }
 
   function animateBackToQuestion() {

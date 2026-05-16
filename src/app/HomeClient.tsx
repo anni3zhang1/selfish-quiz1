@@ -159,21 +159,24 @@ export default function HomeClient({ cards, completedSlugs, selectedTopics, user
   if (!current) {
     return (
       <main className="relative mx-auto w-full max-w-[480px] px-6 pt-4 pb-6 sm:py-10 min-h-[calc(100dvh-3rem)] flex flex-col">
-        <div className="flex gap-2 overflow-x-auto pb-1 mb-6 scrollbar-none">
-          {CATEGORIES.map((cat, i) => (
-            <button
-              key={cat.label}
-              type="button"
-              onClick={() => selectCategory(i)}
-              className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-medium transition ${
-                activeCategory === i
-                  ? "bg-neutral-900 text-white"
-                  : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200"
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
+        <div className="relative mb-6">
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+            {CATEGORIES.map((cat, i) => (
+              <button
+                key={cat.label}
+                type="button"
+                onClick={() => selectCategory(i)}
+                className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-medium transition ${
+                  activeCategory === i
+                    ? "bg-neutral-900 text-white"
+                    : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200"
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+          <div className="absolute right-0 top-0 bottom-1 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none" />
         </div>
         <div className="flex-1 flex items-center justify-center">
           <p className="text-neutral-400 text-sm">
@@ -189,21 +192,25 @@ export default function HomeClient({ cards, completedSlugs, selectedTopics, user
   return (
     <main className="relative mx-auto w-full max-w-[480px] px-6 pt-4 pb-6 sm:py-10 min-h-[calc(100dvh-3rem)] flex flex-col">
       {/* Category pills */}
-      <div className="flex gap-2 overflow-x-auto pb-1 mb-6 scrollbar-none">
-        {CATEGORIES.map((cat, i) => (
-          <button
-            key={cat.label}
-            type="button"
-            onClick={() => selectCategory(i)}
-            className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-medium transition ${
-              activeCategory === i
-                ? "bg-neutral-900 text-white"
-                : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200"
-            }`}
-          >
-            {cat.label}
-          </button>
-        ))}
+      <div className="relative mb-6">
+        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+          {CATEGORIES.map((cat, i) => (
+            <button
+              key={cat.label}
+              type="button"
+              onClick={() => selectCategory(i)}
+              className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-medium transition ${
+                activeCategory === i
+                  ? "bg-neutral-900 text-white"
+                  : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200"
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+        {/* Right fade hint */}
+        <div className="absolute right-0 top-0 bottom-1 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none" />
       </div>
 
       {/* Card stack */}

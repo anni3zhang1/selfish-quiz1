@@ -75,7 +75,7 @@ interface OnboardingCarouselProps {
   error: string | undefined;
 }
 
-export default function OnboardingCarousel({ error }: OnboardingCarouselProps) {
+export default function OnboardingCarousel({ error: initialError }: OnboardingCarouselProps) {
   const [index, setIndex] = useState(0);
   const [phone, setPhone] = useState("");
   const [selectedTopics, setSelectedTopics] = useState<Set<string>>(new Set());
@@ -83,6 +83,19 @@ export default function OnboardingCarousel({ error }: OnboardingCarouselProps) {
   const [dragX, setDragX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef<{ x: number; time: number } | null>(null);
+  // Clear error when user navigates away from signup slide
+  const [error, setError] = useState(initialError);
+  const prevIndex = useRef(index);
+  useEffect(() => {
+    if (prevIndex.current !== index && error) {
+      setError(undefined);
+      // Also clean the URL param so refreshing doesn't bring the error back
+      if (window.location.search.includes("error=")) {
+        window.history.replaceState(null, "", window.location.pathname);
+      }
+    }
+    prevIndex.current = index;
+  }, [index, error]);
 
   // Browser history state — so back button navigates slides instead of leaving
   const isInitialMount = useRef(true);

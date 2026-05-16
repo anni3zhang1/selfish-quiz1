@@ -84,11 +84,11 @@ export const RELATIONSHIPS: RelationshipMeta[] = [
     label: "Your Integrated Self",
     emoji: "✨",
     oneLine: "Your final form",
-    hex: "#B45309",
-    faceGradient: "bg-gradient-to-br from-amber-200 via-amber-300 to-yellow-400",
-    textOnFace: "text-amber-900",
-    faceUpBg: "bg-amber-50",
-    faceUpTag: "text-amber-800 border-amber-200 bg-amber-100",
+    hex: "#7C3AED",
+    faceGradient: "bg-gradient-to-br from-fuchsia-200 via-purple-300 to-indigo-400",
+    textOnFace: "text-purple-900",
+    faceUpBg: "bg-purple-50",
+    faceUpTag: "text-purple-700 border-purple-200 bg-purple-100",
   },
 ];
 

@@ -644,6 +644,16 @@ export default function ResultsView({
   // Phase 2+ — card carousel
   return (
     <main className="relative mx-auto w-full max-w-[480px] px-6 pt-4 pb-6 sm:py-10 min-h-[calc(100dvh-3rem)] flex flex-col justify-center">
+      {/* Back nav */}
+      <div className="flex items-center justify-between mb-3">
+        <Link href="/" className="text-xs text-neutral-400 hover:text-neutral-600 transition">
+          ← Home
+        </Link>
+        <Link href="/profile" className="text-xs text-neutral-400 hover:text-neutral-600 transition">
+          All results
+        </Link>
+      </div>
+
       {/* Dot indicators */}
       <div className="flex justify-center gap-2 mb-6">
         {Array.from({ length: TOTAL_SLIDES }, (_, i) => (
@@ -723,24 +733,21 @@ export default function ResultsView({
                 The values that came through strongest in your answers.
               </p>
 
-              {/* Emoji badge grid — always 4, derived from reasons */}
+              {/* Emoji badge grid — show actual reasons (no duplicates) */}
               <div className="grid grid-cols-2 gap-3">
                 {(() => {
                   const emojis = ["🎯", "⚡", "🌍", "🏆"];
                   const reasons = userInsight.reasons;
-                  // Always produce exactly 4 badges
-                  return Array.from({ length: 4 }, (_, i) => {
-                    const r = reasons[i % reasons.length];
-                    return (
-                      <div
-                        key={i}
-                        className="aspect-square rounded-xl bg-neutral-50 border border-neutral-200 flex flex-col items-center justify-center gap-2 p-4 text-center"
-                      >
-                        <span className="text-3xl">{emojis[i]}</span>
-                        <span className="text-xs font-medium text-neutral-700 leading-tight">{r.claim.split(" ").slice(0, 4).join(" ")}</span>
-                      </div>
-                    );
-                  });
+                  const count = Math.min(reasons.length, 4);
+                  return reasons.slice(0, count).map((r, i) => (
+                    <div
+                      key={i}
+                      className="aspect-square rounded-xl bg-neutral-50 border border-neutral-200 flex flex-col items-center justify-center gap-2 p-4 text-center"
+                    >
+                      <span className="text-3xl">{emojis[i]}</span>
+                      <span className="text-xs font-medium text-neutral-700 leading-tight">{r.claim.split(" ").slice(0, 4).join(" ")}</span>
+                    </div>
+                  ));
                 })()}
               </div>
 

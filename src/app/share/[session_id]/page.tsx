@@ -108,7 +108,7 @@ export default async function SharePage({ params }: Props) {
       <div className="w-full max-w-[480px] flex flex-col items-center gap-8">
 
         {/* Archetype */}
-        {userInsight && (
+        {userInsight ? (
           <div className="text-center">
             <p className="text-[10px] uppercase tracking-widest text-neutral-400 mb-2">
               Stance
@@ -120,19 +120,27 @@ export default async function SharePage({ params }: Props) {
               {userInsight.archetype_description}
             </p>
           </div>
+        ) : (
+          <div className="text-center">
+            <p className="text-[10px] uppercase tracking-widest text-neutral-400 mb-2">
+              Stance
+            </p>
+            <h1 className="text-2xl sm:text-3xl font-serif tracking-tight leading-snug text-neutral-900">
+              My stance on {topicLabel}
+            </h1>
+            <p className="text-sm text-neutral-500 mt-2 max-w-[360px] mx-auto leading-relaxed">
+              Take the quiz to discover where you stand and which thinkers align with your worldview.
+            </p>
+          </div>
         )}
 
         {/* Position Map */}
-        {positionMap ? (
+        {positionMap && (
           <PositionMap
             data={positionMap}
             topicLabel={topicLabel}
             thumbnails={thumbnails}
           />
-        ) : (
-          <div className="text-center text-sm text-neutral-400">
-            Position map not available
-          </div>
         )}
 
         {/* CTA */}

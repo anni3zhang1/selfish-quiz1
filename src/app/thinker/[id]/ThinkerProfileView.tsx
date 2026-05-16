@@ -267,7 +267,7 @@ export default function ThinkerProfileView({
   const hasDynamic = !!(profile?.why_matched);
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-6 py-10">
+    <main className="mx-auto w-full max-w-[480px] px-6 pt-4 pb-6 sm:py-10">
       {/* Back link */}
       <div className="mb-8">
         <Link

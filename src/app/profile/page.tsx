@@ -41,7 +41,7 @@ export default async function ProfilePage() {
   const comingSoon = topicCards.filter((t) => !t.available);
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-6 py-12">
+    <main className="mx-auto w-full max-w-[480px] px-6 pt-4 pb-6 sm:py-10">
       <div className="mb-8">
         <Link
           href="/"

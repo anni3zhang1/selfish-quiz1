@@ -44,7 +44,7 @@ export default async function ThinkerPage({
   // Without session context we can't generate a personalized profile
   if (!from || !isRelationshipType(relationship)) {
     return (
-      <main className="mx-auto max-w-2xl px-6 py-32 text-center">
+      <main className="mx-auto max-w-[480px] px-6 py-32 text-center">
         <h1 className="text-2xl font-serif mb-4">Thinker profile</h1>
         <p className="text-neutral-600 mb-6">
           Open a thinker from your intellectual map to see a personalized profile.

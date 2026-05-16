@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useMemo } from "react";
+import { useState, useRef, useCallback, useMemo, useEffect } from "react";
 import Link from "next/link";
 
 type TopicCard = {
@@ -71,6 +71,13 @@ export default function HomeClient({ cards, completedSlugs, selectedTopics, user
   const [dragX, setDragX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  const [showSwipeHint, setShowSwipeHint] = useState(true);
+
+  // Dismiss swipe hint after first swipe or after 6 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSwipeHint(false), 6000);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Filter + sort cards by category
   // Sort priority: selected & incomplete first, then unselected incomplete, then completed
@@ -133,6 +140,7 @@ export default function HomeClient({ cards, completedSlugs, selectedTopics, user
     if (Math.abs(dragX) > threshold || velocity > 0.4) {
       if (dragX < 0) goNext();
       else goPrev();
+      setShowSwipeHint(false);
     }
     setDragX(0);
     setIsDragging(false);
@@ -304,6 +312,18 @@ export default function HomeClient({ cards, completedSlugs, selectedTopics, user
             </div>
           );
         })}
+      </div>
+
+      {/* Card counter + swipe hint (mobile) */}
+      <div className="flex items-center justify-center gap-3 mt-4 sm:hidden">
+        <span className="text-xs tabular-nums text-neutral-400">
+          {safeIndex + 1} / {filtered.length}
+        </span>
+        {showSwipeHint && filtered.length > 1 && (
+          <span className="text-xs text-neutral-400 animate-pulse">
+            Swipe to explore
+          </span>
+        )}
       </div>
 
       {/* Side navigation arrows — fixed, outside content column on desktop */}

@@ -89,7 +89,7 @@ export default function ResultsView({
 
   const shareUrl = typeof window !== "undefined"
     ? `${window.location.origin}/share/${sessionId}`
-    : `https://selfish-quiz1.vercel.app/share/${sessionId}`;
+    : `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://selfish-quiz1.vercel.app"}/share/${sessionId}`;
 
   const handleShare = async () => {
     setShareStatus("sharing");

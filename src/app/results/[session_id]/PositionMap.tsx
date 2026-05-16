@@ -106,7 +106,7 @@ export default function PositionMap({
 
           {/* Y-axis top label */}
           <div style={{ textAlign: "center", marginBottom: 6 }}>
-            <span style={{ fontFamily: "var(--font-space-grotesk), 'Space Grotesk', sans-serif", fontSize: 9, fontWeight: 700, color: "#a3a3a3", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+            <span style={{ fontFamily: "var(--font-space-grotesk), 'Space Grotesk', sans-serif", fontSize: 10, fontWeight: 700, color: "#a3a3a3", letterSpacing: "0.1em", textTransform: "uppercase" }}>
               {data.axes.y[0]}
             </span>
           </div>
@@ -245,7 +245,7 @@ export default function PositionMap({
                       </span>
                     )}
                   </div>
-                  <span style={{ fontFamily: "var(--font-space-grotesk), 'Space Grotesk', sans-serif", fontSize: 9, fontWeight: 600, color: textColor, whiteSpace: "nowrap" }}>
+                  <span style={{ fontFamily: "var(--font-space-grotesk), 'Space Grotesk', sans-serif", fontSize: 10, fontWeight: 600, color: textColor, maxWidth: 72, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block", textAlign: "center" }}>
                     {t.name}
                   </span>
                 </div>
@@ -293,7 +293,7 @@ export default function PositionMap({
 
           {/* Y-axis bottom label */}
           <div style={{ textAlign: "center", marginTop: 6 }}>
-            <span style={{ fontFamily: "var(--font-space-grotesk), 'Space Grotesk', sans-serif", fontSize: 9, fontWeight: 700, color: "#a3a3a3", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+            <span style={{ fontFamily: "var(--font-space-grotesk), 'Space Grotesk', sans-serif", fontSize: 10, fontWeight: 700, color: "#a3a3a3", letterSpacing: "0.1em", textTransform: "uppercase" }}>
               {data.axes.y[1]}
             </span>
           </div>

@@ -1,9 +1,20 @@
 import { notFound, redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { getQuiz } from "@/lib/quizzes";
 import { getServerUser } from "@/lib/user";
 import QuizRunner from "./QuizRunner";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: { params: Promise<{ topic: string }> }): Promise<Metadata> {
+  const { topic } = await params;
+  const quiz = getQuiz(topic);
+  if (!quiz) return { title: "Quiz — Selfish" };
+  return {
+    title: `${quiz.topicLabel} — Selfish`,
+    description: `Discover where you stand on ${quiz.topicLabel} and which thinkers align with your worldview.`,
+  };
+}
 
 export default async function QuizPage({
   params,

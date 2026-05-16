@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { supabase } from "@/lib/supabase";
 import { getServerUser } from "@/lib/user";
 import { topicCards } from "@/lib/quizzes";
@@ -8,6 +9,11 @@ import type { Constellation } from "@/lib/types";
 import { slugify } from "@/lib/thinkers";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Your Intellectual Map — Selfish",
+  description: "See all your completed quizzes and thinker constellations.",
+};
 
 type SessionRow = {
   id: string;
@@ -65,7 +71,7 @@ export default async function ProfilePage() {
           </p>
           <Link
             href="/"
-            className="inline-block px-5 py-2 bg-neutral-900 text-white rounded-lg text-sm font-medium"
+            className="inline-block px-5 py-2 bg-neutral-900 text-white rounded-xl text-sm font-medium"
           >
             Browse topics →
           </Link>
@@ -115,7 +121,7 @@ export default async function ProfilePage() {
                           <Link
                             key={r.key}
                             href={`/thinker/${slugify(card.name)}?from=${s.id}&relationship=${r.key}`}
-                            className={`block rounded-lg p-3 text-xs ${r.faceGradient} ${r.textOnFace} hover:opacity-90 transition`}
+                            className={`block rounded-xl p-3 text-xs ${r.faceGradient} ${r.textOnFace} hover:opacity-90 transition`}
                           >
                             <div className="opacity-80 text-[10px] uppercase tracking-wider mb-1">
                               {r.emoji} {r.label}
@@ -151,7 +157,7 @@ export default async function ProfilePage() {
               <Link
                 key={t.slug}
                 href={`/quiz/${t.slug}`}
-                className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 hover:bg-white hover:shadow-sm transition"
+                className="rounded-xl border border-neutral-200 bg-neutral-50 p-4 hover:bg-white hover:shadow-sm transition"
               >
                 <div className="text-sm font-semibold mb-1">{t.name}</div>
                 <div className="text-[10px] uppercase tracking-wider text-neutral-500">
@@ -162,7 +168,7 @@ export default async function ProfilePage() {
             {comingSoon.map((t) => (
               <div
                 key={t.slug}
-                className="rounded-lg border border-neutral-100 bg-neutral-50/50 p-4 opacity-60"
+                className="rounded-xl border border-neutral-100 bg-neutral-50/50 p-4 opacity-60"
               >
                 <div className="text-sm font-semibold mb-1">{t.name}</div>
                 <div className="text-[10px] uppercase tracking-wider text-neutral-400">

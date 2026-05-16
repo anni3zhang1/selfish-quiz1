@@ -497,7 +497,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
             <div className="text-xs uppercase tracking-wider text-neutral-400">
               {quiz.topicLabel}
             </div>
-            <div className="text-xs tabular-nums text-neutral-400">
+            <div className="text-xs tabular-nums text-neutral-400" aria-live="polite" aria-atomic="true">
               {progressLabel}
             </div>
           </div>

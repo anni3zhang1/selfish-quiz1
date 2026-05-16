@@ -184,8 +184,8 @@ export default function ResultsView({
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef<{ x: number; time: number } | null>(null);
 
-  // Total slides: 4 insight cards + 3 spotlight thinkers + 1 remaining thinkers + 1 position map/share = 9
-  const TOTAL_SLIDES = 9;
+  // Total slides: 4 insight cards + spotlight thinkers + 1 remaining thinkers + 1 position map/share
+  const TOTAL_SLIDES = 4 + SPOTLIGHT_TYPES.length + 1 + 1;
 
   // Push browser history entries per slide so back button navigates carousel
   const isInitialMount = useRef(true);
@@ -655,19 +655,21 @@ export default function ResultsView({
       </div>
 
       {/* Dot indicators */}
-      <div className="flex justify-center gap-2 mb-6">
+      <div className="flex justify-center gap-0 mb-6">
         {Array.from({ length: TOTAL_SLIDES }, (_, i) => (
           <button
             key={i}
             type="button"
             onClick={() => { setSlideIndex(i); setDragX(0); }}
-            className={`h-2 rounded-full transition-all duration-300 ${
-              i === slideIndex
-                ? "bg-neutral-900 w-6"
-                : "bg-neutral-300 hover:bg-neutral-400 w-2"
-            }`}
+            className="flex items-center justify-center w-7 h-7"
             aria-label={`Go to slide ${i + 1}`}
-          />
+          >
+            <span className={`block h-2 rounded-full transition-all duration-300 ${
+              i === slideIndex
+                ? "bg-neutral-900 w-5"
+                : "bg-neutral-300 w-2"
+            }`} />
+          </button>
         ))}
       </div>
 

@@ -60,10 +60,9 @@ interface HomeClientProps {
   cards: readonly TopicCard[];
   completedSlugs: string[];
   selectedTopics: string[];
-  userName: string | null;
 }
 
-export default function HomeClient({ cards, completedSlugs, selectedTopics, userName }: HomeClientProps) {
+export default function HomeClient({ cards, completedSlugs, selectedTopics }: HomeClientProps) {
   const completedSet = new Set(completedSlugs);
   const selectedSet = new Set(selectedTopics);
   const [activeCategory, setActiveCategory] = useState(0); // 0 = "All"

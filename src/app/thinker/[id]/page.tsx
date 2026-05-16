@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { supabase } from "@/lib/supabase";
 import { slugify } from "@/lib/thinkers";
 import type {
@@ -10,6 +11,15 @@ import type {
 import ThinkerProfileView from "./ThinkerProfileView";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const name = id.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  return {
+    title: `${name} — Selfish`,
+    description: `Explore how ${name} relates to your intellectual worldview.`,
+  };
+}
 
 type SearchParams = {
   from?: string;

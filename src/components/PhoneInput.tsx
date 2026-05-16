@@ -105,8 +105,10 @@ export default function PhoneInput({
   const [rawDigits, setRawDigits] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [highlightIdx, setHighlightIdx] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -154,6 +156,29 @@ export default function PhoneInput({
       )
     : COUNTRIES;
 
+  // Reset highlight when search changes
+  useEffect(() => { setHighlightIdx(0); }, [search]);
+
+  function handleSearchKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlightIdx((i) => Math.min(i + 1, filtered.length - 1));
+      listRef.current?.children[Math.min(highlightIdx + 1, filtered.length - 1)]
+        ?.scrollIntoView?.({ block: "nearest" });
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlightIdx((i) => Math.max(i - 1, 0));
+      listRef.current?.children[Math.max(highlightIdx - 1, 0)]
+        ?.scrollIntoView?.({ block: "nearest" });
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (filtered[highlightIdx]) handleCountrySelect(filtered[highlightIdx]);
+    } else if (e.key === "Escape") {
+      setDropdownOpen(false);
+      setSearch("");
+    }
+  }
+
   const isComplete = rawDigits.length === country.digits;
   const displayValue = rawDigits ? formatNumber(rawDigits, country.digits) : "";
 
@@ -165,6 +190,8 @@ export default function PhoneInput({
           type="button"
           onClick={() => !disabled && setDropdownOpen(!dropdownOpen)}
           disabled={disabled}
+          aria-expanded={dropdownOpen}
+          aria-haspopup="listbox"
           className="flex items-center gap-1.5 px-3 py-3 border border-neutral-300 rounded-lg bg-white hover:border-neutral-400 transition text-sm shrink-0 disabled:opacity-50"
         >
           <span className="text-lg leading-none">{country.flag}</span>
@@ -201,19 +228,25 @@ export default function PhoneInput({
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={handleSearchKeyDown}
               placeholder="Search country..."
+              role="combobox"
+              aria-controls="country-listbox"
+              aria-expanded={true}
               className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-neutral-400"
             />
           </div>
-          <div className="max-h-56 overflow-y-auto">
-            {filtered.map((c) => (
+          <div ref={listRef} id="country-listbox" role="listbox" className="max-h-56 overflow-y-auto">
+            {filtered.map((c, idx) => (
               <button
                 key={c.code}
                 type="button"
+                role="option"
+                aria-selected={c.code === country.code}
                 onClick={() => handleCountrySelect(c)}
                 className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-neutral-50 transition text-left ${
                   c.code === country.code ? "bg-neutral-100 font-medium" : ""
-                }`}
+                } ${idx === highlightIdx ? "ring-2 ring-inset ring-neutral-400" : ""}`}
               >
                 <span className="text-base leading-none">{c.flag}</span>
                 <span className="flex-1 truncate">{c.name}</span>

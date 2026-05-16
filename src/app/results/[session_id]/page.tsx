@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { supabase } from "@/lib/supabase";
-import type { AnswerEntry, Constellation, ConstellationCard, RelationshipType } from "@/lib/types";
+import type { AnswerEntry, Constellation, ConstellationCard, RelationshipType, UserInsight } from "@/lib/types";
 import { getQuiz } from "@/lib/quizzes";
 import { fetchWikipediaThumbnail } from "@/lib/wikipedia";
 import { slugify } from "@/lib/thinkers";
@@ -54,6 +55,26 @@ async function hydrateWhatTheyBelieve(constellation: Constellation): Promise<Con
 }
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: { params: Promise<{ session_id: string }> }): Promise<Metadata> {
+  const { session_id } = await params;
+  const { data } = await supabase
+    .from("quiz_sessions")
+    .select("topic, constellation")
+    .eq("id", session_id)
+    .single();
+  if (!data) return { title: "Results — Selfish" };
+  const quiz = getQuiz(data.topic);
+  const topicLabel = quiz?.topicLabel ?? data.topic;
+  const userInsight = (data.constellation as Constellation | null)?.user_insight as UserInsight | undefined;
+  const title = userInsight?.archetype_label
+    ? `${userInsight.archetype_label} — ${topicLabel}`
+    : `Your results on ${topicLabel}`;
+  return {
+    title: `${title} — Selfish`,
+    description: userInsight?.archetype_description ?? `See your intellectual constellation for ${topicLabel}.`,
+  };
+}
 
 export default async function ResultsPage({
   params,

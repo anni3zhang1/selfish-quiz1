@@ -343,10 +343,11 @@ export default function OnboardingCarousel({ error: initialError }: OnboardingCa
                   </p>
                 </div>
                 <div>
-                  <label className="block text-xs uppercase tracking-wider text-neutral-400 mb-1.5">
+                  <label htmlFor="signup-name" className="block text-xs uppercase tracking-wider text-neutral-400 mb-1.5">
                     Name
                   </label>
                   <input
+                    id="signup-name"
                     name="name"
                     type="text"
                     required
@@ -356,10 +357,11 @@ export default function OnboardingCarousel({ error: initialError }: OnboardingCa
                   />
                 </div>
                 <div>
-                  <label className="block text-xs uppercase tracking-wider text-neutral-400 mb-1.5">
+                  <label htmlFor="signup-email" className="block text-xs uppercase tracking-wider text-neutral-400 mb-1.5">
                     Email
                   </label>
                   <input
+                    id="signup-email"
                     name="email"
                     type="email"
                     required

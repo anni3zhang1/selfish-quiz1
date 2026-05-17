@@ -3,11 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import type { AnswerEntry, Constellation, ConstellationCard, PositionMapData, RelationshipType, UserInsight } from "@/lib/types";
+import type { AnswerEntry, Constellation, ConstellationCard, PositionMapData, RelationshipType, StanceData, UserInsight } from "@/lib/types";
 import { RELATIONSHIPS, getRelationship } from "@/lib/relationships";
 import { slugify } from "@/lib/thinkers";
 import ThinkerModal from "./ThinkerModal";
-import PositionMap from "./PositionMap";
+import StanceSliders from "./StanceSliders";
 
 
 type PartialCard = {
@@ -85,6 +85,13 @@ export default function ResultsView({
   const positionMapStartedRef = useRef(false);
   const positionMapDataRef = useRef<PositionMapData | null>(null);
   const pmPollRef = useRef<{ interval: ReturnType<typeof setInterval>; timeout: ReturnType<typeof setTimeout> } | null>(null);
+
+  // Stance sliders state
+  const [stanceData, setStanceData] = useState<StanceData | null>(
+    isPreloaded ? (constellation.stance ?? null) : null
+  );
+  const stanceStartedRef = useRef(false);
+  const stanceDataRef = useRef<StanceData | null>(null);
 
   // Cleanup position map polling on unmount
   useEffect(() => {
@@ -184,8 +191,8 @@ export default function ResultsView({
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef<{ x: number; time: number } | null>(null);
 
-  // Total slides: 4 insight cards + spotlight thinkers + 1 remaining thinkers + 1 position map/share
-  const TOTAL_SLIDES = 4 + SPOTLIGHT_TYPES.length + 1 + 1;
+  // Total slides: 3 insight cards + spotlight thinkers + 1 remaining thinkers + 1 position map/share
+  const TOTAL_SLIDES = 3 + SPOTLIGHT_TYPES.length + 1 + 1;
 
   // Push browser history entries per slide so back button navigates carousel
   const isInitialMount = useRef(true);
@@ -341,6 +348,23 @@ export default function ResultsView({
             .catch((err) => console.error("Position map generation failed:", err));
         }
 
+        // Fire stance sliders generation in parallel (non-blocking)
+        if (!stanceStartedRef.current) {
+          stanceStartedRef.current = true;
+          fetch("/api/constellation/stance", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ topic, answers }),
+          })
+            .then(async (res) => {
+              if (!res.ok) throw new Error(`Stance failed (${res.status})`);
+              const sd = (await res.json()) as StanceData;
+              stanceDataRef.current = sd;
+              setStanceData(sd);
+            })
+            .catch((err) => console.error("Stance generation failed:", err));
+        }
+
         // Fire all 7 detail calls in parallel
         const loadingSet = new Set(data.thinkers.map((t) => t.type));
         setDetailLoading(loadingSet);
@@ -409,7 +433,7 @@ export default function ResultsView({
           };
         }
 
-        // Save to DB (include position_map if it arrived before save fires)
+        // Save to DB (include position_map and stance if they arrived before save fires)
         await fetch("/api/constellation/save", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -419,6 +443,7 @@ export default function ResultsView({
               ...fullConstellation,
               user_insight: data.user_insight,
               ...(positionMapDataRef.current ? { position_map: positionMapDataRef.current } : {}),
+              ...(stanceDataRef.current ? { stance: stanceDataRef.current } : {}),
             },
           }),
         }).catch((err) => console.error("Save failed:", err));
@@ -440,8 +465,26 @@ export default function ResultsView({
             }
           }, 500);
           const stopCheck = setTimeout(() => clearInterval(check), 30000);
-          // Store refs so cleanup can clear them if component unmounts
           pmPollRef.current = { interval: check, timeout: stopCheck };
+        }
+
+        // If stance arrives AFTER the save, patch it in
+        if (!stanceDataRef.current) {
+          const stanceCheck = setInterval(() => {
+            if (stanceDataRef.current) {
+              clearInterval(stanceCheck);
+              clearTimeout(stanceStop);
+              fetch("/api/constellation/save", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  session_id: sessionId,
+                  patch: { stance: stanceDataRef.current },
+                }),
+              }).catch((err) => console.error("Stance patch save failed:", err));
+            }
+          }, 500);
+          const stanceStop = setTimeout(() => clearInterval(stanceCheck), 30000);
         }
 
         // Trigger email after save
@@ -499,6 +542,30 @@ export default function ResultsView({
       })
       .catch((err) => console.error("Position map re-fetch failed:", err));
   }, [isPreloaded, positionMap, answers]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Re-fetch stance for preloaded sessions that are missing it
+  useEffect(() => {
+    if (!isPreloaded || stanceData || stanceStartedRef.current || !answers) return;
+    stanceStartedRef.current = true;
+    fetch("/api/constellation/stance", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ topic, answers }),
+    })
+      .then(async (res) => {
+        if (!res.ok) throw new Error(`Stance failed (${res.status})`);
+        const sd = (await res.json()) as StanceData;
+        stanceDataRef.current = sd;
+        setStanceData(sd);
+        // Patch-save to DB
+        fetch("/api/constellation/save", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ session_id: sessionId, patch: { stance: sd } }),
+        }).catch((err) => console.error("Stance patch save failed:", err));
+      })
+      .catch((err) => console.error("Stance re-fetch failed:", err));
+  }, [isPreloaded, stanceData, answers]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Email trigger for preloaded sessions
   useEffect(() => {
@@ -940,8 +1007,8 @@ export default function ResultsView({
             );
           })()}
 
-          {/* ═══ CARD 7: Remaining Thinkers ═══ */}
-          {slideIndex === 7 && (
+          {/* ═══ CARD 6: Remaining Thinkers ═══ */}
+          {slideIndex === 6 && (
             <div className="p-6 sm:p-8 flex flex-col flex-1">
               <h2 className="text-xl sm:text-2xl font-serif tracking-tight leading-snug mb-1">
                 Your full constellation
@@ -996,39 +1063,23 @@ export default function ResultsView({
             </div>
           )}
 
-          {/* ═══ CARD 8: Position Map + Share ═══ */}
-          {slideIndex === 8 && (
-            <div className="px-3 pt-5 pb-4 sm:px-4 flex flex-col flex-1">
-              <div className="px-3 sm:px-4">
-                <div className="text-[10px] uppercase tracking-widest text-neutral-400 mb-2">
-                  Where you stand
-                </div>
-                <h2 className="text-xl sm:text-2xl font-serif tracking-tight leading-snug mb-2">
-                  Your position map
-                </h2>
-              </div>
-
-              {positionMap ? (
+          {/* ═══ CARD 7: Stance Sliders + Share ═══ */}
+          {slideIndex === 7 && (
+            <div className="px-5 pt-5 pb-4 sm:px-6 flex flex-col flex-1">
+              {stanceData ? (
                 <div className="flex-1 flex flex-col">
-                  <div className="flex-1 min-h-[200px]">
-                    <PositionMap
-                      data={positionMap}
-                      topicLabel={topicLabel}
-                      thumbnails={
-                        Object.fromEntries(
-                          Object.values(cards)
-                            .filter((c): c is PartialCard => !!c?.thumbnail_url && !!c?.name)
-                            .map((c) => [c.name, c.thumbnail_url!])
-                        )
-                      }
-                      compact
-                    />
-                  </div>
+                  <StanceSliders
+                    data={stanceData}
+                    topicLabel={topicLabel}
+                    archetypeLabel={userInsight?.archetype_label}
+                    archetypeDescription={userInsight?.archetype_description}
+                    compact={false}
+                  />
                 </div>
               ) : (
                 <div className="flex-1 flex flex-col items-center justify-center gap-4">
                   <div className="w-8 h-8 border-2 border-neutral-300 border-t-neutral-600 rounded-full animate-spin" />
-                  <p className="text-sm text-neutral-500">Building your position map...</p>
+                  <p className="text-sm text-neutral-500">Mapping your stance...</p>
                 </div>
               )}
 

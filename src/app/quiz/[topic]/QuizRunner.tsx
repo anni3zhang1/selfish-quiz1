@@ -446,22 +446,6 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
 
   const slideOpacity = slideDir === "left" ? 0 : 1;
 
-  // Arrow logic
-  const canGoBack = viewStep === "answering";
-  const canGoForward =
-    viewStep === "reading"
-      ? !freeformOnly
-      : canSubmit;
-
-  function handleForward() {
-    if (viewStep === "reading") animateToAnswers();
-    else if (canSubmit) animateToNextQuestion();
-  }
-
-  function handleBack() {
-    if (canGoBack) animateBackToQuestion();
-  }
-
   // Show stacking hint on mobile when there are more questions ahead
   const showStackHint = !isLastQuestion && viewStep === "reading";
 
@@ -513,35 +497,6 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
 
         {/* Inner well */}
         <div className="mx-3 mb-3 rounded-xl bg-neutral-50 border border-neutral-100 flex-1 flex flex-col">
-          {/* Side arrows — positioned outside the content column */}
-          <button
-            type="button"
-            onClick={handleBack}
-            disabled={!canGoBack}
-            className="hidden sm:flex fixed left-[max(1rem,calc(50%-300px))] top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full text-neutral-300 hover:text-neutral-600 hover:bg-neutral-100 transition disabled:opacity-0 disabled:cursor-default z-10"
-            aria-label="Go back"
-          >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-
-          <button
-            type="button"
-            onClick={canGoForward ? handleForward : undefined}
-            disabled={!canGoForward}
-            className={`hidden sm:flex fixed right-[max(1rem,calc(50%-300px))] top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full hover:bg-neutral-100 transition z-10 ${
-              canGoForward
-                ? "text-neutral-900 hover:text-neutral-700"
-                : "text-neutral-200 cursor-default"
-            } ${isLastQuestion && viewStep === "answering" ? "!hidden" : ""}`}
-            aria-label="Go forward"
-          >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-
           {/* Content area */}
           <div
             className="px-6 py-8 sm:py-10 flex-1 flex flex-col"
@@ -565,29 +520,23 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
                         </p>
                       ))}
                     </div>
-                    <button
-                      type="button"
-                      onClick={animateToAnswers}
-                      className="group text-left"
-                    >
-                      <span className="text-lg sm:text-xl font-serif leading-snug text-neutral-900 underline decoration-neutral-300 underline-offset-4 group-hover:decoration-neutral-900 transition-colors">
-                        {question}
-                      </span>
-                      <span className="inline-block ml-2 text-neutral-400 group-hover:text-neutral-900 transition-colors">→</span>
-                    </button>
+                    <p className="text-lg sm:text-xl font-serif leading-snug text-neutral-900">
+                      {question}
+                    </p>
                   </>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={animateToAnswers}
-                    className="group text-left"
-                  >
-                    <span className="text-lg sm:text-xl font-serif leading-snug text-neutral-900 underline decoration-neutral-300 underline-offset-4 group-hover:decoration-neutral-900 transition-colors">
-                      {current.text}
-                    </span>
-                    <span className="inline-block ml-2 text-neutral-400 group-hover:text-neutral-900 transition-colors">→</span>
-                  </button>
+                  <p className="text-lg sm:text-xl font-serif leading-snug text-neutral-900">
+                    {current.text}
+                  </p>
                 )}
+
+                <button
+                  type="button"
+                  onClick={animateToAnswers}
+                  className="mt-8 w-full px-6 py-3.5 rounded-xl text-sm font-medium bg-neutral-900 text-white hover:bg-neutral-800 transition-colors"
+                >
+                  Answer this
+                </button>
               </div>
               );
             })()}
@@ -648,14 +597,14 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
                   </div>
                 )}
 
-                {/* Mobile "Next" CTA (non-last questions) */}
+                {/* "Next" CTA (non-last questions) */}
                 {!isLastQuestion && canSubmit && (
                   <button
                     type="button"
                     onClick={animateToNextQuestion}
-                    className="sm:hidden w-full px-6 py-3.5 rounded-xl text-sm font-medium bg-neutral-900 text-white hover:bg-neutral-800 transition-colors annotation-slide-in"
+                    className="w-full px-6 py-3.5 rounded-xl text-sm font-medium bg-neutral-900 text-white hover:bg-neutral-800 transition-colors annotation-slide-in"
                   >
-                    Next →
+                    Next
                   </button>
                 )}
 
@@ -671,7 +620,7 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
                         : "bg-neutral-200 text-neutral-400 cursor-not-allowed"
                     }`}
                   >
-                    See where you stand →
+                    See where you stand
                   </button>
                 )}
               </div>

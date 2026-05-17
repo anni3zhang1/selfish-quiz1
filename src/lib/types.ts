@@ -102,11 +102,24 @@ export type PositionMapData = {
   thinkers: PositionMapThinker[];
 };
 
+// Stance sliders — 3 axes showing user position with one-liners
+export type StanceAxis = {
+  left: string;   // label for the 0 end
+  right: string;  // label for the 100 end
+  position: number; // 0-100, user's position on this axis
+  insight: string;  // one-liner explaining why they landed here
+};
+
+export type StanceData = {
+  axes: [StanceAxis, StanceAxis, StanceAxis];
+};
+
 // user_insight is stored alongside the 7 thinker cards inside the constellation JSONB.
 // Old sessions won't have it (fall back to profile_summary column).
 export type Constellation = Record<RelationshipType, ConstellationCard> & {
   user_insight?: UserInsight;
   position_map?: PositionMapData;
+  stance?: StanceData;
 };
 
 export type ConstellationResponse = {

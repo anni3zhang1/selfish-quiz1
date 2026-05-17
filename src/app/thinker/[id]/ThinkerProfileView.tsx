@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { getRelationship } from "@/lib/relationships";
 import type {
   RelationshipType,
@@ -151,9 +151,20 @@ export default function ThinkerProfileView({
   const [openSections, setOpenSections] = useState<Set<string>>(new Set());
   const triggeredRef = useRef(false);
 
+  const router = useRouter();
   const meta = getRelationship(relationship);
   const accent = meta?.hex ?? "#525252";
   const backHref = `/results/${sessionId}`;
+
+  const handleBack = (e: React.MouseEvent) => {
+    e.preventDefault();
+    // Use browser history if available (came from results page), else navigate directly
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push(backHref);
+    }
+  };
 
   function toggleSection(id: string) {
     setOpenSections((prev) => {
@@ -270,12 +281,13 @@ export default function ThinkerProfileView({
     <main className="mx-auto w-full max-w-[480px] px-6 pt-4 pb-6 sm:py-10">
       {/* Back link */}
       <div className="mb-8">
-        <Link
+        <a
           href={backHref}
+          onClick={handleBack}
           className="text-sm text-neutral-600 hover:text-neutral-900 underline underline-offset-4"
         >
-          ← Back to your intellectual map
-        </Link>
+          ← Back to your results
+        </a>
       </div>
 
       {/* Header — always visible */}
@@ -537,12 +549,13 @@ export default function ThinkerProfileView({
       )}
 
       <footer className="mt-16">
-        <Link
+        <a
           href={backHref}
+          onClick={handleBack}
           className="text-sm text-neutral-600 hover:text-neutral-900 underline underline-offset-4"
         >
-          ← Back to your intellectual map
-        </Link>
+          ← Back to your results
+        </a>
       </footer>
     </main>
   );

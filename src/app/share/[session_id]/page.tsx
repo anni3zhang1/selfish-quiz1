@@ -1,10 +1,9 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import type { Constellation, PositionMapData, UserInsight } from "@/lib/types";
+import type { Constellation, StanceData, UserInsight } from "@/lib/types";
 import { getQuiz } from "@/lib/quizzes";
-import { fetchWikipediaThumbnail } from "@/lib/wikipedia";
-import PositionMap from "@/app/results/[session_id]/PositionMap";
+import StanceSliders from "@/app/results/[session_id]/StanceSliders";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -69,39 +68,10 @@ export default async function SharePage({ params }: Props) {
   if (!data) notFound();
 
   const constellation = data.constellation as Constellation;
-  const positionMap = constellation.position_map as PositionMapData | undefined;
+  const stanceData = constellation.stance as StanceData | undefined;
   const userInsight = constellation.user_insight as UserInsight | undefined;
   const quiz = getQuiz(data.topic);
   const topicLabel = quiz?.topicLabel ?? data.topic;
-
-  // Build thumbnail map
-  const thumbnails: Record<string, string> = {};
-  for (const key of Object.keys(constellation)) {
-    if (key === "user_insight" || key === "position_map") continue;
-    const card = constellation[key as keyof Constellation];
-    if (card && typeof card === "object" && "name" in card && "thumbnail_url" in card) {
-      const c = card as { name: string; thumbnail_url?: string };
-      if (c.thumbnail_url) thumbnails[c.name] = c.thumbnail_url;
-    }
-  }
-
-  // Try to hydrate missing thumbnails
-  if (positionMap) {
-    const missing = positionMap.thinkers.filter((t) => !thumbnails[t.name]);
-    if (missing.length > 0) {
-      const results = await Promise.allSettled(
-        missing.map(async (t) => {
-          const url = await fetchWikipediaThumbnail(t.name);
-          return { name: t.name, url };
-        })
-      );
-      for (const r of results) {
-        if (r.status === "fulfilled" && r.value.url) {
-          thumbnails[r.value.name] = r.value.url;
-        }
-      }
-    }
-  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12 bg-neutral-50">
@@ -134,12 +104,11 @@ export default async function SharePage({ params }: Props) {
           </div>
         )}
 
-        {/* Position Map */}
-        {positionMap && (
-          <PositionMap
-            data={positionMap}
+        {/* Stance Sliders */}
+        {stanceData && (
+          <StanceSliders
+            data={stanceData}
             topicLabel={topicLabel}
-            thumbnails={thumbnails}
           />
         )}
 

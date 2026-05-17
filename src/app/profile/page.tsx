@@ -11,7 +11,7 @@ import { slugify } from "@/lib/thinkers";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Your Intellectual Map — Selfish",
+  title: "Your Intellectual Map — Stance",
   description: "See all your completed quizzes and thinker constellations.",
 };
 

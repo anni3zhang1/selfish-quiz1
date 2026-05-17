@@ -71,7 +71,7 @@ export type UserInsight = {
   archetype_label: string;
   archetype_description: string;
   position: string;
-  reasons: { claim: string; what_it_means: string }[];
+  reasons: { badge_label?: string; claim: string; what_it_means: string }[];
   tension: InsightTension;
   real_world_examples: RealWorldExample[];
 };

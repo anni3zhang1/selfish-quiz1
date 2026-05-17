@@ -257,7 +257,7 @@ export async function GET(
           {/* Footer */}
           <div style={{ display: "flex", justifyContent: "center", padding: "8px 32px 16px" }}>
             <span style={{ fontSize: 12, color: "#a3a3a3" }}>
-              selfish-quiz1.vercel.app
+              stance.vercel.app
             </span>
           </div>
         </div>

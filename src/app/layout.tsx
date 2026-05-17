@@ -25,9 +25,9 @@ const dmSerifDisplay = DM_Serif_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Selfish — Get to Know Yourself",
+  title: "Stance — Know Where You Stand",
   description:
-    "Take a quiz on any topic. Discover the 7 thinkers who map your mind.",
+    "Take a quiz on any topic. Discover where you stand and the thinkers who shape your worldview.",
 };
 
 export default function RootLayout({

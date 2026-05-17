@@ -34,10 +34,11 @@ const previewSchema = {
       items: {
         type: "object",
         properties: {
+          badge_label: { type: "string" },
           claim: { type: "string" },
           what_it_means: { type: "string" },
         },
-        required: ["claim", "what_it_means"],
+        required: ["badge_label", "claim", "what_it_means"],
         additionalProperties: false,
       },
     },
@@ -116,7 +117,7 @@ For the user insight section, generate these fields:
 - archetype_label: a punchy 2-4 word title for this user's intellectual archetype, specific to the quiz topic (e.g. "The Structural Skeptic", "The Reluctant Accelerationist"). A title, not a description.
 - archetype_description: one sentence defining what this archetype means in the context of this topic.
 - position: 2-3 sentences on where the user actually stands, written in second person ("You believe...", "Your instinct is...").
-- reasons: exactly 3 items. Each has a "claim" (one sentence on a specific implication of the user's position) and "what_it_means" (one sentence on what this reveals about how the user thinks).
+- reasons: exactly 3 items. Each has a "badge_label" (2-4 word value label that names the stance, e.g. "Safety over speed", "Radical transparency", "Earned autonomy"), a "claim" (one sentence on a specific implication of the user's position), and "what_it_means" (one sentence on what this reveals about how the user thinks). The badge_label should sound like a value or principle the user holds — punchy, clear, stance-like.
 - tension: an object with:
   - claim_a: one short punchy statement of one side of the contradiction (10-15 words max)
   - claim_b: one short punchy statement of the directly opposing side (10-15 words max)

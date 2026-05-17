@@ -53,7 +53,7 @@ export default function Nav() {
         href="/"
         className="text-base font-semibold tracking-tight text-neutral-900 hover:opacity-70 transition-opacity"
       >
-        Self<em>ish</em>
+        Stance
       </Link>
 
       {email && (
@@ -86,7 +86,7 @@ export default function Nav() {
           {open && (
             <div className="absolute right-0 top-full mt-1.5 w-40 rounded-xl border border-neutral-200 bg-white shadow-lg py-1 text-sm">
               <Link
-                href={`/profile?email=${encodeURIComponent(email)}`}
+                href="/profile"
                 className="block px-4 py-2 text-neutral-800 hover:bg-neutral-50 transition-colors"
                 onClick={() => setOpen(false)}
               >

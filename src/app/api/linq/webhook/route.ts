@@ -6,7 +6,7 @@ import { composeMessage } from "@/lib/composer";
 import { replySMS } from "@/lib/sms";
 
 export const runtime = "nodejs";
-export const maxDuration = 120; // synthesis + compose + send can take 30-60s
+export const maxDuration = 120;
 
 /**
  * Linq sends inbound iMessages as JSON POST with HMAC-SHA256 signature.
@@ -163,10 +163,7 @@ export async function POST(req: Request) {
     `iMessage received from ${from} (${userEmail}): ${body.slice(0, 80)}...`
   );
 
-  // Process reply — same logic as Twilio webhook
-  // IMPORTANT: We must await the full chain before returning.
-  // Vercel kills serverless functions after the response is sent,
-  // so fire-and-forget (.then/.catch) never completes.
+  // Process reply — must await fully before returning (Vercel kills the function after response)
   if (userEmail !== "unknown") {
     try {
       const welcomeChoice = await detectWelcomeReply(userEmail, body);
@@ -176,7 +173,6 @@ export async function POST(req: Request) {
           `Welcome MC reply from ${userEmail}: chose "${welcomeChoice.chosenEdge}" (option ${welcomeChoice.edgeIndex + 1})`
         );
 
-        // Tag the inbound message with the choice
         const { data: recentInbound } = await supabase
           .from("messages")
           .select("id")
@@ -195,15 +191,9 @@ export async function POST(req: Request) {
             .eq("id", recentInbound.id);
         }
 
-        // Synthesize memory, compose, and send follow-up (awaited)
         await synthesizeMemory(userEmail, "sms_reply");
         const composed = await composeMessage(userEmail);
-        const result = await replySMS(
-          userEmail,
-          from,
-          composed.body,
-          chatId
-        );
+        const result = await replySMS(userEmail, from, composed.body, chatId);
 
         await supabase.from("messages").insert({
           user_email: userEmail,
@@ -218,15 +208,9 @@ export async function POST(req: Request) {
           `Follow-up sent to ${userEmail} after welcome choice (${result.provider}: ${result.messageId})`
         );
       } else {
-        // Regular reply — update fingerprint, then respond (awaited)
         await synthesizeMemory(userEmail, "sms_reply");
         const composed = await composeMessage(userEmail);
-        const result = await replySMS(
-          userEmail,
-          from,
-          composed.body,
-          chatId
-        );
+        const result = await replySMS(userEmail, from, composed.body, chatId);
 
         await supabase.from("messages").insert({
           user_email: userEmail,
@@ -243,10 +227,8 @@ export async function POST(req: Request) {
       }
     } catch (err) {
       console.error("Reply compose/send failed:", err);
-      // Don't fail the webhook — message was already stored
     }
   }
 
-  // Acknowledge receipt (after reply is fully sent)
   return new Response("OK", { status: 200 });
 }

@@ -246,7 +246,7 @@ export default function HomeClient({ cards, completedSlugs, selectedTopics }: Ho
                 transform,
                 opacity: cardComplete ? Math.min(opacity, 0.5) : opacity,
                 zIndex: 3 - stackIdx,
-                transition: isDragging && isTop ? "none" : "all 0.4s cubic-bezier(0.22, 1, 0.36, 1)",
+                transition: isDragging && isTop ? "none" : "transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1)",
               }}
             >
               {/* Gradient banner */}

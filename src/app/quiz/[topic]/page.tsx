@@ -9,9 +9,9 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: { params: Promise<{ topic: string }> }): Promise<Metadata> {
   const { topic } = await params;
   const quiz = getQuiz(topic);
-  if (!quiz) return { title: "Quiz — Selfish" };
+  if (!quiz) return { title: "Quiz — Stance" };
   return {
-    title: `${quiz.topicLabel} — Selfish`,
+    title: `${quiz.topicLabel} — Stance`,
     description: `Discover where you stand on ${quiz.topicLabel} and which thinkers align with your worldview.`,
   };
 }

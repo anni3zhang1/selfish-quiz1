@@ -6,7 +6,7 @@ import { replySMS } from "@/lib/sms";
 import twilio from "twilio";
 
 export const runtime = "nodejs";
-export const maxDuration = 120; // synthesis + compose + send can take 30-60s
+export const maxDuration = 120;
 
 /**
  * Twilio sends incoming SMS to this webhook as application/x-www-form-urlencoded.
@@ -72,8 +72,7 @@ export async function POST(req: Request) {
   console.log(`SMS received from ${from} (${userEmail}): ${body.trim().slice(0, 80)}...`);
 
   // Check if this is a reply to the welcome MC question (e.g. "1", "2", "3")
-  // IMPORTANT: We must await the full chain before returning.
-  // Vercel kills serverless functions after the response is sent.
+  // Must await fully before returning — Vercel kills the function after response
   if (userEmail !== "unknown") {
     try {
       const welcomeChoice = await detectWelcomeReply(userEmail, body.trim());
@@ -97,7 +96,6 @@ export async function POST(req: Request) {
             .eq("id", recentInbound.id);
         }
 
-        // Synthesize memory, compose, and send follow-up (awaited)
         await synthesizeMemory(userEmail, "sms_reply");
         const composed = await composeMessage(userEmail);
         const result = await replySMS(userEmail, from!, composed.body);
@@ -113,7 +111,6 @@ export async function POST(req: Request) {
 
         console.log(`Follow-up sent to ${userEmail} after welcome choice (${result.provider}: ${result.messageId})`);
       } else {
-        // Regular reply — update fingerprint, then respond (awaited)
         await synthesizeMemory(userEmail, "sms_reply");
         const composed = await composeMessage(userEmail);
         const result = await replySMS(userEmail, from!, composed.body);

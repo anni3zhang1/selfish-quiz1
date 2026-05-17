@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const { id } = await params;
   const name = id.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   return {
-    title: `${name} — Selfish`,
+    title: `${name} — Stance`,
     description: `Explore how ${name} relates to your intellectual worldview.`,
   };
 }

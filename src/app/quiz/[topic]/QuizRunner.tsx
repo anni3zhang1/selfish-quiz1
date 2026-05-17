@@ -595,6 +595,13 @@ export default function QuizRunner({ quiz, user }: { quiz: Quiz; user: User }) {
             {/* === STEP 2: Answer options === */}
             {viewStep === "answering" && (
               <div className={`w-full ${freeformOnly ? "flex-1 flex flex-col" : ""}`}>
+                {/* Freeform-only question prompt */}
+                {freeformOnly && (
+                  <p className="text-base sm:text-lg font-serif leading-relaxed text-neutral-900 mb-4">
+                    {current.text}
+                  </p>
+                )}
+
                 {/* Answer options — centered */}
                 {!freeformOnly && (
                   <div className="space-y-2.5 mb-4">

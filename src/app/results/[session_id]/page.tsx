@@ -63,7 +63,7 @@ export async function generateMetadata({ params }: { params: Promise<{ session_i
     .select("topic, constellation")
     .eq("id", session_id)
     .single();
-  if (!data) return { title: "Results — Selfish" };
+  if (!data) return { title: "Results — Stance" };
   const quiz = getQuiz(data.topic);
   const topicLabel = quiz?.topicLabel ?? data.topic;
   const userInsight = (data.constellation as Constellation | null)?.user_insight as UserInsight | undefined;
@@ -71,7 +71,7 @@ export async function generateMetadata({ params }: { params: Promise<{ session_i
     ? `${userInsight.archetype_label} — ${topicLabel}`
     : `Your results on ${topicLabel}`;
   return {
-    title: `${title} — Selfish`,
+    title: `${title} — Stance`,
     description: userInsight?.archetype_description ?? `See your intellectual constellation for ${topicLabel}.`,
   };
 }

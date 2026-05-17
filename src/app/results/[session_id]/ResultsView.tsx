@@ -703,15 +703,14 @@ export default function ResultsView({
                     {userInsight.archetype_description}
                   </p>
 
-                  {/* What shaped your position */}
+                  {/* How you think */}
                   <div className="border-t border-neutral-100 pt-4 mt-auto">
                     <div className="text-[10px] uppercase tracking-widest text-neutral-400 mb-3">
-                      What shaped your position
+                      How you think
                     </div>
                     {userInsight.reasons.map((r, i) => (
                       <div key={i} className={`py-2.5 ${i < userInsight.reasons.length - 1 ? "border-b border-neutral-100" : ""}`}>
-                        <p className="text-[13px] font-medium text-neutral-900 leading-snug mb-0.5">{r.claim}</p>
-                        <p className="text-xs text-neutral-400 leading-relaxed">{r.what_it_means}</p>
+                        <p className="text-[13px] text-neutral-500 leading-relaxed">{r.what_it_means}</p>
                       </div>
                     ))}
                   </div>
@@ -722,43 +721,8 @@ export default function ResultsView({
             </div>
           )}
 
-          {/* ═══ CARD 1: What You Care About (emoji badges) ═══ */}
+          {/* ═══ CARD 1: In Practice ═══ */}
           {slideIndex === 1 && userInsight && (
-            <div className="p-6 sm:p-8 flex flex-col flex-1">
-              <div className="text-[10px] uppercase tracking-widest text-neutral-400 mb-2">
-                {topicLabel}
-              </div>
-              <h2 className="text-xl sm:text-2xl font-serif tracking-tight leading-snug mb-2">
-                What you care about
-              </h2>
-              <p className="text-[15px] leading-relaxed text-neutral-500 mb-5">
-                The values that came through strongest in your answers.
-              </p>
-
-              {/* Emoji badge grid — show actual reasons (no duplicates) */}
-              <div className="grid grid-cols-2 gap-3">
-                {(() => {
-                  const emojis = ["🎯", "⚡", "🌍", "🏆"];
-                  const reasons = userInsight.reasons;
-                  const count = Math.min(reasons.length, 4);
-                  return reasons.slice(0, count).map((r, i) => (
-                    <div
-                      key={i}
-                      className="aspect-square rounded-xl bg-neutral-50 border border-neutral-200 flex flex-col items-center justify-center gap-2 p-4 text-center"
-                    >
-                      <span className="text-3xl">{emojis[i]}</span>
-                      <span className="text-xs font-medium text-neutral-700 leading-tight">{r.claim.split(" ").slice(0, 4).join(" ")}</span>
-                    </div>
-                  ));
-                })()}
-              </div>
-
-              <div className="mt-auto" />
-            </div>
-          )}
-
-          {/* ═══ CARD 2: In Practice ═══ */}
-          {slideIndex === 2 && userInsight && (
             <div className="p-6 sm:p-8 flex flex-col flex-1">
               <div className="text-[10px] uppercase tracking-widest text-neutral-400 mb-2">
                 {topicLabel}
@@ -781,8 +745,8 @@ export default function ResultsView({
             </div>
           )}
 
-          {/* ═══ CARD 3: Core Tension ═══ */}
-          {slideIndex === 3 && userInsight && (
+          {/* ═══ CARD 2: Core Tension ═══ */}
+          {slideIndex === 2 && userInsight && (
             <div className="p-6 sm:p-8 flex flex-col flex-1">
               <div className="text-[10px] uppercase tracking-widest text-neutral-400 mb-2">
                 {topicLabel}
@@ -819,9 +783,9 @@ export default function ResultsView({
             </div>
           )}
 
-          {/* ═══ CARDS 4-6: Spotlight Thinker Flip Cards ═══ */}
-          {slideIndex >= 4 && slideIndex <= 6 && (() => {
-            const spotlightIdx = slideIndex - 4;
+          {/* ═══ CARDS 3-5: Spotlight Thinker Flip Cards ═══ */}
+          {slideIndex >= 3 && slideIndex <= 5 && (() => {
+            const spotlightIdx = slideIndex - 3;
             const thinkerType = SPOTLIGHT_TYPES[spotlightIdx];
             const meta = getRelationship(thinkerType);
             const card = cards[thinkerType];

@@ -254,9 +254,9 @@ export default function OnboardingCarousel({ error: initialError }: OnboardingCa
                     <Image
                       src={SLIDES[index].image!}
                       alt={SLIDES[index].heading}
-                      width={400}
-                      height={400}
-                      className="object-contain max-h-[280px] sm:max-h-[320px] w-auto"
+                      width={500}
+                      height={500}
+                      className="object-contain max-h-[360px] sm:max-h-[420px] w-auto"
                       priority
                     />
                   </div>

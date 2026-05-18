@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Space_Grotesk, DM_Serif_Display } from "next/font/google";
+import { Geist, Geist_Mono, Space_Grotesk, DM_Serif_Display, Bodoni_Moda } from "next/font/google";
 import "./globals.css";
 import Nav from "./Nav";
 
@@ -24,6 +24,12 @@ const dmSerifDisplay = DM_Serif_Display({
   subsets: ["latin"],
 });
 
+const bodoniModa = Bodoni_Moda({
+  variable: "--font-bodoni",
+  weight: "700",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: "Stance — Know Where You Stand",
   description:
@@ -38,7 +44,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} ${dmSerifDisplay.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} ${dmSerifDisplay.variable} ${bodoniModa.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-neutral-50 text-neutral-900">
         <Nav />

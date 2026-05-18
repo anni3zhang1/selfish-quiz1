@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback, useMemo, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import PhoneInput from "@/components/PhoneInput";
 import { SubmitButton } from "./SubmitButton";
 import { submitIdentity } from "./actions";
@@ -11,6 +12,7 @@ type Slide = {
   title?: string;
   heading: string;
   subheading: string;
+  image?: string;
 };
 
 const SLIDES: Slide[] = [
@@ -19,22 +21,26 @@ const SLIDES: Slide[] = [
     title: "Stance",
     heading: "Know where you stand",
     subheading: "On the topics that shape the world.",
+    image: "/onboarding/1.png",
   },
   {
     gradient: "from-violet-300 via-indigo-300 to-blue-400",
     heading: "Quizzes that reveal how you actually think",
     subheading:
       "See the real arguments on every side and where you land among them.",
+    image: "/onboarding/2.png",
   },
   {
     gradient: "from-emerald-200 via-teal-300 to-cyan-400",
     heading: "Meet thinkers who think like you",
     subheading: "And the ones who challenge everything you believe.",
+    image: "/onboarding/3.png",
   },
   {
     gradient: "from-rose-300 via-pink-300 to-fuchsia-400",
     heading: "A personal trainer for your mind",
     subheading: "Don't let the algorithm do your thinking for you.",
+    image: "/onboarding/4.png",
   },
 ];
 
@@ -228,35 +234,42 @@ export default function OnboardingCarousel({ error: initialError }: OnboardingCa
         >
           {/* === Content slides (0–3) === */}
           {index < SLIDES.length && (
-            <>
-              <div
-                className={`h-44 sm:h-52 w-full bg-gradient-to-br ${SLIDES[index].gradient} transition-all duration-500`}
-              />
-              <div className="p-6 sm:p-8 flex flex-col justify-between flex-1">
-                <div>
-                  {SLIDES[index].title && (
-                    <h1 className="text-3xl sm:text-4xl font-serif tracking-tight leading-tight mb-2">
-                      {SLIDES[index].title}
-                    </h1>
-                  )}
-                  <h2 className="text-xl sm:text-2xl font-serif tracking-tight leading-snug mb-3">
-                    {SLIDES[index].heading}
-                  </h2>
-                  {SLIDES[index].subheading && (
-                    <p className="text-[15px] leading-relaxed text-neutral-500">
-                      {SLIDES[index].subheading}
-                    </p>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={goNext}
-                  className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 text-white rounded-xl text-sm font-medium hover:bg-neutral-800 transition-colors self-start"
-                >
-                  Next →
-                </button>
+            <div className="px-6 sm:px-8 pt-12 sm:pt-16 pb-6 sm:pb-8 flex flex-col justify-between flex-1">
+              <div>
+                {SLIDES[index].title && (
+                  <h1 className="text-4xl sm:text-5xl tracking-tight leading-tight mb-2" style={{ fontFamily: "var(--font-bodoni)" }}>
+                    {SLIDES[index].title}
+                  </h1>
+                )}
+                <h2 className="text-xl sm:text-2xl font-serif tracking-tight leading-snug mb-3">
+                  {SLIDES[index].heading}
+                </h2>
+                {SLIDES[index].subheading && (
+                  <p className="text-[15px] leading-relaxed text-neutral-500">
+                    {SLIDES[index].subheading}
+                  </p>
+                )}
+                {SLIDES[index].image && (
+                  <div className="mt-5 flex justify-center">
+                    <Image
+                      src={SLIDES[index].image!}
+                      alt={SLIDES[index].heading}
+                      width={400}
+                      height={400}
+                      className="object-contain max-h-[280px] sm:max-h-[320px] w-auto"
+                      priority
+                    />
+                  </div>
+                )}
               </div>
-            </>
+              <button
+                type="button"
+                onClick={goNext}
+                className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 text-white rounded-xl text-sm font-medium hover:bg-neutral-800 transition-colors self-start"
+              >
+                Next →
+              </button>
+            </div>
           )}
 
           {/* === Topic selection slide === */}
